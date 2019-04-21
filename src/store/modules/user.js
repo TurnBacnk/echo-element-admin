@@ -6,7 +6,8 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    roles: []
   }
 }
 
@@ -24,6 +25,9 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_ROLES: (state, roles) => {
+    state.roles = roles
   }
 }
 
@@ -53,8 +57,13 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        let { nickName, avatar } = data
+        let { roles, nickName, avatar } = data
         // avatar = (state.avatar === "" || state.avatar == null) ? require("@/assets/images/404.png") : state.avatar;
+        // roles must be a non-empty array
+        if (!roles || roles.length <= 0) {
+          reject('getInfo: roles must be a non-null array!')
+        }
+        commit('SET_ROLES', roles)
         commit('SET_NAME', nickName)
         commit('SET_AVATAR', avatar)
         resolve(data)
@@ -68,7 +77,7 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        removeToken() // must remove  token  first
+        removeToken()
         resetRouter()
         commit('RESET_STATE')
         resolve()
@@ -83,6 +92,9 @@ const actions = {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
       commit('RESET_STATE')
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      removeToken()
       resolve()
     })
   }
