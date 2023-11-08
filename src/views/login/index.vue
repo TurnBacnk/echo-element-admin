@@ -40,6 +40,20 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
+      <el-form-item prop="code">
+        <el-input
+          v-model="loginForm.code"
+          auto-complete="off"
+          placeholder="验证码"
+          style="width: 63%"
+          @keyup.enter.native="handleLogin"
+        >
+          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+        </el-input>
+        <div class="login-code">
+          <img :src="captchaImg" alt="" class="login-code-img" @click="getCodeByClick"/>
+        </div>
+      </el-form-item>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
@@ -54,6 +68,8 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { getCode } from '@/api/user'
+import message from "element-ui/packages/message";
 
 export default {
   name: 'Login',
@@ -75,7 +91,9 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '111111'
+        password: '111111',
+        code: '',
+        userKey: undefined
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -83,7 +101,8 @@ export default {
       },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      captchaImg: undefined
     }
   },
   watch: {
@@ -93,6 +112,9 @@ export default {
       },
       immediate: true
     }
+  },
+  created() {
+    this.getCodeByClick()
   },
   methods: {
     showPwd() {
@@ -105,6 +127,13 @@ export default {
         this.$refs.password.focus()
       })
     },
+    getCodeByClick() {
+      getCode().then(res => {
+        let { code, data } = res
+        this.captchaImg = "data:image/gif;base64," + data.captchaImg
+        this.loginForm.userKey = data.userKey
+      })
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -114,6 +143,7 @@ export default {
             this.loading = false
           }).catch(() => {
             this.loading = false
+            this.getCodeByClick()
           })
         } else {
           console.log('error submit!!')
@@ -169,6 +199,19 @@ $cursor: #fff;
     border-radius: 5px;
     color: #454545;
   }
+}
+.login-code {
+  width: 33%;
+  height: 38px;
+  float: right;
+  img {
+    cursor: pointer;
+    vertical-align: middle;
+  }
+}
+
+.login-code-img {
+  height: 38px;
 }
 </style>
 

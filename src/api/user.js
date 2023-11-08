@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/vue-admin-template/user/login',
+    url: '/api/login/form-login',
     method: 'post',
     data
   })
@@ -10,15 +10,21 @@ export function login(data) {
 
 export function getInfo(token) {
   return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
+    url: '/api/login/info/' + token,
+    method: 'get'
   })
 }
 
-export function logout() {
+export function logout(token) {
   return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+    url: '/api/login/logout/' + token,
+    method: 'get'
+  })
+}
+
+export function getCode() {
+  return request({
+    url: '/api/login/captcha',
+    method: 'get'
   })
 }

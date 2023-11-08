@@ -1,6 +1,6 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import {getInfo, login, logout} from '@/api/user'
+import {getToken, removeToken, setToken} from '@/utils/auth'
+import {resetRouter} from '@/router'
 
 const getDefaultState = () => {
   return {
@@ -30,12 +30,12 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { username, password, code, userKey } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ username: username.trim(), password: password, code: code, userKey: userKey }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        commit('SET_TOKEN', data)
+        setToken(data)
         resolve()
       }).catch(error => {
         reject(error)
@@ -53,9 +53,9 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
+        let { nickName, avatar } = data
+        // avatar = (state.avatar === "" || state.avatar == null) ? require("@/assets/images/404.png") : state.avatar;
+        commit('SET_NAME', nickName)
         commit('SET_AVATAR', avatar)
         resolve(data)
       }).catch(error => {
