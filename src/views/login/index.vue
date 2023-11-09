@@ -67,14 +67,14 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-import { getCode } from '@/api/user'
-import message from "element-ui/packages/message";
+import {validUsername} from '@/utils/validate'
+import {getCode} from '@/api/user'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
+      // TODO 修改校验规则
       if (!validUsername(value)) {
         callback(new Error('Please enter the correct user name'))
       } else {
