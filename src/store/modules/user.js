@@ -1,13 +1,15 @@
-import {getInfo, login, logout} from '@/api/user'
-import {getToken, removeToken, setToken} from '@/utils/auth'
-import {resetRouter} from '@/router'
+import { getInfo, login, logout } from '@/api/user'
+import { getToken, removeToken, setToken } from '@/utils/auth'
+import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    currency: '',
+    currencySymbol: ''
   }
 }
 
@@ -28,6 +30,12 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_CURRENCY: (state, currency) => {
+    state.currency = currency
+  },
+  SET_CURRENCY_SYMBOL: (state, currencySymbol) => {
+    state.currencySymbol = currencySymbol
   }
 }
 
@@ -57,7 +65,7 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        let { roles, nickName, avatar } = data
+        let { roles, nickName, avatar, currency, currencySymbol } = data
         // avatar = (state.avatar === "" || state.avatar == null) ? require("@/assets/images/404.png") : state.avatar;
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -66,6 +74,8 @@ const actions = {
         commit('SET_ROLES', roles)
         commit('SET_NAME', nickName)
         commit('SET_AVATAR', avatar)
+        commit('SET_CURRENCY', currency)
+        commit('SET_CURRENCY_SYMBOL', currencySymbol)
         resolve(data)
       }).catch(error => {
         reject(error)

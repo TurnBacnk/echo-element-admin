@@ -1,0 +1,293 @@
+<template>
+  <div class="app-container">
+    <el-table
+      v-loading="loading"
+      :border="border"
+      :data="tableData"
+      :height="height"
+      :max-height="maxHeight"
+      :row-class-name="rowClassNameMethod"
+      :show-summary="showSummary"
+      :span-method="spanMethod"
+      :stripe="stripe"
+      :summary-method="summaryMethod"
+      style="width: 100%"
+    >
+      <template v-for="column in tableColumnConfig">
+        <!--    操作咧    -->
+        <el-table-column
+          v-if="column.columnType === 'Operation'"
+          :label="column.label"
+          :min-width="180"
+          align="center"
+          fixed="right"
+        >
+          <template slot-scope="scope">
+            <el-button
+              v-for="button in column.button"
+              :disabled="button.isDisabled(scope.row)"
+              :type="button.css"
+              plain
+              size="mini"
+              @click="button.click(scope.$index, scope.row)"
+            >
+              {{ button.text }}
+            </el-button>
+          </template>
+        </el-table-column>
+        <!--    索引    -->
+        <el-table-column
+          v-else-if="column.columnType === 'Index'"
+          :type="column.type"
+          align="center"
+        >
+        </el-table-column>
+        <!--    字典替换    -->
+        <el-table-column
+          v-else-if="column.columnType === 'Dictionary'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="dictionaryScope">
+            {{ dictionaryConvert(column.dict.dictList, dictionaryScope.row[dictionaryScope.column.property]) }}
+          </template>
+        </el-table-column>
+        <!--    常量替换替换    -->
+        <el-table-column
+          v-else-if="column.columnType === 'Constant'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="constantScope">
+            {{ constantConvert(column.constant.constantList, constantScope.row[constantScope.column.property]) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-else-if="column.columnType === 'Money'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label + getCurrencyUnitLabel() : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="moneyScope">
+            {{ convertMoney(column.money, moneyScope.row[moneyScope.column.property]) }}
+          </template>
+        </el-table-column>
+        <!--    普通展示项    -->
+        <el-table-column
+          v-else
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+          min-width="180"
+        >
+        </el-table-column>
+      </template>
+    </el-table>
+    <el-pagination
+      :current-page="current"
+      :page-size="size"
+      :page-sizes="[10, 20, 30, 50, 100]"
+      :total.sync="total"
+      background
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+    </el-pagination>
+  </div>
+</template>
+
+<script>
+
+import request from '@/utils/request'
+
+export default {
+  name: 'PageTable',
+  props: {
+    /**
+     * fixed: {
+     *   type: String,Boolean
+     * }
+     * Temp: right, left, true, false
+     *
+     * sortable: {
+     *   type: Boolean
+     * }
+     *
+     * tag: {
+     *   css: 'primary'、'success'...
+     *   disableTransitions: Boolean
+     * }
+     */
+    tableColumnConfig: {
+      type: Array,
+      required: true
+    },
+    /**
+     * 斑马纹
+     */
+    stripe: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    /**
+     * 行具有状态,指定了默认样式,自定义方法返回以下值:
+     * warning-row success-row
+     */
+    rowClassName: {
+      type: Function,
+      required: false,
+      default: () => {
+
+      }
+    },
+    maxHeight: {
+      type: String,
+      required: false,
+      default: '100%'
+    },
+    showSummary: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    summaryMethod: {
+      type: Function,
+      required: false,
+      default: () => {
+
+      }
+    },
+    spanMethod: {
+      type: Function,
+      required: false,
+      default: () => {
+
+      }
+    },
+    border: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    dataSource: {
+      type: String,
+      required: true
+    },
+    queryForm: {
+      type: Object,
+      required: true
+    },
+    tagType: {
+      type: String,
+      required: false
+    }
+  },
+  data() {
+    return {
+      tableData: [],
+      total: 0,
+      size: 10,
+      current: 1,
+      height: 800,
+      screenHeight: window.innerHeight,
+      loading: true
+    }
+  },
+  created() {
+    this.list()
+  },
+  watch: {
+    screenHeight(val) {
+      this.screenHeight = val
+      this.height = this.screenHeight - 500
+    }
+  },
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        window.screenHeight = window.innerHeight
+        this.screenHeight = window.screenHeight
+      })
+    }
+  },
+  methods: {
+    list() {
+      this.loading = true
+      this.$set(this.queryForm, 'size', this.size)
+      this.$set(this.queryForm, 'current', this.current)
+      request({
+        url: this.dataSource,
+        method: 'post',
+        data: this.queryForm
+      }).then(res => {
+        const { data, total, currentPage, pageSize } = res
+        this.tableData = data
+        this.total = total
+        this.size = pageSize
+        this.current = currentPage
+        this.loading = false
+      })
+    },
+    handleSizeChange(val) {
+      this.size = val
+      this.list()
+    },
+    handleCurrentChange(val) {
+      this.current = val
+      this.list()
+    },
+    rowClassNameMethod({ row, rowIndex }) {
+      this.rowClassName(rowIndex, row)
+    },
+    dictionaryConvert(dictList, originValue) {
+      for (let i = 0; i < dictList.length; i++) {
+        if (dictList[i].value === originValue) {
+          return dictList[i].label
+        }
+      }
+    },
+    constantConvert(constantList, originValue) {
+      for (let i = 0; i < constantList.length; i++) {
+        if (constantList[i].value === originValue) {
+          return constantList[i].label
+        }
+      }
+    },
+    /**
+     * 金钱转换
+     * @param moneyConfig 配置
+     * @param originMoney 原始金额(币种为系统预设币种)
+     */
+    convertMoney(moneyConfig, originMoney) {
+      return originMoney.toFixed(6)
+    },
+    getCurrencyUnitLabel() {
+      return '(' + this.$store.getters.currency + '/' + this.$store.getters.currencySymbol + ')'
+    }
+
+  }
+}
+</script>
+
+<style>
+
+</style>
