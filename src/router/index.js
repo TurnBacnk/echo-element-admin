@@ -116,6 +116,18 @@ export const asyncRoutes = [
         }
       },
       {
+        path: 'categoryView/:id',
+        component: () => import('@/views/business/product/category/sub-view/category-view.vue'),
+        name: 'ProductCategoryView',
+        hidden: true,
+        meta: {
+          title: 'CategoryView',
+          roles: ['admin'],
+          icon: 'category',
+          permissions: ['business:product:view']
+        }
+      },
+      {
         path: 'categoryAdd/:id',
         component: () => import('@/views/business/product/category/sub-view/category-add.vue'),
         name: 'ProductCategoryAdd',

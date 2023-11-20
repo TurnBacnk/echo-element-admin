@@ -86,6 +86,20 @@
             {{ convertMoney(column.money, moneyScope.row[moneyScope.column.property]) }}
           </template>
         </el-table-column>
+        <el-table-column
+          v-else-if="column.columnType === 'Link'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="linkScope">
+            <el-link type="primary" @click.native="column.link.click(linkScope.$index, linkScope.row)"> {{ linkScope.row[linkScope.column.property] }} </el-link>
+          </template>
+        </el-table-column>
         <!--    普通展示项    -->
         <el-table-column
           v-else
@@ -117,9 +131,15 @@
 <script>
 
 import request from '@/utils/request'
+import fa from 'element-ui/src/locale/lang/fa'
 
 export default {
   name: 'PageTable',
+  computed: {
+    fa() {
+      return fa
+    }
+  },
   props: {
     /**
      * fixed: {

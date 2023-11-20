@@ -90,15 +90,6 @@ export default {
           icon: 'el-icon-plus'
         },
         {
-          text: '修改',
-          type: 'warning',
-          click: () => {
-            this.handleEdit()
-          },
-          plain: true,
-          icon: 'el-icon-edit'
-        },
-        {
           text: '删除',
           type: 'danger',
           click: () => {
@@ -118,6 +109,7 @@ export default {
         },
         {
           text: '导出',
+          type: 'warning',
           click: () => {
             this.handleEdit()
           },
@@ -150,9 +142,15 @@ export default {
           columnType: 'Index'
         },
         {
+          columnType: 'Link',
           label: '产品名称',
           prop: 'productName',
-          fixed: true
+          fixed: true,
+          link: {
+            click: (index, row) => {
+              this.handleView(index, row)
+            }
+          }
         },
         {
           label: '产品编号',
@@ -189,18 +187,18 @@ export default {
           label: '操作',
           button: [
             {
-              text: '提交',
-              css: 'primary',
+              text: '修改',
+              css: 'warning',
               click: (index, row) => {
-                this.handleDel(index, row)
+                this.handleEdit(index, row)
               },
               isDisabled: (row) => {
                 return this.canSubmit(row)
               }
             },
             {
-              text: '查看',
-              css: 'info',
+              text: '提交',
+              css: 'primary',
               click: (index, row) => {
                 this.handleDel(index, row)
               },
@@ -226,13 +224,16 @@ export default {
         enable: undefined
       }
     },
-    handleAdd() {
-      const id = 1
-      this.$router.push(`categoryAdd/${id}`)
+    handleView(index, row) {
+      this.$router.push(`categoryView/${row.id}`)
     },
-    handleEdit() {
+    handleAdd(index, row) {
+      const id = 1
+      this.$router.push(`categoryAdd/${row.id}`)
+    },
+    handleEdit(index, row) {
       const id = 2
-      this.$router.push(`categoryEdit/${id}`)
+      this.$router.push(`categoryEdit/${row.id}`)
     },
     handleDel() {
       this.$confirm('是否删除选中数据, 是否继续?', '警告', {
