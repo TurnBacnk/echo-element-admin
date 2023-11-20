@@ -14,5 +14,22 @@ module.exports = {
    */
   sidebarLogo: false,
 
-  tagsView: true
+  /**
+   * @type {boolean} true | false
+   * @description Whether show the tag in header
+   */
+  tagsView: true,
+  /**
+   * @type {boolean} true | false
+   * @description Whether show the Setting Drawer in Right sidebar
+   */
+  showSettings: false,
+
+  /**
+   * @type {String} ''
+   * @description Sidebar default Theme
+   */
+  sideTheme: 'theme-dark',
+
+  dynamicTitle: false
 }
