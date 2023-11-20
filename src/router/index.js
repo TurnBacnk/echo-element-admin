@@ -52,41 +52,6 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
-  },
-
-  {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
   }
 ]
 
@@ -96,70 +61,81 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/product',
+    path: '/base',
     component: Layout,
-    name: 'Product',
+    name: 'Base',
     meta: {
-      title: 'Product',
-      icon: 'product',
-      permissions: ['business:product:all']
+      title: '基础信息',
+      icon: 'el-icon-document'
     },
     children: [
       {
-        path: 'category',
-        component: () => import('@/views/business/product/category/index.vue'),
-        name: 'Category',
+        path: 'product',
+        name: 'Product',
+        component: () => import('@/views/business/base/product/index.vue'),
         meta: {
-          title: 'Category',
-          roles: ['admin'],
-          icon: 'category'
-        }
-      },
-      {
-        path: 'categoryView/:id',
-        component: () => import('@/views/business/product/category/sub-view/category-view.vue'),
-        name: 'ProductCategoryView',
-        hidden: true,
-        meta: {
-          title: 'CategoryView',
-          roles: ['admin'],
-          icon: 'category',
-          permissions: ['business:product:view']
-        }
-      },
-      {
-        path: 'categoryAdd/:id',
-        component: () => import('@/views/business/product/category/sub-view/category-add.vue'),
-        name: 'ProductCategoryAdd',
-        hidden: true,
-        meta: {
-          title: 'CategoryAdd',
-          roles: ['admin'],
-          icon: 'category',
-          permissions: ['business:product:add']
-        }
-      },
-      {
-        path: 'categoryEdit/:id',
-        component: () => import('@/views/business/product/category/sub-view/category-edit.vue'),
-        name: 'ProductCategoryEdit',
-        hidden: true,
-        meta: {
-          title: 'CategoryEdit',
-          roles: ['admin'],
-          icon: 'category',
-          permissions: ['business:product:edit']
-        }
-      },
-      {
-        path: 'quantity',
-        component: () => import('@/views/business/product/quantity/index.vue'),
-        name: 'Quantity',
-        meta: {
-          title: 'Quantity',
-          roles: ['admin'],
-          icon: 'quantity'
-        }
+          title: '产品资料',
+          icon: 'product',
+          permissions: ['business:product:all']
+        },
+        children: [
+          {
+            path: 'category',
+            component: () => import('@/views/business/base/product/category/index.vue'),
+            name: 'Category',
+            meta: {
+              title: '产品分类',
+              roles: ['admin'],
+              icon: 'category'
+            }
+          },
+          {
+            path: 'categoryView/:id',
+            component: () => import('@/views/business/base/product/category/sub-view/category-view.vue'),
+            name: 'ProductCategoryView',
+            hidden: true,
+            meta: {
+              title: '产品-查看',
+              roles: ['admin'],
+              icon: 'category',
+              permissions: ['business:product:view']
+            }
+          },
+          {
+            path: 'categoryAdd/:id',
+            component: () => import('@/views/business/base/product/category/sub-view/category-add.vue'),
+            name: 'ProductCategoryAdd',
+            hidden: true,
+            meta: {
+              title: '产品-新增',
+              roles: ['admin'],
+              icon: 'category',
+              permissions: ['business:product:add']
+            }
+          },
+          {
+            path: 'categoryEdit/:id',
+            component: () => import('@/views/business/base/product/category/sub-view/category-edit.vue'),
+            name: 'ProductCategoryEdit',
+            hidden: true,
+            meta: {
+              title: '产品-修改',
+              roles: ['admin'],
+              icon: 'category',
+              permissions: ['business:product:edit']
+            }
+          },
+          {
+            path: 'quantity',
+            component: () => import('@/views/business/base/product/quantity/index.vue'),
+            name: 'Quantity',
+            meta: {
+              title: '产品库存',
+              roles: ['admin'],
+              icon: 'quantity'
+            }
+          }
+        ]
       }
     ]
   },
@@ -168,99 +144,30 @@ export const asyncRoutes = [
     component: Layout,
     name: 'Monitor',
     meta: {
-      title: 'Monitor',
-      icon: 'Monitor',
+      title: '系统状态',
+      icon: 'monitor',
       permissions: ['business:monitor:all']
     },
     children: [
       {
         path: 'druid',
-        component: () => import('@/views/monitor/druid/index.vue'),
+        component: () => import('@/views/business/monitor/druid/index.vue'),
         name: 'Druid',
         meta: {
-          title: 'Druid',
+          title: '数据监控',
           roles: ['admin'],
           icon: 'druid'
         }
       },
       {
         path: 'login',
-        component: () => import('@/views/monitor/login/index.vue'),
+        component: () => import('@/views/business/monitor/login/index.vue'),
         name: 'Login',
         meta: {
-          title: 'Login',
+          title: '在线用户',
           roles: ['admin'],
-          icon: 'login'
+          icon: 'user'
         }
-      }
-    ]
-  },
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
-      }
-    ]
-  },
-
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
       }
     ]
   },
