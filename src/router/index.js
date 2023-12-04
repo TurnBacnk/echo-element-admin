@@ -102,7 +102,7 @@ export const asyncRoutes = [
             }
           },
           {
-            path: 'categoryAdd/:id',
+            path: 'categoryAdd',
             component: () => import('@/views/business/base/product/category/sub-view/category-add.vue'),
             name: 'ProductCategoryAdd',
             hidden: true,
@@ -165,6 +165,29 @@ export const asyncRoutes = [
         name: 'Login',
         meta: {
           title: '在线用户',
+          roles: ['admin'],
+          icon: 'user'
+        }
+      }
+    ]
+  },
+  {
+    path: '/Config',
+    name: 'Config',
+    component: Layout,
+    meta: {
+      title: '系统设置',
+      roles: ['admin'],
+      icon: 'config'
+    },
+    alwaysShow: true,
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/config/user/index.vue'),
+        name: 'User',
+        meta: {
+          title: '用户管理',
           roles: ['admin'],
           icon: 'user'
         }

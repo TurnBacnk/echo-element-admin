@@ -107,6 +107,14 @@ const actions = {
       removeToken()
       resolve()
     })
+  },
+
+  backLogin({ commit }) {
+    return new Promise(resolve => {
+      removeToken()
+      commit('RESET_STATE')
+      }
+    )
   }
 }
 

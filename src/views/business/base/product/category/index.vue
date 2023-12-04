@@ -70,8 +70,6 @@ export default {
         productUnit: undefined,
         enable: undefined
       },
-      // 总数
-      total: undefined,
       dictionaryConfig: {
         dictionaryNameList: ['测试字典']
       },
@@ -227,12 +225,10 @@ export default {
     handleView(index, row) {
       this.$router.push(`categoryView/${row.id}`)
     },
-    handleAdd(index, row) {
-      const id = 1
-      this.$router.push(`categoryAdd/${row.id}`)
+    handleAdd() {
+      this.$router.push(`categoryAdd`)
     },
     handleEdit(index, row) {
-      const id = 2
       this.$router.push(`categoryEdit/${row.id}`)
     },
     handleDel() {

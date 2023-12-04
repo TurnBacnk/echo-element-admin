@@ -28,3 +28,42 @@ export function getCode() {
     method: 'get'
   })
 }
+
+export function enableOrDisableUser(data) {
+  return request({
+    url: '/api/user/enable-or-disable',
+    method: 'post',
+    data: data
+  })
+}
+
+export function addUser(data) {
+  return request({
+    url: '/api/user/add',
+    method: 'post',
+    data: data
+  })
+}
+
+export function modifyUser(data) {
+  return request({
+    url: '/api/user/edit',
+    method: 'post',
+    data: data
+  })
+}
+
+export function queryUserInfoById(id) {
+  return request({
+    url: '/api/user/get-by-id/' + id,
+    method: 'get'
+  })
+}
+
+export function deleteUser(data) {
+  return request({
+    url: '/api/user/delete',
+    method: 'post',
+    data: data
+  })
+}

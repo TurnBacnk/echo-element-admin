@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <el-table
+      ref="table"
       v-loading="loading"
       :border="border"
       :data="tableData"
@@ -14,11 +15,11 @@
       style="width: 100%"
     >
       <template v-for="column in tableColumnConfig">
-        <!--    操作咧    -->
+        <!--    操作列    -->
         <el-table-column
           v-if="column.columnType === 'Operation'"
           :label="column.label"
-          :min-width="180"
+          :min-width="250"
           align="center"
           fixed="right"
         >
@@ -69,7 +70,16 @@
           :type="column.type ? column.type : undefined"
         >
           <template slot-scope="constantScope">
-            {{ constantConvert(column.constant.constantList, constantScope.row[constantScope.column.property]) }}
+            <el-tag
+              :disable-transitions="column.constant.disableTransitions ? column.constant.disableTransitions : false"
+              :hit="column.constant.hit ? column.constant.hit : false"
+              :color="column.constant.color ? column.constant.color : ''"
+              :size="column.constant.size ? column.constant.size : 'medium'"
+              :effect="column.constant.effect ? column.constant.effect : 'plain'"
+              :type="column.constant.type(constantScope.row)"
+            >
+              {{ constantConvert(column.constant.constantList, constantScope.row[constantScope.column.property]) }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -98,6 +108,59 @@
         >
           <template slot-scope="linkScope">
             <el-link type="primary" @click.native="column.link.click(linkScope.$index, linkScope.row)"> {{ linkScope.row[linkScope.column.property] }} </el-link>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-else-if="column.columnType === 'Tag'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="tagScope">
+            <template v-if="column.tag.tagType === 'Array'">
+              <template v-for="tag in tagScope.row[tagScope.column.property]">
+                <el-tag
+                  :type="column.tag.type(tag)"
+                  :disable-transitions="column.tag.disableTransitions ? column.tag.disableTransitions : false"
+                  :hit="column.tag.hit ? column.tag.hit : false"
+                  :color="column.tag.color ? column.tag.color : ''"
+                  :size="column.tag.size ? column.tag.size : 'medium'"
+                  :effect="column.tag.effect ? column.tag.effect : 'plain'"
+                  @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
+                  style="margin-left: 5px;margin-right: 0"
+                >
+                  <template v-if="column.tag.isConvert">
+                    {{ dictionaryConvert(column.tag.dictList, tag) }}
+                  </template>
+                  <template v-else>
+                    {{ tag }}
+                  </template>
+                </el-tag>
+              </template>
+            </template>
+            <template v-else>
+              <el-tag
+                :type="column.tag.type(tagScope.row[tagScope.column.property])"
+                :disable-transitions="column.tag.disableTransitions ? column.tag.disableTransitions : false"
+                :hit="column.tag.hit ? column.tag.hit : false"
+                :color="column.tag.color ? column.tag.color : ''"
+                :size="column.tag.size ? column.tag.size : 'medium'"
+                :effect="column.tag.effect ? column.tag.effect : 'plain'"
+                @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
+                style="margin-left: 5px;margin-right: 0"
+              >
+                <template v-if="column.tag.isConvert">
+                  {{ dictionaryConvert(column.tag.dictList, tagScope.row[tagScope.column.property]) }}
+                </template>
+                <template v-else>
+                  {{ tagScope.row[tagScope.column.property] }}
+                </template>
+              </el-tag>
+            </template>
           </template>
         </el-table-column>
         <!--    普通展示项    -->
@@ -131,15 +194,9 @@
 <script>
 
 import request from '@/utils/request'
-import fa from 'element-ui/src/locale/lang/fa'
 
 export default {
   name: 'PageTable',
-  computed: {
-    fa() {
-      return fa
-    }
-  },
   props: {
     /**
      * fixed: {
@@ -266,6 +323,9 @@ export default {
         this.current = currentPage
         this.loading = false
       })
+    },
+    checkedRows() {
+      return this.$refs.table.selection
     },
     handleSizeChange(val) {
       this.size = val

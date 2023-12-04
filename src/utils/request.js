@@ -47,6 +47,18 @@ service.interceptors.response.use(
     console.log(res.code)
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== '100') {
+
+      if (res.code === '300') {
+        MessageBox.confirm('当前登陆已超时,请点击确认后重新登录系统.', '登陆超时', {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          location.reload()
+        })
+        return;
+      }
+
       Message({
         message: res.msg || 'Error',
         type: 'error',
