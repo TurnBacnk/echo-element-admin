@@ -191,6 +191,16 @@ export const asyncRoutes = [
           roles: ['admin'],
           icon: 'user'
         }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/config/role/index.vue'),
+        name: 'Role',
+        meta: {
+          title: '角色管理',
+          roles: ['admin'],
+          icon: 'role'
+        }
       }
     ]
   },
