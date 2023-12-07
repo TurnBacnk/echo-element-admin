@@ -46,7 +46,6 @@
       width="500px"
       append-to-body
       @close="closeAddForm"
-
     >
       <el-form ref="form" label-width="80px" :disabled="addFormDisabled">
         <el-form-item label="用户名" prop="username">

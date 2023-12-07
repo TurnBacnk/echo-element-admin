@@ -201,6 +201,16 @@ export const asyncRoutes = [
           roles: ['admin'],
           icon: 'role'
         }
+      },
+      {
+        path: 'menu',
+        component: () => import('@/views/config/menu/index.vue'),
+        name: 'Menu',
+        meta: {
+          title: '菜单管理',
+          roles: ['admin'],
+          icon: 'menu'
+        }
       }
     ]
   },

@@ -12,6 +12,7 @@
       :span-method="spanMethod"
       :stripe="stripe"
       :summary-method="summaryMethod"
+      :tree-props="treeConfig"
       style="width: 100%"
     >
       <template v-for="column in tableColumnConfig">
@@ -178,6 +179,7 @@
       </template>
     </el-table>
     <el-pagination
+      v-if="pageable"
       :current-page="current"
       :page-size="size"
       :page-sizes="[10, 20, 30, 50, 100]"
@@ -276,6 +278,15 @@ export default {
     tagType: {
       type: String,
       required: false
+    },
+    treeConfig: {
+      type: Object,
+      required: false
+    },
+    pageable: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
   data() {
