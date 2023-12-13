@@ -12,6 +12,8 @@
       :span-method="spanMethod"
       :stripe="stripe"
       :summary-method="summaryMethod"
+      default-expand-all
+      row-key="id"
       :tree-props="treeConfig"
       style="width: 100%"
     >
@@ -81,6 +83,20 @@
             >
               {{ constantConvert(column.constant.constantList, constantScope.row[constantScope.column.property]) }}
             </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-else-if="column.columnType === 'Icon'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="iconScope">
+            <svg-icon :icon-class="iconScope.row[iconScope.column.property]" />
           </template>
         </el-table-column>
         <el-table-column

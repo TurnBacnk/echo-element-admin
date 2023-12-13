@@ -23,3 +23,17 @@ export function deleteMenu(id) {
     method: 'post'
   })
 }
+
+export function getMenuTree() {
+  return request({
+    url: '/api/menu/get-menu-tree',
+    method: 'get'
+  })
+}
+
+export function getMenuById(id) {
+  return request({
+    url: '/api/menu/get-menu-by-id/' + id,
+    method: 'get'
+  })
+}

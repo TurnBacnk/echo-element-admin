@@ -20,24 +20,26 @@
       :query-form="queryForm"
       :data-source="dataSource"
       :table-column-config="tableColumnConfig"
-      :tree-config="{ children: 'children', hasChildren: 'hasChildren' }"
+      :tree-config="{children: 'children', hasChildren: 'hasChildren'}"
       :pageable="false"
     />
     <el-dialog
       :visible.sync="addDialogVisible"
-      title="菜单新增"
+      v-if="addDialogVisible"
+      :title="formTitle"
       append-to-body
       @close="closeAddForm"
       :destroy-on-close="true"
       width="600px"
     >
-      <el-form ref="form" label-width="100px" :disabled="addFormDisabled">
+      <el-form ref="form" label-width="100px" :model="form" :disabled="addFormDisabled" :rules="rules">
         <el-form-item label="上级菜单" prop="parentId">
-          <el-cascader
-            :show-all-levels="false"
-            clearable
-            :options="javaCode"
+          <tree-select
             v-model="form.parentId"
+            :options="cascadeOptions"
+            :normalizer="normalizer"
+            :show-count="true"
+            placeholder="选择上级菜单"
           />
         </el-form-item>
         <el-form-item label="菜单类型" prop="menuType">
@@ -55,66 +57,12 @@
               trigger="click"
               @show="$refs['iconSelect'].reset()"
             >
-              <IconSelect ref="iconSelect" @selected="selected" :active-icon="form.icon"/>
-              <el-input slot="reference" v-model="form.icon" placeholder="点击选择图标" readonly>
+              <IconSelect ref="iconSelect" @selected="selected" :active-icon="form.menuIcon"/>
+              <el-input slot="reference" v-model="form.menuIcon" placeholder="点击选择图标" readonly>
                 <svg-icon
-                  v-if="form.icon"
+                  v-if="form.menuIcon"
                   slot="prefix"
-                  :icon-class="form.icon"
-                  style="width: 25px;"
-                />
-                <i v-else slot="prefix" class="el-icon-search el-input__icon"/>
-              </el-input>
-            </el-popover>
-          </el-form-item>
-          <el-form-item label="菜单名称" prop="menuName">
-            <el-input v-model="form.menuName" placeholder="请输入菜单名称"/>
-          </el-form-item>
-          <el-form-item label="显示顺序" prop="sort">
-            <el-input-number v-model="form.sort" controls-position="right" :min="1"/>
-          </el-form-item>
-          <el-form-item label="权限字符" prop="authKey">
-            <el-input v-model="form.authKey" placeholder="请输入权限标识" maxlength="100"/>
-            <span slot="label">
-                <el-tooltip content="控制器中定义的权限字符，如：@PreAuthorize(`@ss.hasPermi('system:user:list')`)"
-                            placement="top"
-                >
-                <i class="el-icon-question"></i>
-                </el-tooltip>
-                权限字符
-              </span>
-          </el-form-item>
-          <el-form-item label="菜单状态">
-            <span slot="label">
-                <el-tooltip content="选择停用则路由将不会出现在侧边栏，也不能被访问" placement="top">
-                <i class="el-icon-question"></i>
-                </el-tooltip>
-                菜单状态
-              </span>
-            <el-radio-group v-model="form.status">
-              <el-radio
-                v-for="status in constant['Enable']"
-                :key="status.value"
-                :label="status.value"
-              >{{ status.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </template>
-        <template v-if="form.menuType === '2'">
-          <el-form-item label="菜单图标" prop="icon">
-            <el-popover
-              placement="bottom-start"
-              width="460"
-              trigger="click"
-              @show="$refs['iconSelect'].reset()"
-            >
-              <IconSelect ref="iconSelect" @selected="selected" :active-icon="form.icon"/>
-              <el-input slot="reference" v-model="form.icon" placeholder="点击选择图标" readonly>
-                <svg-icon
-                  v-if="form.icon"
-                  slot="prefix"
-                  :icon-class="form.icon"
+                  :icon-class="form.menuIcon"
                   style="width: 25px;"
                 />
                 <i v-else slot="prefix" class="el-icon-search el-input__icon"/>
@@ -134,7 +82,59 @@
                 </el-tooltip>
                 路由地址
             </span>
-            <el-input v-model="form.path" placeholder="请输入路由地址"/>
+            <el-input v-model="form.menuPath" placeholder="请输入路由地址"/>
+          </el-form-item>
+          <el-form-item label="菜单状态">
+            <span slot="label">
+                <el-tooltip content="选择停用则路由将不会出现在侧边栏，也不能被访问" placement="top">
+                <i class="el-icon-question"></i>
+                </el-tooltip>
+                菜单状态
+              </span>
+            <el-radio-group v-model="form.enable">
+              <el-radio
+                v-for="status in constant['Enable']"
+                :key="status.value"
+                :label="status.value"
+              >{{ status.label }}
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </template>
+        <template v-if="form.menuType === '2'">
+          <el-form-item label="菜单图标" prop="icon">
+            <el-popover
+              placement="bottom-start"
+              width="460"
+              trigger="click"
+              @show="$refs['iconSelect'].reset()"
+            >
+              <IconSelect ref="iconSelect" @selected="selected" :active-icon="form.menuIcon"/>
+              <el-input slot="reference" v-model="form.menuIcon" placeholder="点击选择图标" readonly>
+                <svg-icon
+                  v-if="form.menuIcon"
+                  slot="prefix"
+                  :icon-class="form.menuIcon"
+                  style="width: 25px;"
+                />
+                <i v-else slot="prefix" class="el-icon-search el-input__icon"/>
+              </el-input>
+            </el-popover>
+          </el-form-item>
+          <el-form-item label="菜单名称" prop="menuName">
+            <el-input v-model="form.menuName" placeholder="请输入菜单名称"/>
+          </el-form-item>
+          <el-form-item label="显示顺序" prop="sort">
+            <el-input-number v-model="form.sort" controls-position="right" :min="1"/>
+          </el-form-item>
+          <el-form-item label="路由地址" prop="menuPath">
+            <span slot="label">
+                <el-tooltip content="访问的路由地址，如：`user`，如外网地址需内链访问则以`http(s)://`开头" placement="top">
+                <i class="el-icon-question"></i>
+                </el-tooltip>
+                路由地址
+            </span>
+            <el-input v-model="form.menuPath" placeholder="请输入路由地址"/>
           </el-form-item>
           <el-form-item label="组件路径" prop="componentPath">
             <span slot="label">
@@ -165,29 +165,30 @@
                 路由参数
               </span>
           </el-form-item>
-          <el-form-item prop="visible">
+          <el-form-item prop="isHidden">
             <span slot="label">
                 <el-tooltip content="选择隐藏则路由将不会出现在侧边栏，但仍然可以访问" placement="top">
                 <i class="el-icon-question"></i>
                 </el-tooltip>
                 显示状态
             </span>
-            <el-radio-group v-model="form.visible">
+            <el-radio-group v-model="form.isHidden">
               <el-radio
                 v-for="status in constant['ShowHide']"
                 :key="status.value"
                 :label="status.value"
-              >{{status.label}}</el-radio>
+              >{{ status.label }}
+              </el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="菜单状态">
+          <el-form-item prop="enable">
             <span slot="label">
                 <el-tooltip content="选择停用则路由将不会出现在侧边栏，也不能被访问" placement="top">
                 <i class="el-icon-question"></i>
                 </el-tooltip>
                 菜单状态
-              </span>
-            <el-radio-group v-model="form.status">
+            </span>
+            <el-radio-group v-model="form.enable">
               <el-radio
                 v-for="status in constant['Enable']"
                 :key="status.value"
@@ -215,14 +216,14 @@
                 权限字符
               </span>
           </el-form-item>
-          <el-form-item label="菜单状态">
+          <el-form-item label="菜单状态" prop="enable">
             <span slot="label">
                 <el-tooltip content="选择停用则路由将不会出现在侧边栏，也不能被访问" placement="top">
                 <i class="el-icon-question"></i>
                 </el-tooltip>
                 菜单状态
               </span>
-            <el-radio-group v-model="form.status">
+            <el-radio-group v-model="form.enable">
               <el-radio
                 v-for="status in constant['Enable']"
                 :key="status.value"
@@ -246,12 +247,14 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import IconSelect from '@/components/IconSelect/index.vue'
+import TreeSelect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { getConstant } from '@/api/common/dict'
-import { insertMenu, modifyMenu } from '@/api/menu'
+import { deleteMenu, getMenuById, getMenuTree, insertMenu, modifyMenu } from '@/api/menu'
 
 export default {
   name: 'Menu',
-  components: { IconSelect, PageTable, ButtonGroup },
+  components: { IconSelect, PageTable, ButtonGroup, TreeSelect },
   data() {
     return {
       queryForm: {
@@ -271,17 +274,18 @@ export default {
       addDialogVisible: false,
       addFormDisabled: false,
       form: {
-        ID: undefined,
+        id: undefined,
         parentId: undefined,
-        menuType: '1',
+        menuType: undefined,
         menuName: undefined,
-        icon: undefined,
+        menuIcon: undefined,
         sort: undefined,
         authKey: undefined,
         menuPath: undefined,
         componentPath: undefined,
         menuParam: undefined,
-        visible: undefined
+        isHidden: undefined,
+        enable: undefined
       },
       javaCode: [],
       javaCodeConfig: {
@@ -291,7 +295,20 @@ export default {
       constantConfig: {
         constantNameList: ['Enable', 'ShowHide']
       },
-      isView: true
+      isView: true,
+      cascadeOptions: [],
+      formTitle: undefined,
+      rules: {
+        menuName: [
+          { required: true, message: "菜单名称不能为空", trigger: "blur" }
+        ],
+        sort: [
+          { required: true, message: "菜单顺序不能为空", trigger: "blur" }
+        ],
+        menuPath: [
+          { required: true, message: "路由地址不能为空", trigger: "blur" }
+        ]
+      }
     }
   },
   async created() {
@@ -299,22 +316,23 @@ export default {
       const { data } = res
       this.constant = data
     })
+
+    await this.initTree()
+
     await this.init()
   },
   methods: {
     init() {
       this.tableColumnConfig = [
         {
+          fixed: 'left',
           label: '菜单名称',
           prop: 'menuName'
         },
         {
-          label: '菜单路径',
-          prop: 'menuPath'
-        },
-        {
+          columnType: 'Icon',
           label: '图标',
-          prop: 'icon'
+          prop: 'menuIcon'
         },
         {
           label: '排序',
@@ -329,8 +347,22 @@ export default {
           prop: 'componentPath'
         },
         {
+          columnType: 'Tag',
           label: '状态',
-          prop: 'enable'
+          prop: 'enable',
+          tag: {
+            type: (tag) => {
+              if (tag === 1) {
+                return 'success'
+              }
+              if (tag === 0) {
+                return 'info'
+              }
+            },
+            effect: 'light',
+            dictList: this.constant['Enable'],
+            isConvert: true
+          }
         },
         {
           label: '创建时间',
@@ -345,6 +377,9 @@ export default {
               css: 'text',
               click: (index, row) => {
                 this.handleEdit(index, row)
+              },
+              isDisabled: (row) => {
+                return false
               }
             },
             {
@@ -352,30 +387,70 @@ export default {
               css: 'text',
               click: (index, row) => {
                 this.handleDel(index, row)
+              },
+              isDisabled: (row)=> {
+                return !!row.children;
               }
             }
           ]
         }
       ]
     },
+    initTree() {
+      getMenuTree().then(res => {
+        const { data } = res
+        this.cascadeOptions = data
+      })
+    },
     handlerQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
-      this.$refs.queryForm.resetFields()
+      this.queryForm = {
+        menuName: undefined
+      }
     },
     handleAdd() {
+      this.formTitle = '菜单新增'
       this.addDialogVisible = true
+      this.form.menuType = '1'
     },
     handleEdit(index, row) {
-
+      this.formTitle = '菜单修改'
+      this.addDialogVisible = true
+      getMenuById(row.id).then(res => {
+        const { data } = res
+        Object.assign(this.form, data)
+      })
+    },
+    handleDel(index , row) {
+      // 删除
+      deleteMenu(row.id).then(res => {
+        const { msg } = res
+        this.$modal.msgSuccess(msg)
+        this.handlerQuery()
+      })
     },
     // Add Dialog Methods
     closeAddForm() {
       this.addDialogVisible = false
+      this.form = {
+        id: undefined,
+        parentId: undefined,
+        menuType: undefined,
+        menuName: undefined,
+        menuIcon: undefined,
+        sort: undefined,
+        authKey: undefined,
+        menuPath: undefined,
+        componentPath: undefined,
+        menuParam: undefined,
+        isHidden: undefined,
+        enable: undefined
+      }
     },
     selected(name) {
-      this.form.icon = name
+      this.form.menuIcon = name
     },
     submitForm() {
       if (!this.form.id) {
@@ -393,7 +468,24 @@ export default {
           this.handlerQuery()
         })
       }
-    }
+      this.initTree()
+    },
+    cascadeChange(value) {
+      this.form.parentId = value[value.length - 1]
+    },
+    normalizer(node) {
+      if (node.children == null) {
+        delete node.children
+      }
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.id,
+        label: node.label,
+        children: node.children
+      };
+    },
   }
 }
 
