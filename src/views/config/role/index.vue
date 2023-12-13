@@ -28,12 +28,15 @@
       append-to-body
       @close="closeAddForm"
     >
-      <el-form ref="form" label-width="80px" :disabled="addFormDisabled">
+      <el-form ref="form" label-width="80px" :disabled="addFormDisabled" :model="form" :rules="rule">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" />
         </el-form-item>
         <el-form-item label="角色Key" prop="roleKey">
           <el-input v-model="form.roleKey" />
+        </el-form-item>
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="1"/>
         </el-form-item>
         <el-form-item label="菜单权限">
           <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
@@ -62,7 +65,8 @@
 <script>
 import PageTable from '@/components/ListTable/index.vue'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
-import { addRole, getRoleById, modifyRole } from '@/api/role'
+import { addRole, deleteRole, getMenuTreeByRoleId, getRoleById, modifyRole } from '@/api/role'
+import { getMenuTree } from '@/api/menu'
 
 export default {
   name: 'Role',
@@ -97,7 +101,10 @@ export default {
       form: {
         roleName: undefined,
         roleKey: undefined,
-        id: undefined
+        sort: undefined,
+        id: undefined,
+        menuIdList: [],
+        menuCheckStrictly: true
       },
       addFormDisabled: false,
       isDisplay: true,
@@ -110,6 +117,17 @@ export default {
       defaultProps: {
         children: "children",
         label: "label"
+      },
+      rule: {
+        roleName: [
+          { required: true, message: '角色名称不能为空', trigger: "blur" }
+        ],
+        roleKey: [
+          { required: true, message: '角色Key不能为空', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '排序不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -126,6 +144,10 @@ export default {
         {
           label: '角色名称',
           prop: 'roleName'
+        },
+        {
+          label: '排序',
+          prop: 'sort'
         },
         {
           columnType: 'Link',
@@ -173,14 +195,30 @@ export default {
       getRoleById(id).then(res => {
         const { data } = res
         Object.assign(this.form, data)
+        let selectedMenuTree = this.getSelectedMenuTree(id)
+        this.getMenuTree()
+        selectedMenuTree.then(res => {
+          const { data } = res
+          data.forEach((v) => {
+            this.$nextTick(() => {
+              this.$refs.menu.setChecked(v, true, false)
+            })
+          })
+        })
         this.addVisible = true
         this.isDisplay = true
+      })
+    },
+    getSelectedMenuTree(id) {
+      return getMenuTreeByRoleId(id).then(res => {
+        return res
       })
     },
     canEdit(row) {
       return false;
     },
     handleAdd() {
+      this.getMenuTree()
       this.addVisible = true
       this.isDisplay = true
       this.form = {
@@ -188,26 +226,52 @@ export default {
         roleKey: undefined
       }
     },
+    getMenuTree() {
+      getMenuTree().then(res => {
+        const { data } = res
+        this.menuOptions = data
+      })
+    },
+    handleDel() {
+      let checkedRowsId = []
+      this.$refs.tableList.checkedRows().forEach(function(element) {
+        checkedRowsId.push(element.id)
+      })
+      deleteRole(checkedRowsId).then(res => {
+        const { msg } = res
+        this.$modal.msgSuccess(msg)
+        this.handleQuery()
+      })
+    },
     closeAddForm() {
+      this.menuOptions = []
       this.$refs.form.resetFields()
       this.addVisible = false
     },
     submitForm() {
-      if (!this.form.id) {
-        // 新增
-        addRole(this.form).then(res => {
-          const { msg } = res
-          this.addVisible = false
-          this.$modal.msgSuccess(msg)
-        })
-      } else {
-        // 修改
-        modifyRole(this.form).then(res => {
-          const { msg } = res
-          this.addVisible = false
-          this.$modal.msgSuccess(msg)
-        })
-      }
+      // 校验
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.form.menuIdList = this.getMenuAllCheckedKeys();
+          if (!this.form.id) {
+            // 新增
+            addRole(this.form).then(res => {
+              const { msg } = res
+              this.addVisible = false
+              this.$modal.msgSuccess(msg)
+              this.handleQuery()
+            })
+          } else {
+            // 修改
+            modifyRole(this.form).then(res => {
+              const { msg } = res
+              this.addVisible = false
+              this.$modal.msgSuccess(msg)
+              this.handleQuery()
+            })
+          }
+        }
+      })
     },
     handleCheckedTreeExpand(value, type) {
       if (type === 'menu') {
@@ -237,6 +301,14 @@ export default {
       } else if (type === 'dept') {
         this.form.deptCheckStrictly = !!value;
       }
+    },
+    getMenuAllCheckedKeys() {
+      // 目前被选中的菜单节点
+      let checkedKeys = this.$refs.menu.getCheckedKeys();
+      // 半选中的菜单节点
+      let halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys();
+      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
+      return checkedKeys;
     }
   }
 }

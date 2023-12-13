@@ -18,7 +18,22 @@ export function addRole(data) {
 export function modifyRole(data) {
   return request({
     url: '/api/role/update-role',
+    method: 'post',
     data: data
   })
 }
 
+export function deleteRole(data) {
+  return request({
+    url: '/api/role/delete-role',
+    method: 'post',
+    data: data
+  })
+}
+
+export function getMenuTreeByRoleId(id) {
+  return request({
+    url: '/api/role/get-menu-tree-by-role-id/'+ id,
+    method: 'get'
+  })
+}
