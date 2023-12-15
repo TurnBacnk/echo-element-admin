@@ -65,7 +65,7 @@
 <script>
 import PageTable from '@/components/ListTable/index.vue'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
-import { addRole, deleteRole, getMenuTreeByRoleId, getRoleById, modifyRole } from '@/api/role'
+import { addRole, deleteRole, enableOrDisableRole, getMenuTreeByRoleId, getRoleById, modifyRole } from '@/api/role'
 import { getMenuTree } from '@/api/menu'
 
 export default {
@@ -172,6 +172,34 @@ export default {
               isDisabled: (row) => {
                 return this.canEdit(row)
               }
+            },
+            {
+              text: '启用',
+              css: 'success',
+              click: (index, row) => {
+                this.handleEnable(row.id, 1)
+              },
+              isDisabled: (row) => {
+                if (row.roleKey === 'admin') {
+                  return true;
+                }
+
+                return row.status
+              }
+            },
+            {
+              text: '禁用',
+              css: 'danger',
+              click: (index, row) => {
+                this.handleEnable(row.id, 0)
+              },
+              isDisabled: (row) => {
+                if (row.roleKey === 'admin') {
+                  return true;
+                }
+
+                return !row.status
+              }
             }
           ]
         }
@@ -238,6 +266,13 @@ export default {
         checkedRowsId.push(element.id)
       })
       deleteRole(checkedRowsId).then(res => {
+        const { msg } = res
+        this.$modal.msgSuccess(msg)
+        this.handleQuery()
+      })
+    },
+    handleEnable(id, status) {
+      enableOrDisableRole(id, status).then(res => {
         const { msg } = res
         this.$modal.msgSuccess(msg)
         this.handleQuery()

@@ -37,3 +37,10 @@ export function getMenuTreeByRoleId(id) {
     method: 'get'
   })
 }
+
+export function enableOrDisableRole(id, status) {
+  return request({
+    url: '/api/role/enable-or-disable-role/' + id + '/' + status,
+    method: 'get'
+  })
+}
