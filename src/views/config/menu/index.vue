@@ -459,6 +459,7 @@ export default {
           this.$modal.msgSuccess(msg)
           this.closeAddForm()
           this.handlerQuery()
+          this.initTree()
         })
       } else {
         modifyMenu(this.form).then(res => {

@@ -184,7 +184,7 @@ export default {
                   return true;
                 }
 
-                return row.status
+                return row.status === 1
               }
             },
             {
@@ -198,7 +198,7 @@ export default {
                   return true;
                 }
 
-                return !row.status
+                return row.status !== 1
               }
             }
           ]
