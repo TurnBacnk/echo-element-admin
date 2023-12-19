@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-table
       ref="table"
       v-loading="loading"

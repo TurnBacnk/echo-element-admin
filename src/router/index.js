@@ -211,6 +211,16 @@ export const asyncRoutes = [
           roles: ['admin'],
           icon: 'menu'
         }
+      },
+      {
+        path: 'task',
+        component: () => import('@/views/config/task/index.vue'),
+        name: 'Task',
+        meta: {
+          title: '定时任务',
+          roles: ['admin'],
+          icon: 'task'
+        }
       }
     ]
   },

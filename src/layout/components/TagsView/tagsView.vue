@@ -9,6 +9,7 @@
         :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
         tag="span"
         class="tags-view-item"
+        :style="activeStyle(tag)"
         @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
@@ -17,10 +18,10 @@
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">Close</li>
-      <li @click="closeOthersTags">Close Others</li>
-      <li @click="closeAllTags(selectedTag)">Close All</li>
+      <li @click="refreshSelectedTag(selectedTag)">刷新页面</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭当前</li>
+      <li @click="closeOthersTags">关闭其他</li>
+      <li @click="closeAllTags(selectedTag)">关闭所有</li>
     </ul>
   </div>
 </template>
@@ -46,6 +47,9 @@ export default {
     },
     routes() {
       return this.$store.state.permission.routes
+    },
+    theme() {
+      return this.$store.state.settings.theme;
     }
   },
   watch: {
@@ -71,6 +75,13 @@ export default {
     },
     isAffix(tag) {
       return tag.meta && tag.meta.affix
+    },
+    activeStyle(tag) {
+      if (!this.isActive(tag)) return {};
+      return {
+        "background-color": this.theme,
+        "border-color": this.theme
+      };
     },
     filterAffixTags(routes, basePath = '/') {
       let tags = []
