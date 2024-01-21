@@ -284,10 +284,10 @@ export default {
             constantList: this.constant['StartPause'],
             type: (row) => {
               if (row.status === '1') {
-                return 'success'
+                return 'info'
               }
               if (row.status === '0') {
-                return ''
+                return 'success'
               }
             },
             effect: 'light'
@@ -324,7 +324,7 @@ export default {
                 this.handleStart(row)
               },
               isDisabled: (row) => {
-                return row.status === '1'
+                return row.status === '0'
               }
             },
             {
@@ -334,7 +334,7 @@ export default {
                 this.handlePause(row)
               },
               isDisabled: (row) => {
-                return row.status === '0'
+                return row.status === '1'
               }
             }
           ]
@@ -342,14 +342,14 @@ export default {
       ]
     },
     handleStart(row) {
-      startOrPauseJob(row.id, '1').then(res => {
+      startOrPauseJob(row.id, '0', row.jobGroup).then(res => {
         const { msg } = res
         this.$modal.msgSuccess(msg)
         this.handlerQuery()
       })
     },
     handlePause(row) {
-      startOrPauseJob(row.id, '0').then(res => {
+      startOrPauseJob(row.id, '1', row.jobGroup).then(res => {
         const { msg } = res
         this.$modal.msgSuccess(msg)
         this.handlerQuery()
