@@ -168,6 +168,36 @@ export const asyncRoutes = [
           roles: ['admin'],
           icon: 'user'
         }
+      },
+      {
+        path: 'cache',
+        component: () => import('@/views/business/monitor/cache/index.vue'),
+        name: 'Cache',
+        meta: {
+          title: '缓存监控',
+          roles: ['admin'],
+          icon: 'cache'
+        }
+      },
+      {
+        path: 'cache-list',
+        component:() => import('@/views/business/monitor/cache/list.vue'),
+        name: 'CacheList',
+        meta: {
+          title: '缓存列表',
+          roles: ['admin'],
+          icon: 'cacheList'
+        }
+      },
+      {
+        path: 'server',
+        component: () => import('@/views/business/monitor/server/index.vue'),
+        name: 'Server',
+        meta: {
+          title: '服务监控',
+          roles: ['admin'],
+          icon: 'server'
+        }
       }
     ]
   },
