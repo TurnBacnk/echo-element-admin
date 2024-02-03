@@ -37,3 +37,10 @@ export function getMenuById(id) {
     method: 'get'
   })
 }
+
+export function getRouters() {
+  return request({
+    url: '/api/menu/get-router',
+    method: 'get'
+  })
+}

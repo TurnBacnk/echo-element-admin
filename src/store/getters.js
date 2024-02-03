@@ -10,6 +10,9 @@ const getters = {
   currency: state => state.user.currency,
   currencySymbol: state => state.user.currencySymbol,
   visitedViews: state => state.tagsView.visitedViews,
-  cachedViews: state => state.tagsView.cachedViews
+  cachedViews: state => state.tagsView.cachedViews,
+  topbarRouters: state => state.permission.topBarRouters,
+  defaultRoutes: state => state.permission.defaultRoutes,
+  sidebarRouters: state => state.permission.sideBarRouters
 }
 export default getters

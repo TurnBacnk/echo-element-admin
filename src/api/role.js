@@ -33,7 +33,7 @@ export function deleteRole(data) {
 
 export function getMenuTreeByRoleId(id) {
   return request({
-    url: '/api/role/get-menu-tree-by-role-id/'+ id,
+    url: '/api/role/get-menu-tree-by-role-id/' + id,
     method: 'get'
   })
 }

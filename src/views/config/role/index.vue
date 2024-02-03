@@ -36,25 +36,25 @@
           <el-input v-model="form.roleKey" />
         </el-form-item>
         <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="form.sort" controls-position="right" :min="1"/>
+          <el-input-number v-model="form.sort" controls-position="right" :min="1" />
         </el-form-item>
         <el-form-item label="菜单权限">
           <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
           <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">全选/全不选</el-checkbox>
           <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">父子联动</el-checkbox>
           <el-tree
+            ref="menu"
             class="tree-border"
             :data="menuOptions"
             show-checkbox
-            ref="menu"
             node-key="id"
             :check-strictly="!form.menuCheckStrictly"
             empty-text="加载中，请稍候"
             :props="defaultProps"
-          ></el-tree>
+          />
         </el-form-item>
       </el-form>
-      <template slot="footer" class="dialog-footer" v-if="isDisplay">
+      <template v-if="isDisplay" slot="footer" class="dialog-footer">
         <el-button type="info" @click="closeAddForm">取消</el-button>
         <el-button type="primary" @click="submitForm">确认</el-button>
       </template>
@@ -115,12 +115,12 @@ export default {
       menuOptions: [],
       deptOptions: [],
       defaultProps: {
-        children: "children",
-        label: "label"
+        children: 'children',
+        label: 'label'
       },
       rule: {
         roleName: [
-          { required: true, message: '角色名称不能为空', trigger: "blur" }
+          { required: true, message: '角色名称不能为空', trigger: 'blur' }
         ],
         roleKey: [
           { required: true, message: '角色Key不能为空', trigger: 'blur' }
@@ -181,7 +181,7 @@ export default {
               },
               isDisabled: (row) => {
                 if (row.roleKey === 'admin') {
-                  return true;
+                  return true
                 }
 
                 return row.status === 1
@@ -195,7 +195,7 @@ export default {
               },
               isDisabled: (row) => {
                 if (row.roleKey === 'admin') {
-                  return true;
+                  return true
                 }
 
                 return row.status !== 1
@@ -223,13 +223,16 @@ export default {
       getRoleById(id).then(res => {
         const { data } = res
         Object.assign(this.form, data)
-        let selectedMenuTree = this.getSelectedMenuTree(id)
-        this.getMenuTree()
-        selectedMenuTree.then(res => {
+        const selectedMenuTree = this.getSelectedMenuTree(id)
+        getMenuTree().then(res => {
           const { data } = res
-          data.forEach((v) => {
-            this.$nextTick(() => {
-              this.$refs.menu.setChecked(v, true, false)
+          this.menuOptions = data
+          selectedMenuTree.then(res => {
+            const { data } = res
+            data.forEach((v) => {
+              this.$nextTick(() => {
+                this.$refs.menu.setChecked(v, true, false)
+              })
             })
           })
         })
@@ -243,7 +246,7 @@ export default {
       })
     },
     canEdit(row) {
-      return false;
+      return false
     },
     handleAdd() {
       this.getMenuTree()
@@ -261,7 +264,7 @@ export default {
       })
     },
     handleDel() {
-      let checkedRowsId = []
+      const checkedRowsId = []
       this.$refs.tableList.checkedRows().forEach(function(element) {
         checkedRowsId.push(element.id)
       })
@@ -287,7 +290,7 @@ export default {
       // 校验
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.form.menuIdList = this.getMenuAllCheckedKeys();
+          this.form.menuIdList = this.getMenuAllCheckedKeys()
           if (!this.form.id) {
             // 新增
             addRole(this.form).then(res => {
@@ -310,40 +313,40 @@ export default {
     },
     handleCheckedTreeExpand(value, type) {
       if (type === 'menu') {
-        let treeList = this.menuOptions;
+        const treeList = this.menuOptions
         for (let i = 0; i < treeList.length; i++) {
-          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value;
+          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value
         }
       } else if (type === 'dept') {
-        let treeList = this.deptOptions;
+        const treeList = this.deptOptions
         for (let i = 0; i < treeList.length; i++) {
-          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value;
+          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value
         }
       }
     },
     // 树权限（全选/全不选）
     handleCheckedTreeNodeAll(value, type) {
       if (type === 'menu') {
-        this.$refs.menu.setCheckedNodes(value ? this.menuOptions: []);
+        this.$refs.menu.setCheckedNodes(value ? this.menuOptions : [])
       } else if (type === 'dept') {
-        this.$refs.menu.setCheckedNodes(value ? this.deptOptions: []);
+        this.$refs.menu.setCheckedNodes(value ? this.deptOptions : [])
       }
     },
     // 树权限（父子联动）
     handleCheckedTreeConnect(value, type) {
       if (type === 'menu') {
-        this.form.menuCheckStrictly = !!value;
+        this.form.menuCheckStrictly = !!value
       } else if (type === 'dept') {
-        this.form.deptCheckStrictly = !!value;
+        this.form.deptCheckStrictly = !!value
       }
     },
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
-      let checkedKeys = this.$refs.menu.getCheckedKeys();
+      const checkedKeys = this.$refs.menu.getCheckedKeys()
       // 半选中的菜单节点
-      let halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys();
-      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
-      return checkedKeys;
+      const halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys()
+      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
+      return checkedKeys
     }
   }
 }
