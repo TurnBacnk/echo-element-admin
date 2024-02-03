@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import * as url from 'url'
 
 export function insertMenu(data) {
   return request({
