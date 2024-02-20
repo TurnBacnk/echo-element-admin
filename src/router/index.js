@@ -181,7 +181,7 @@ export const asyncRoutes = [
       },
       {
         path: 'cache-list',
-        component:() => import('@/views/business/monitor/cache/list.vue'),
+        component: () => import('@/views/business/monitor/cache/list.vue'),
         name: 'CacheList',
         meta: {
           title: '缓存列表',

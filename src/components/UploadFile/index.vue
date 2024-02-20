@@ -45,7 +45,7 @@ export default {
     },
     fileType: {
       type: Array,
-      default: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'], // 默认允许xls以及xlsx
+      default: () => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'] // 默认允许xls以及xlsx
     },
     businessName: {
       type: String,

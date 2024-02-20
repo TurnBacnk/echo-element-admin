@@ -1,0 +1,111 @@
+<template>
+  <div>
+    <el-button type="primary" style="margin-bottom: 10px" @click="addRow">添加行</el-button>
+    <el-button type="primary" @click="handleImport">批量导入</el-button>
+    <el-table :data="tableData" style="width: 100%" max-height="500">
+      <el-table-column
+        v-for="(column, index) in columns"
+        :key="index"
+        :prop="column.prop"
+        :label="column.label"
+        :width="column.width"
+      >
+        <template slot-scope="scope">
+          <div v-if="scope.row._isEditing">
+            <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" />
+            <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" size="small" style="width: 100%" />
+            <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
+              <el-option
+                v-for="item in column.optionList"
+                :key="item.key"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div v-else>
+            {{ scope.row[column.prop] }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="180">
+        <template v-slot="scope">
+          <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">
+            {{ scope.row._isEditing ? '保存' : '编辑' }}
+          </el-button>
+          <el-button size="mini" type="danger" @click="deleteRow(scope.$index)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'EditTable',
+  props: {
+    data: {
+      type: Array,
+      default: () => []
+    },
+    columns: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    const initData = this.data.map(item => ({
+      ...item,
+      _isEditing: false
+    }))
+    return {
+      tableData: initData,
+      editingIndex: null
+    }
+  },
+  created() {
+  },
+  methods: {
+    handleImport() {
+    },
+    addRow() {
+      if (this.editingIndex !== null) {
+        this.$modal.msgWarning('请先保存当前编辑项')
+        return
+      }
+      const newRow = this.columns.reduce((acc, column) => {
+        acc[column.prop] = ''
+        return acc
+      }, { _isEditing: true })
+      this.tableData.push(newRow)
+      this.editingIndex = this.tableData.length - 1
+    },
+    toggleEdit(row, index) {
+      if (row._isEditing) {
+        // 编辑状态，需要保存
+        // 变为非编辑状态
+        row._isEditing = !row._isEditing
+        // 删除editingIndex
+        this.editingIndex = null
+        this.$emit('update:data', this.tableData)
+      } else {
+        // 非编辑状态，变为编辑状态
+        // 判断是否有未保存的项
+        if (this.editingIndex !== null) {
+          this.$modal.msgWarning('请先保存当前编辑项')
+          return
+        }
+        // 判断通过则表示不存在编辑项
+        // 将编辑索引记录为当前索引
+        this.editingIndex = index
+        // 切换当前行的编辑状态
+        row._isEditing = !row._isEditing
+      }
+    },
+    deleteRow(index) {
+      this.tableData.splice(index, 1)
+      this.$emit('update:data', this.tableData)
+    }
+  }
+}
+</script>
