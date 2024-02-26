@@ -104,8 +104,9 @@ export default {
               } else {
                 return 'success'
               }
-            }
-          }
+            },
+            effect: 'light'
+          },
         },
         {
           columnType: 'Operation',
