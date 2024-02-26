@@ -61,196 +61,23 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/base',
+    path: '/config/dept/sub',
     component: Layout,
-    name: 'Base',
-    meta: {
-      title: '基础信息',
-      icon: 'el-icon-document'
-    },
+    hidden: true,
+    // roles: ['admin'],
+    permissions: ['dept:admin:add'],
     children: [
       {
-        path: 'product',
-        name: 'Product',
-        component: () => import('@/views/business/base/product/index.vue'),
-        meta: {
-          title: '产品资料',
-          icon: 'product',
-          permissions: ['business:product:all']
-        },
-        children: [
-          {
-            path: 'category',
-            component: () => import('@/views/business/base/product/category/index.vue'),
-            name: 'Category',
-            meta: {
-              title: '产品分类',
-              roles: ['admin'],
-              icon: 'category'
-            }
-          },
-          {
-            path: 'categoryView/:id',
-            component: () => import('@/views/business/base/product/category/sub-view/category-view.vue'),
-            name: 'ProductCategoryView',
-            hidden: true,
-            meta: {
-              title: '产品-查看',
-              roles: ['admin'],
-              icon: 'category',
-              permissions: ['business:product:view']
-            }
-          },
-          {
-            path: 'categoryAdd',
-            component: () => import('@/views/business/base/product/category/sub-view/category-add.vue'),
-            name: 'ProductCategoryAdd',
-            hidden: true,
-            meta: {
-              title: '产品-新增',
-              roles: ['admin'],
-              icon: 'category',
-              permissions: ['business:product:add']
-            }
-          },
-          {
-            path: 'categoryEdit/:id',
-            component: () => import('@/views/business/base/product/category/sub-view/category-edit.vue'),
-            name: 'ProductCategoryEdit',
-            hidden: true,
-            meta: {
-              title: '产品-修改',
-              roles: ['admin'],
-              icon: 'category',
-              permissions: ['business:product:edit']
-            }
-          },
-          {
-            path: 'quantity',
-            component: () => import('@/views/business/base/product/quantity/index.vue'),
-            name: 'Quantity',
-            meta: {
-              title: '产品库存',
-              roles: ['admin'],
-              icon: 'quantity'
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    path: '/monitor',
-    component: Layout,
-    name: 'Monitor',
-    meta: {
-      title: '系统状态',
-      icon: 'monitor',
-      permissions: ['business:monitor:all']
-    },
-    children: [
-      {
-        path: 'druid',
-        component: () => import('@/views/business/monitor/druid/index.vue'),
-        name: 'Druid',
-        meta: {
-          title: '数据监控',
-          roles: ['admin'],
-          icon: 'druid'
-        }
+        path: 'add',
+        component: () => import('@/views/config/dept/dept-add.vue'),
+        name: 'DeptAdd',
+        meta: { activeMenu: '/config/dept', title: '部门新增' }
       },
       {
-        path: 'login',
-        component: () => import('@/views/business/monitor/login/index.vue'),
-        name: 'Login',
-        meta: {
-          title: '在线用户',
-          roles: ['admin'],
-          icon: 'user'
-        }
-      },
-      {
-        path: 'cache',
-        component: () => import('@/views/business/monitor/cache/index.vue'),
-        name: 'Cache',
-        meta: {
-          title: '缓存监控',
-          roles: ['admin'],
-          icon: 'cache'
-        }
-      },
-      {
-        path: 'cache-list',
-        component: () => import('@/views/business/monitor/cache/list.vue'),
-        name: 'CacheList',
-        meta: {
-          title: '缓存列表',
-          roles: ['admin'],
-          icon: 'cacheList'
-        }
-      },
-      {
-        path: 'server',
-        component: () => import('@/views/business/monitor/server/index.vue'),
-        name: 'Server',
-        meta: {
-          title: '服务监控',
-          roles: ['admin'],
-          icon: 'server'
-        }
-      }
-    ]
-  },
-  {
-    path: '/Config',
-    name: 'Config',
-    component: Layout,
-    meta: {
-      title: '系统设置',
-      roles: ['admin'],
-      icon: 'config'
-    },
-    alwaysShow: true,
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/config/user/index.vue'),
-        name: 'User',
-        meta: {
-          title: '用户管理',
-          roles: ['admin'],
-          icon: 'user'
-        }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/config/role/index.vue'),
-        name: 'Role',
-        meta: {
-          title: '角色管理',
-          roles: ['admin'],
-          icon: 'role'
-        }
-      },
-      {
-        path: 'menu',
-        component: () => import('@/views/config/menu/index.vue'),
-        name: 'Menu',
-        meta: {
-          title: '菜单管理',
-          roles: ['admin'],
-          icon: 'menu'
-        }
-      },
-      {
-        path: 'task',
-        component: () => import('@/views/config/task/index.vue'),
-        name: 'Task',
-        meta: {
-          title: '定时任务',
-          roles: ['admin'],
-          icon: 'task'
-        }
+        path: 'edit',
+        component: () => import('@/views/config/dept/dept-edit.vue'),
+        name: 'DeptEdit',
+        meta: { activeMenu: '/config/dept', title: '部门修改' }
       }
     ]
   },

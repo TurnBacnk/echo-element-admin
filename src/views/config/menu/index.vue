@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" size="small">
+    <el-form ref="queryForm" :inline="true" size="small" v-if="showSearch">
       <el-form-item label="菜单名称" prop="menuName">
         <el-input
           v-model="queryForm.menuName"
@@ -13,8 +13,8 @@
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handlerQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
-      <button-group :button-config="buttonConfig"/>
     </el-form>
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @queryTable="handlerQuery"/>
     <page-table
       ref="tableList"
       :query-form="queryForm"
@@ -257,6 +257,7 @@ export default {
   components: { IconSelect, PageTable, ButtonGroup, TreeSelect },
   data() {
     return {
+      showSearch: true,
       queryForm: {
         menuName: undefined
       },

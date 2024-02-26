@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" size="small">
+    <el-form v-if="showSearch" ref="queryForm" :inline="true" size="small">
       <el-form-item label="角色名称" prop="roleName">
         <el-input
           v-model="queryForm.roleName"
@@ -14,7 +14,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonsConfig" />
+    <button-group :button-config="buttonsConfig" :show-search.sync="showSearch" @queryTable="handleQuery" />
     <page-table
       ref="tableList"
       :query-form="queryForm"
@@ -73,6 +73,7 @@ export default {
   components: { ButtonGroup, PageTable },
   data() {
     return {
+      showSearch: true,
       dataSource: '/api/role/list',
       tableColumnConfig: [],
       queryForm: {
@@ -215,7 +216,12 @@ export default {
     },
     // 跳转特殊的UserList页面
     handleJumpToUserList(index, row) {
-
+      this.$router.push({
+        name: 'User',
+        params: {
+          role: row.roleKey
+        }
+      })
     },
     handleEdit(index, row) {
       const id = row.id

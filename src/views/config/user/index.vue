@@ -1,63 +1,97 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" size="small">
-      <el-form-item label="用户名" prop="username">
-        <el-input
-          v-model="queryForm.username"
-          clearable
-          placeholder="请输入用户名"
-          @keyup.enter.native="handlerQuery"
-        />
-      </el-form-item>
-      <el-form-item label="昵称" prop="nickName">
-        <el-input
-          v-model="queryForm.nickName"
-          clearable
-          placeholder="请输入昵称"
-          @keyup.enter.native="handlerQuery"
-        />
-      </el-form-item>
-      <el-form-item label="角色" prop="username">
-        <el-select v-model="queryForm.role" clearable placeholder="用户角色" multiple>
-          <el-option
-            v-for="role in javaCode['RoleBuilder']"
-            :key="role.value"
-            :label="role.label"
-            :value="role.value"
+    <el-row :gutter="20">
+      <el-col :span="4" :xs="24">
+        <div class="head-container">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入部门名称"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button icon="el-icon-search" size="mini" type="primary" @click="handlerQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
-      </el-form-item>
-      <button-group :button-config="buttonsConfig"/>
-    </el-form>
-    <page-table
-      ref="tableList"
-      :query-form="queryForm"
-      :data-source="dataSource"
-      :table-column-config="tableColumnConfig"
-    />
+        </div>
+        <div class="head-container">
+          <el-tree
+            ref="tree"
+            :data="deptOptions"
+            :expand-on-click-node="false"
+            :filter-node-method="filterNode"
+            :props="{ children: 'children', label: 'label'}"
+            default-expand-all
+            highlight-current
+            node-key="id"
+            @node-click="handleNodeClick"
+          />
+        </div>
+      </el-col>
+      <el-col :span="20" :xs="24">
+        <el-form
+          v-if="showSearch"
+          ref="queryForm"
+          :inline="true"
+          size="small"
+        >
+          <el-form-item label="用户名" prop="username">
+            <el-input
+              v-model="queryForm.username"
+              clearable
+              placeholder="请输入用户名"
+              @keyup.enter.native="handlerQuery"
+            />
+          </el-form-item>
+          <el-form-item label="昵称" prop="nickName">
+            <el-input
+              v-model="queryForm.nickName"
+              clearable
+              placeholder="请输入昵称"
+              @keyup.enter.native="handlerQuery"
+            />
+          </el-form-item>
+          <el-form-item label="角色" prop="username">
+            <el-select v-model="queryForm.role" clearable placeholder="用户角色" multiple>
+              <el-option
+                v-for="role in javaCode['RoleBuilder']"
+                :key="role.value"
+                :label="role.label"
+                :value="role.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button icon="el-icon-search" size="mini" type="primary" @click="handlerQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <button-group :button-config="buttonsConfig" :show-search.sync="showSearch" @queryTable="handlerQuery" />
+        <page-table
+          ref="tableList"
+          :query-form="queryForm"
+          :data-source="dataSource"
+          :table-column-config="tableColumnConfig"
+        />
+      </el-col>
+    </el-row>
     <!--  新增,修改,查看  -->
     <el-dialog
       :visible.sync="addVisible"
-      title="用户新增"
+      :title="title"
       width="500px"
       append-to-body
       @close="closeAddForm"
     >
       <el-form ref="form" label-width="80px" :disabled="addFormDisabled">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username"/>
+          <el-input v-model="form.username" />
         </el-form-item>
         <template v-if="isAdd">
           <el-form-item label="密码" prop="password">
-            <el-input v-model="form.password" type="password" :show-password="true"/>
+            <el-input v-model="form.password" type="password" :show-password="true" />
           </el-form-item>
         </template>
         <el-form-item label="昵称" prop="nickName">
-          <el-input v-model="form.nickName" clearable/>
+          <el-input v-model="form.nickName" clearable />
         </el-form-item>
         <el-form-item label="角色" prop="role">
           <el-select v-model="form.role">
@@ -79,16 +113,26 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="部门" prop="department">
-          <el-input v-model="form.department" clearable/>
+        <el-form-item label="部门" prop="deptId">
+          <tree-select v-model="form.deptId" :options="deptOptions" :show-count="true" placeholder="请选择归属部门" :normalizer="normalizer" />
+        </el-form-item>
+        <el-form-item label="岗位" prop="postId">
+          <el-select v-model="form.postId" placeholder="请选择岗位">
+            <el-option
+              v-for="post in javaCode['PostBuilder']"
+              :key="post.value"
+              :label="post.label"
+              :value="post.value"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
-      <template slot="footer" class="dialog-footer" v-if="isView">
+      <template v-if="isView" slot="footer" class="dialog-footer">
         <el-button type="info" @click="closeAddForm">取消</el-button>
         <el-button type="primary" @click="submitForm">确认</el-button>
       </template>
     </el-dialog>
-    <upload-file ref="upload" action-url="/api/user/upload" business-name="user"/>
+    <upload-file ref="upload" action-url="/api/user/upload" business-name="user" />
   </div>
 </template>
 
@@ -98,12 +142,17 @@ import { getConstant, getJavaCode } from '@/api/common/dict'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import { addUser, deleteUser, enableOrDisableUser, modifyUser, queryUserInfoById } from '@/api/user'
 import UploadFile from '@/components/UploadFile/index.vue'
+import { getDeptTree } from '@/api/dept'
+import TreeSelect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
   name: 'User',
-  components: { UploadFile, ButtonGroup, PageTable },
+  components: { UploadFile, ButtonGroup, PageTable, TreeSelect },
   data() {
     return {
+      title: '',
+      showSearch: true,
       queryForm: {
         username: undefined,
         nickName: undefined,
@@ -116,9 +165,10 @@ export default {
         role: undefined,
         avatar: undefined,
         defaultRole: undefined,
-        department: undefined,
         nickName: undefined,
-        currency: undefined
+        currency: undefined,
+        deptId: undefined,
+        postId: undefined
       },
       addVisible: false,
       editVisible: false,
@@ -129,7 +179,7 @@ export default {
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['RoleBuilder', 'CurrencyBuilder']
+        javaCodeNameList: ['RoleBuilder', 'CurrencyBuilder', 'PostBuilder']
       },
       constantConfig: {
         constantNameList: ['Enable']
@@ -185,10 +235,21 @@ export default {
 
           }
         }
-      ]
+      ],
+      deptName: undefined,
+      deptOptions: []
+    }
+  },
+  watch: {
+    deptName(val) {
+      this.$refs.tree.filter(val)
     }
   },
   async created() {
+    await this.initParam()
+    await getDeptTree().then(res => {
+      this.deptOptions = res.data
+    })
     await getJavaCode(this.javaCodeConfig).then(res => {
       const { data } = res
       this.javaCode = data
@@ -200,6 +261,11 @@ export default {
     await this.init()
   },
   methods: {
+    initParam() {
+      if (this.$route.params.role) {
+        this.queryForm.role = [this.$route.params.role]
+      }
+    },
     handlerQuery() {
       this.$refs.tableList.list()
     },
@@ -248,7 +314,11 @@ export default {
         },
         {
           label: '部门',
-          prop: 'department'
+          prop: 'deptName'
+        },
+        {
+          label: '岗位',
+          prop: 'postName'
         },
         {
           columnType: 'Constant',
@@ -257,10 +327,10 @@ export default {
           constant: {
             constantList: this.constant['Enable'],
             type: (row) => {
-              if (row.enable === 0) {
+              if (row.enable === 1) {
                 return 'success'
               }
-              if (row.enable === 1) {
+              if (row.enable === 0) {
                 return 'info'
               }
             },
@@ -312,9 +382,22 @@ export default {
         this.addVisible = true
         this.addFormDisabled = true
         this.isView = false
+        this.title = '用户查看'
       })
     },
     handleEdit(index, row) {
+      this.form = {
+        id: undefined,
+        username: undefined,
+        password: undefined,
+        role: undefined,
+        avatar: undefined,
+        defaultRole: undefined,
+        nickName: undefined,
+        currency: undefined,
+        deptId: undefined,
+        postId: undefined
+      }
       queryUserInfoById(row.id).then(res => {
         const { data } = res
         Object.assign(this.form, data)
@@ -322,6 +405,7 @@ export default {
         this.addFormDisabled = false
         this.isAdd = false
         this.isView = true
+        this.title = '用户修改'
       })
     },
     handleDel() {
@@ -330,8 +414,8 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        let rows = this.$refs.tableList.checkedRows()
-        let idArr = []
+        const rows = this.$refs.tableList.checkedRows()
+        const idArr = []
         rows.forEach(function(ele) {
           idArr.push(ele.id)
         })
@@ -353,13 +437,13 @@ export default {
       return false
     },
     canEnable(row) {
-      return !(row.enable === 1)
+      return row.enable === 1
     },
     canDisable(row) {
-      return !(row.enable === 0)
+      return row.enable === 0
     },
     enableUser(index, row) {
-      enableOrDisableUser({ id: row.id, enable: row.enable }).then(res => {
+      enableOrDisableUser({ id: row.id, enable: 1 }).then(res => {
         const { code } = res
         if (code === '100') {
           this.$modal.msgSuccess(row.enable === 0 ? '已禁用' : '已启用')
@@ -368,7 +452,7 @@ export default {
       })
     },
     disableUser(index, row) {
-      enableOrDisableUser({ id: row.id, enable: row.enable }).then(res => {
+      enableOrDisableUser({ id: row.id, enable: 0 }).then(res => {
         const { code } = res
         if (code === '100') {
           this.$modal.msgSuccess(row.enable === 0 ? '已禁用' : '已启用')
@@ -392,6 +476,7 @@ export default {
         currency: undefined
       }
       this.isAdd = true
+      this.title = '用户新增'
     },
     closeAddForm() {
       this.$refs.form.resetFields()
@@ -400,7 +485,7 @@ export default {
     submitForm() {
       if (!this.form.id) {
         addUser(this.form).then(res => {
-          const { msg }  = res
+          const { msg } = res
           this.$modal.msgSuccess(msg)
           this.closeAddForm()
           this.handlerQuery()
@@ -416,6 +501,27 @@ export default {
     },
     handleUpload() {
       this.$refs.upload.dialogVisible = true
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleNodeClick(data) {
+      this.queryForm.deptId = data.id
+      this.handlerQuery()
+    },
+    normalizer(node) {
+      if (node.children == null) {
+        delete node.children
+      }
+      if (node.children && !node.children.length) {
+        delete node.children
+      }
+      return {
+        id: node.id,
+        label: node.label,
+        children: node.children
+      }
     }
   }
 }
