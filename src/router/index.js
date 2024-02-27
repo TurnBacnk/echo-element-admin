@@ -49,7 +49,7 @@ export const constantRoutes = [
     children: [{
       path: 'dashboard',
       name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
+      component: () => import('@/views/dashboard/index_v1.vue'),
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
   }
@@ -81,7 +81,26 @@ export const asyncRoutes = [
       }
     ]
   },
-
+  {
+    path: '/config/workflow/sub',
+    component: Layout,
+    permissions: ['workflow:admin:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'workspace',
+        component: () => import('@/views/config/workflow/component/workspace.vue'),
+        name: 'WorkSpace',
+        meta: { activeMenu: '/config/workflow', title: '工作区' }
+      },
+      {
+        path: 'formsPanel',
+        component: () => import('@/views/config/workflow/component/formsPanel.vue'),
+        name: 'FormsPanel',
+        meta: { activeMenu: '/config/workflow', title: '管理后台' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
