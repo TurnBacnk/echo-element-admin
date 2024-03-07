@@ -302,7 +302,7 @@
 </template>
 
 <script>
-import { getServerInfo } from '@/api/server'
+import { getServerInfo } from '@/api/config/server'
 
 export default {
   name: 'Server',

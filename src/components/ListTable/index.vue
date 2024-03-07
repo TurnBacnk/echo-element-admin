@@ -354,6 +354,14 @@ export default {
     checkedRows() {
       return this.$refs.table.selection
     },
+    checkedRowIds() {
+      const selection = this.$refs.table.selection
+      const idArr = []
+      selection.forEach(function(ele) {
+        idArr.push(ele.id)
+      })
+      return idArr
+    },
     handleSizeChange(val) {
       this.size = val
       this.list()
@@ -385,6 +393,10 @@ export default {
      * @param originMoney 原始金额(币种为系统预设币种)
      */
     convertMoney(moneyConfig, originMoney) {
+      if (!originMoney) {
+        const zero = 0;
+        return zero.toFixed(6)
+      }
       return originMoney.toFixed(6)
     },
     getCurrencyUnitLabel() {

@@ -13,17 +13,16 @@
 
 <script>
 
-import { getPostById } from '@/api/config/post'
 import FormTable from '@/components/FormTable/index.vue'
+import { getConstant } from '@/api/common/dict'
 
 export default {
-  name: 'PostEdit',
+  name: 'ModuleAdd',
   components: { FormTable },
   data() {
     return {
-      id: undefined,
-      saveUrl: '/api/post/save',
-      submitUrl: '/api/post/submit',
+      saveUrl: '/api/module/save',
+      submitUrl: '/api/module/submit',
       collapseConfig: [
         {
           active: true,
@@ -32,24 +31,23 @@ export default {
           type: 'form'
         }
       ],
-      contentText: '岗位新增',
+      collapseItemConfig: {},
+      contentText: '模块注册',
       form: {
-        postNo: undefined,
-        postCode: undefined,
-        postName: undefined,
+        businessModuleName: '',
+        businessModuleKey: '',
+        orderNo: undefined,
         status: undefined
       },
       constant: [],
       constantConfig: {
         constantNameList: ['Enable']
-      },
-      collapseItemConfig: {}
+      }
     }
   },
   async created() {
-    this.id = this.$route.params.id
-    await getPostById(this.id).then(res => {
-      Object.assign(this.form, res.data)
+    await getConstant(this.constantConfig).then(res => {
+      this.constant = res.data
     })
     await this.init()
   },
@@ -58,34 +56,32 @@ export default {
       this.collapseItemConfig = {
         baseInfo: [
           {
-            label: '岗位名称',
-            prop: 'postName',
+            label: '业务模块名称',
+            prop: 'businessModuleName',
             type: 'input',
-            placeholder: '请输入岗位名称'
+            placeholder: '请输入业务模块名称'
           },
           {
-            label: '岗位编码',
-            prop: 'postNo',
+            label: '业务模块编码',
+            prop: 'businessModuleKey',
+            type: 'input',
+            placeholder: '请输入业务模块编码',
+          },
+          {
+            label: '排序',
+            prop: 'orderNo',
             type: 'number'
           },
           {
-            label: '岗位代码',
-            prop: 'postCode',
-            type: 'input',
-            placeholder: '请输入岗位代码'
-          },
-          {
-            label: '是否启用',
+            label: '启用状态',
             prop: 'status',
-            type: 'switch',
-            sw: {
-              activeText: '启用',
-              inactiveText: '停用'
-            }
+            type: 'select',
+            options: this.constant['Enable']
           }
         ]
       }
     }
   }
 }
+
 </script>

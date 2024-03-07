@@ -21,13 +21,13 @@
           <div>
             <!--         form         -->
             <template v-if="config.type === 'form'">
-              <el-form ref="form" v-model="form" label-width="120px">
+              <el-form ref="form" :model="form" label-width="120px">
                 <el-row>
                   <el-col v-for="itemConfig in collapseItemConfig[config.name]" :key="itemConfig.prop" :span="8">
-                    <el-form-item :label="itemConfig.label" :prop="itemConfig.prop">
+                    <el-form-item :label="itemConfig.label" :prop="itemConfig.prop" :rules="rules[config.name] ? rules[config.name][itemConfig.prop] : null" >
                       <!--         input         -->
                       <el-input v-if="itemConfig.type === 'input'" v-model="form[itemConfig.prop]" style="width: 90%"
-                                :placeholder="itemConfig.placeholder"
+                                :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label" :disabled="itemConfig.disabled"
                       />
                       <!--         phone         -->
                       <el-input v-if="itemConfig.type === 'inputNumber'" v-model="form[itemConfig.prop]"
@@ -40,7 +40,7 @@
                                       :placeholder="itemConfig.placeholder" style="width: 90%"
                       />
                       <!--         number         -->
-                      <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1"/>
+                      <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1" :disabled="itemConfig.disabled" />
                       <!--         select         -->
                       <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%">
                         <el-option
@@ -81,10 +81,11 @@
                 </el-row>
               </el-form>
             </template>
-            <template v-else>
+            <template v-if="config.type === 'table'">
               <edit-table :data="form[collapseItemConfig[config.name].prop]"
                           :columns="collapseItemConfig[config.name].column"
                           @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
+                          :rules="rules[config.name]"
               />
             </template>
           </div>
@@ -178,7 +179,13 @@ export default {
     saveUrl: {
       type: String,
       required: true
+    },
+    rules: {
+      type: Object,
+      default: () => {}
     }
+  },
+  created() {
   },
   data() {
     const nameArr = []
@@ -199,17 +206,22 @@ export default {
       this.form[prop] = updateData
     },
     save() {
-      request({
-        url: this.saveUrl,
-        method: 'post',
-        data: this.form
-      }).then(res => {
-        const { code, msg } = res
-        if (code === 100) {
-          this.$modal.msgSuccess(msg)
+      this.$refs['form'][0].validate( valid => {
+        if (valid) {
+          request({
+            url: this.saveUrl,
+            method: 'post',
+            data: this.form
+          }).then(res => {
+            const { code, msg } = res
+            if (code === 100) {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+          this.backToLastView()
         }
       })
-      this.backToLastView()
+
     },
     submit() {
       request({

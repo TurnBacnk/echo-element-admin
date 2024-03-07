@@ -1,5 +1,5 @@
 import router, { constantRoutes, asyncRoutes } from '@/router'
-import { getRouters } from '@/api/menu'
+import { getRouters } from '@/api/config/menu'
 import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView'
 import auth from '@/plugin/auth'

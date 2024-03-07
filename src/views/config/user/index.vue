@@ -140,9 +140,9 @@
 import PageTable from '@/components/ListTable/index.vue'
 import { getConstant, getJavaCode } from '@/api/common/dict'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
-import { addUser, deleteUser, enableOrDisableUser, modifyUser, queryUserInfoById } from '@/api/user'
+import { addUser, deleteUser, enableOrDisableUser, modifyUser, queryUserInfoById } from '@/api/config/user'
 import UploadFile from '@/components/UploadFile/index.vue'
-import { getDeptTree } from '@/api/dept'
+import { getDeptTree } from '@/api/config/dept'
 import TreeSelect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 

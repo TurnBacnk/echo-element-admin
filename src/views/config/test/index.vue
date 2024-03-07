@@ -5,6 +5,9 @@
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
       :form="form"
+      :rules="rules"
+      :save-url="saveUrl"
+      :submit-url="submitUrl"
     />
   </div>
 </template>
@@ -20,21 +23,28 @@ export default {
   data() {
     return {
       contentText: '测试组件-新增',
+      saveUrl: '',
+      submitUrl: '',
       collapseConfig: [
         { active: true, title: '单据信息', name: 'billInfo', type: 'form' },
-        { active: true, title: '单据附属信息', name: 'billExtraInfo', type: 'form' },
         { active: true, title: '物料信息', name: 'goodsInfo', type: 'table' },
         { active: true, title: '人员信息', name: 'userInfo', type: 'table' }
       ],
-      collapseItemConfig: [],
+      collapseItemConfig: {},
       form: {
         billNo: undefined,
         billName: undefined,
         billDeadline: undefined,
         billDesc: undefined,
-        billSubNo: undefined,
         goodList: [],
         userList: []
+      },
+      rules: {
+        goodsInfo: {
+          goodsNo: [{required: true, message: '请输入单物料编号', trigger: 'blur' }],
+          goodsName: [{required: true, message: '请输入物料名称', trigger: 'blur'}],
+          goodsDeadLine: [{required: true, message: '请选择过期日期', trigger: 'blur'}]
+        }
       }
     }
   },
@@ -65,23 +75,6 @@ export default {
             label: '单据描述',
             prop: 'billDesc',
             type: 'textarea'
-          }
-        ],
-        billExtraInfo: [
-          {
-            label: '子编号',
-            prop: 'billSubNo',
-            type: 'input'
-          },
-          {
-            label: '子编号',
-            prop: 'billSubNo',
-            type: 'input'
-          },
-          {
-            label: '子编号',
-            prop: 'billSubNo',
-            type: 'input'
           }
         ],
         goodsInfo: {

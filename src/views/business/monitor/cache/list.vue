@@ -148,7 +148,7 @@
 
 <script>
 
-import { clearCacheAll, clearCacheKey, clearCacheName, getCacheValue, listCacheKeys, listCacheNames } from '@/api/cache'
+import { clearCacheAll, clearCacheKey, clearCacheName, getCacheValue, listCacheKeys, listCacheNames } from '@/api/config/cache'
 
 export default {
   name: 'CacheList',

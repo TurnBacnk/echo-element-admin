@@ -250,7 +250,7 @@ import IconSelect from '@/components/IconSelect/index.vue'
 import TreeSelect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { getConstant } from '@/api/common/dict'
-import { deleteMenu, getMenuById, getMenuTree, insertMenu, modifyMenu } from '@/api/menu'
+import { deleteMenu, getMenuById, getMenuTree, insertMenu, modifyMenu } from '@/api/config/menu'
 
 export default {
   name: 'Menu',

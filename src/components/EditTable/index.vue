@@ -1,42 +1,46 @@
 <template>
   <div>
-    <el-button type="primary" style="margin-bottom: 10px" @click="addRow">添加行</el-button>
-    <el-button type="primary" @click="handleImport">批量导入</el-button>
-    <el-table :data="tableData" style="width: 100%" max-height="500">
-      <el-table-column
-        v-for="(column, index) in columns"
-        :key="index"
-        :prop="column.prop"
-        :label="column.label"
-        :width="column.width"
-      >
-        <template slot-scope="scope">
-          <div v-if="scope.row._isEditing">
-            <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" />
-            <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" size="small" style="width: 100%" />
-            <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
-              <el-option
-                v-for="item in column.optionList"
-                :key="item.key"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div v-else>
-            {{ scope.row[column.prop] }}
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="180">
-        <template v-slot="scope">
-          <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">
-            {{ scope.row._isEditing ? '保存' : '编辑' }}
-          </el-button>
-          <el-button size="mini" type="danger" @click="deleteRow(scope.$index)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-button type="primary" style="margin-bottom: 10px" @click="addRow" size="mini">添加行</el-button>
+    <el-button type="primary" @click="handleImport" size="mini">批量导入</el-button>
+    <el-form :model="formData" ref="editTableForm" :rules="rules" size="small">
+      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id">
+        <el-table-column
+          v-for="(column, index) in columns"
+          :key="index"
+          :prop="column.prop"
+          :label="column.label"
+          :width="column.width"
+        >
+          <template slot-scope="scope">
+            <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
+              <div v-if="scope.row._isEditing">
+                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" />
+                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" size="small" style="width: 100%" />
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
+                  <el-option
+                    v-for="item in column.optionList"
+                    :key="item.key"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </div>
+              <div v-else>
+                {{ scope.row[column.prop] }}
+              </div>
+            </el-form-item>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180">
+          <template v-slot="scope">
+            <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">
+              {{ scope.row._isEditing ? '保存' : '编辑' }}
+            </el-button>
+            <el-button size="mini" type="danger" @click="deleteRow(scope.$index)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-form>
   </div>
 </template>
 
@@ -51,6 +55,10 @@ export default {
     columns: {
       type: Array,
       default: () => []
+    },
+    rules: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -59,8 +67,10 @@ export default {
       _isEditing: false
     }))
     return {
-      tableData: initData,
-      editingIndex: null
+      editingIndex: null,
+      formData: {
+        tableData: initData
+      }
     }
   },
   created() {
@@ -74,20 +84,28 @@ export default {
         return
       }
       const newRow = this.columns.reduce((acc, column) => {
-        acc[column.prop] = ''
+        acc[column.prop] = undefined
         return acc
       }, { _isEditing: true })
-      this.tableData.push(newRow)
-      this.editingIndex = this.tableData.length - 1
+      this.formData.tableData.push(newRow)
+      this.editingIndex = this.formData.tableData.length - 1
     },
     toggleEdit(row, index) {
       if (row._isEditing) {
         // 编辑状态，需要保存
         // 变为非编辑状态
-        row._isEditing = !row._isEditing
-        // 删除editingIndex
-        this.editingIndex = null
-        this.$emit('update:data', this.tableData)
+        this.$refs.editTableForm.validate((valid) => {
+          if (valid) {
+            // 通过
+            row._isEditing = !row._isEditing
+            // 删除editingIndex
+            this.editingIndex = null
+            this.$emit('update:data', this.formData.tableData)
+          } else {
+            this.$modal.msgWarning('请检查输入是否正确')
+          }
+        })
+
       } else {
         // 非编辑状态，变为编辑状态
         // 判断是否有未保存的项
@@ -103,7 +121,7 @@ export default {
       }
     },
     deleteRow(index) {
-      this.tableData.splice(index, 1)
+      this.formData.tableData.splice(index, 1)
       this.$emit('update:data', this.tableData)
     }
   }

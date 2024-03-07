@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { getCache } from '@/api/cache'
+import { getCache } from '@/api/config/cache'
 import * as echarts from 'echarts'
 
 export default {

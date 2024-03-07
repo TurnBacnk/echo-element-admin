@@ -15,7 +15,7 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import { getJavaCode } from '@/api/common/dict'
-import { getDeptById, getDeptTree } from '@/api/dept'
+import { getDeptById, getDeptTree } from '@/api/config/dept'
 
 export default {
   name: 'DeptView',

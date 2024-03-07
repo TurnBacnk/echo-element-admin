@@ -46,12 +46,14 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index_v1.vue'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
-    }]
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index_v1.vue'),
+        meta: { title: 'Dashboard', icon: 'dashboard' }
+      }
+    ]
   }
 ]
 
@@ -89,15 +91,121 @@ export const asyncRoutes = [
     children: [
       {
         path: 'workspace',
-        component: () => import('@/views/config/workflow/component/workspace.vue'),
+        component: () =>
+          import('@/views/config/workflow/component/workspace.vue'),
         name: 'WorkSpace',
         meta: { activeMenu: '/config/workflow', title: '工作区' }
       },
       {
         path: 'formsPanel',
-        component: () => import('@/views/config/workflow/component/formsPanel.vue'),
+        component: () =>
+          import('@/views/config/workflow/component/formsPanel.vue'),
         name: 'FormsPanel',
         meta: { activeMenu: '/config/workflow', title: '管理后台' }
+      }
+    ]
+  },
+  {
+    path: '/config/generate-code/sub',
+    component: Layout,
+    permissions: ['generate-code:admin:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'generate-code-add',
+        component: () =>
+          import('@/views/config/generatecode/generate-code-add.vue'),
+        name: 'GenerateCodeAdd',
+        meta: { activeMenu: '/config/generate-code', title: '生成规则配置' }
+      },
+      {
+        path: 'generate-code-edit',
+        component: () =>
+          import('@/views/config/generatecode/generate-code-edit.vue'),
+        name: 'GenerateCodeEdit',
+        meta: { activeMenu: '/config/generate-code', title: '生成规则修改' }
+      }
+    ]
+  },
+  {
+    path: '/config/module/sub',
+    component: Layout,
+    permissions: ['module:admin:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'module-add',
+        component: () => import('@/views/config/module/module-add.vue'),
+        name: 'ModuleAdd',
+        meta: { activeMenu: '/config/module', title: '模块注册' }
+      },
+      {
+        path: 'module-edit',
+        component: () => import('@/views/config/module/module-edit.vue'),
+        name: 'ModuleEdit',
+        meta: { activeMenu: '/config/module', title: '模块修改' }
+      }
+    ]
+  },
+  {
+    path: '/config/dict/sub',
+    component: Layout,
+    permissions: ['dict:admin:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'dict-add',
+        component: () => import('@/views/config/dict/dict-add.vue'),
+        name: 'DictAdd',
+        meta: { activeMenu: '/config/dict', title: '字典新增' }
+      },
+      {
+        path: 'dict-edit',
+        component: () => import('@/views/config/dict/dict-edit.vue'),
+        name: 'DictEdit',
+        meta: { activeMenu: '/config/dict', title: '字典修改' }
+      }
+    ]
+    },
+  {
+    path: '/document/product/sub',
+    component: Layout,
+    permissions: ['productInfo:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'product-info-add',
+        component: () =>
+          import('@/views/document/product/product-info-add.vue'),
+        name: 'ProductInfoAdd',
+        meta: { activeMenu: '/document/product', title: '产品登记' }
+      },
+      {
+        path: 'product-info-edit',
+        component: () =>
+          import('@/views/document/product/product-info-edit.vue'),
+        name: 'ProductInfoEdit',
+        meta: { activeMenu: '/document/product', title: '产品修改' }
+      }
+    ]
+  },
+  {
+    path: '/document/category/sub',
+    component: Layout,
+    permissions: ['category:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'category-add',
+        component: () => import('@/views/document/category/category-add.vue'),
+        name: 'CategoryAdd',
+        meta: { activeMenu: '/document/category', title: '类别登记' }
+      },
+      {
+        path: 'category-edit',
+        component: () => import('@/views/document/category/category-edit.vue'),
+        name: 'CategoryEdit',
+        meta: { activeMenu: '/document/category', title: '类别修改' }
       }
     ]
   },
@@ -105,11 +213,12 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 

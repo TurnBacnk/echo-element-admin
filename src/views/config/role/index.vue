@@ -65,8 +65,8 @@
 <script>
 import PageTable from '@/components/ListTable/index.vue'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
-import { addRole, deleteRole, enableOrDisableRole, getMenuTreeByRoleId, getRoleById, modifyRole } from '@/api/role'
-import { getMenuTree } from '@/api/menu'
+import { addRole, deleteRole, enableOrDisableRole, getMenuTreeByRoleId, getRoleById, modifyRole } from '@/api/config/role'
+import { getMenuTree } from '@/api/config/menu'
 
 export default {
   name: 'Role',

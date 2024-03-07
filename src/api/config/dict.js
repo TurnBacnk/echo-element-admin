@@ -15,3 +15,18 @@ export function updateDictionary(data) {
     data: data
   })
 }
+
+export function batchDeleteDictionary(ids) {
+  return request({
+    url: '/api/dict/delete',
+    method: 'post',
+    data: ids
+  })
+}
+
+export function getSingleDict(id) {
+  return request({
+    url: '/api/dict/get-single-dict/' + id,
+    method: 'get'
+  })
+}

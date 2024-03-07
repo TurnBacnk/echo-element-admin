@@ -30,7 +30,7 @@
 import { getConstant } from '@/api/common/dict'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { delDept } from '@/api/dept'
+import { delDept } from '@/api/config/dept'
 
 export default {
   name: 'Dept',

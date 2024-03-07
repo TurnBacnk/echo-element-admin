@@ -106,7 +106,7 @@ import PageTable from '@/components/ListTable/index.vue'
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import CronTab from '@/components/Crontab/index.vue'
 import { getConstant } from '@/api/common/dict'
-import { disableJob, enableJob, execute, insertJob, queryTaskById, startOrPauseJob, updateJob } from '@/api/task'
+import { disableJob, enableJob, execute, insertJob, queryTaskById, startOrPauseJob, updateJob } from '@/api/config/task'
 
 export default {
   name: 'Task',

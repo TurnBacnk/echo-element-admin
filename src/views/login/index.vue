@@ -71,7 +71,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
-import { getCode } from '@/api/user'
+import { getCode } from '@/api/config/user'
 
 export default {
   name: 'Login',
