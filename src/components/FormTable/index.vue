@@ -53,7 +53,7 @@
                       <!--         treeSelect         -->
                       <tree-select v-if="itemConfig.type === 'treeSelect'" v-model="form[itemConfig.prop]"
                                    :options="itemConfig.options" :normalizer="normalizer" :show-count="true"
-                                   :placeholder="itemConfig.placeholder" style="width: 90%" :appendToBody="true" size="mini"
+                                   :placeholder="itemConfig.placeholder" style="width: 90%;display: table" :appendToBody="true" size="mini"
                       />
                       <!--         textarea         -->
                       <el-input v-if="itemConfig.type === 'textarea'" v-model="form[itemConfig.prop]" type="textarea"
@@ -186,6 +186,13 @@ export default {
     }
   },
   created() {
+    this.$nextTick(() => {
+      var elements = document.querySelectorAll('.vue-treeselect__control')
+      console.log(elements)
+      elements.forEach(function(element) {
+        element.style.removeProperty('display')
+      })
+    })
   },
   data() {
     const nameArr = []
@@ -304,6 +311,14 @@ blockquote p {
   margin-top: 20px;
   margin-left: 10px;
   text-align: left;
+}
+
+.vue-treeselect__control {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 0 10px;
+  height: 34px;
+  line-height: 34px;
 }
 
 .vue-treeselect__menu-container {
