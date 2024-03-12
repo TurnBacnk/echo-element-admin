@@ -73,8 +73,9 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import { batchDeleteProductInfo } from '@/api/business/product-info'
-import { getConstant, getDictionary } from '@/api/common/dict'
+import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import UploadFile from '@/components/UploadFile/index.vue'
+import { getCategoryTree } from '@/api/business/category'
 
 export default {
   name: 'ProductDocument',
@@ -153,6 +154,12 @@ export default {
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
+    await getCategoryTree().then(res => {
+      this.categoryOptions = res.data
+    })
     await this.init()
   },
   methods: {
@@ -177,7 +184,7 @@ export default {
           prop: 'category',
           columnType: 'Dictionary',
           dict: {
-            dictList: this.dictionary['Category']
+            dictList: this.javaCode['CategoryBuilder']
           }
         }, {
           label: '条形码',

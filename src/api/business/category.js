@@ -6,3 +6,17 @@ export function getNextOrderNO(parentId) {
     method: 'get'
   })
 }
+
+export function getCategoryTree() {
+  return request({
+    url: '/api/category/get-category-tree',
+    method: 'get'
+  })
+}
+
+export function delCategory(id) {
+  return request(({
+    url: '/api/category/del/' + id,
+    method: 'get'
+  }))
+}

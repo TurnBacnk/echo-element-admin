@@ -196,8 +196,8 @@ export default {
     handleDisableOrEnable(row, status) {
       enableOrDisableGenerateCodeRule(row.id, status).then(res => {
         const { msg, code } = res
-        if (code === 100) {
-          this.$modal.msg(msg)
+        if (code === '100') {
+          this.$modal.msgSuccess(msg)
           this.handleQuery()
         }
       })

@@ -16,8 +16,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getConstant, getDictionary } from '@/api/common/dict'
+import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import { generateCode } from '@/api/config/generate-code'
+import { getCategoryTree } from '@/api/business/category'
 
 export default {
   name: 'ProductInfoAdd',
@@ -64,12 +65,13 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: ['Unit', 'Category']
+        dictionaryNameList: ['Unit']
       },
       constant: [],
       constantConfig: {
         constantNameList: ['Enable']
-      }
+      },
+      categoryTree: []
     }
   },
   async created() {
@@ -78,6 +80,9 @@ export default {
     })
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
+    })
+    await getCategoryTree().then(res => {
+      this.categoryTree = res.data
     })
     await this.generateCode()
     await this.init()
@@ -107,9 +112,8 @@ export default {
           {
             label: '产品类别',
             prop: 'category',
-            type: 'select',
-            // options: this.javaCode['CategoryBuilder']
-            options: this.dictionary['Category']
+            type: 'treeSelect',
+            options: this.categoryTree
           },
           {
             label: '条形码',
@@ -132,12 +136,12 @@ export default {
           {
             label: '备注',
             prop: 'remark',
-            type: 'textarea'
+            type: 'input'
           },
           {
             label: '产品描述',
             prop: 'productDescription',
-            type: 'textarea'
+            type: 'input'
           }
         ],
         historyInfo: {

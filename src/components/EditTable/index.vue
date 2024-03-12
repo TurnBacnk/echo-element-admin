@@ -15,7 +15,15 @@
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
               <div v-if="scope.row._isEditing">
                 <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" />
+                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" oninput="value=value.replace(/[^0-9.]/g,'')" />
                 <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" size="small" style="width: 100%" />
+                <el-autocomplete v-if="column.type === 'autoComplete'"
+                                 class="inline-input"
+                                 v-model="scope.row[column.prop]"
+                                 :fetch-suggestions="column.completeFun"
+                                 :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
+                />
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" active-value="1" inactive-value="0" />
                 <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
                   <el-option
                     v-for="item in column.optionList"
@@ -26,7 +34,10 @@
                 </el-select>
               </div>
               <div v-else>
-                {{ scope.row[column.prop] }}
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" active-value="1" inactive-value="0" :disabled="true" />
+                <template v-if="column.type !== 'switch'">
+                  {{ scope.row[column.prop] }}
+                </template>
               </div>
             </el-form-item>
           </template>

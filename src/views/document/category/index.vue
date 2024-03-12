@@ -10,7 +10,7 @@
       </el-form-item>
     </el-form>
     <button-group :button-config="buttonConfig" @queryTable="handleQuery" :show-search.sync="showSearch" />
-    <page-table :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" :tree-config="{ children: 'children', hasChildren: 'hasChildren'}" />
+    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" :tree-config="{ children: 'children', hasChildren: 'hasChildren'}" />
   </div>
 </template>
 
@@ -18,6 +18,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
+import { delCategory } from '@/api/business/category'
 
 export default {
   name: 'ProductCategory',
@@ -45,10 +46,12 @@ export default {
   },
   methods: {
     handleQuery() {
-
+      this.$refs.tableList.list()
     },
     resetQuery() {
-      this.$refs.queryForm.resetFields()
+      this.queryForm = {
+        categoryName: undefined
+      }
     },
     handleAdd() {
       this.$router.push({
@@ -60,6 +63,24 @@ export default {
         name: 'CategoryEdit',
         params: {
           id: row.id
+        }
+      })
+    },
+    addSub(index, row) {
+      this.$router.push({
+        name: 'CategoryAdd',
+        params: {
+          categoryName: row.categoryName + '-xxx',
+          parentId: row.id
+        }
+      })
+    },
+    handleDel(index, row) {
+      delCategory(row.id).then(res => {
+        const { code, msg } = res
+        if (code === '100') {
+          this.$modal.msgSuccess(msg)
+          this.handleQuery()
         }
       })
     },
@@ -82,6 +103,16 @@ export default {
           columnType: 'Operation',
           label: '操作',
           button: [
+            {
+              text: '增加下级',
+              css: 'text',
+              click: (index, row) => {
+                this.addSub(index, row)
+              },
+              isDisabled: (row) => {
+                return false
+              }
+            },
             {
               text: '修改',
               css: 'text',

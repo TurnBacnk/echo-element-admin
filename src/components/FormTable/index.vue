@@ -42,7 +42,7 @@
                       <!--         number         -->
                       <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1" :disabled="itemConfig.disabled" />
                       <!--         select         -->
-                      <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%">
+                      <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%" @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options)">
                         <el-option
                           v-for="option in itemConfig.options"
                           :key="option.value"
@@ -183,16 +183,23 @@ export default {
     rules: {
       type: Object,
       default: () => {}
+    },
+    saveFun: {
+      type: Function,
+      required: false,
+      default: () => {
+        return true
+      }
     }
   },
   created() {
-    this.$nextTick(() => {
-      var elements = document.querySelectorAll('.vue-treeselect__control')
-      console.log(elements)
-      elements.forEach(function(element) {
-        element.style.removeProperty('display')
-      })
-    })
+    // this.$nextTick(() => {
+    //   var elements = document.querySelectorAll('.vue-treeselect__control')
+    //   console.log(elements)
+    //   elements.forEach(function(element) {
+    //     element.style.removeProperty('display')
+    //   })
+    // })
   },
   data() {
     const nameArr = []
@@ -213,22 +220,23 @@ export default {
       this.form[prop] = updateData
     },
     save() {
-      this.$refs['form'][0].validate( valid => {
-        if (valid) {
-          request({
-            url: this.saveUrl,
-            method: 'post',
-            data: this.form
-          }).then(res => {
-            const { code, msg } = res
-            if (code === 100) {
-              this.$modal.msgSuccess(msg)
-            }
-          })
-          this.backToLastView()
-        }
-      })
-
+      if (this.saveFun()) {
+        this.$refs['form'][0].validate( valid => {
+          if (valid) {
+            request({
+              url: this.saveUrl,
+              method: 'post',
+              data: this.form
+            }).then(res => {
+              const { code, msg } = res
+              if (code === 100) {
+                this.$modal.msgSuccess(msg)
+              }
+            })
+            this.backToLastView()
+          }
+        })
+      }
     },
     submit() {
       request({
@@ -260,6 +268,17 @@ export default {
         label: node.label,
         children: node.children
       }
+    },
+    handleSelectChange(changeValue, bundleConfig, options) {
+      if (bundleConfig === undefined) {
+        return
+      }
+      // 需要绑定多个值
+      let obj = options.find((item) => {
+        return item.value === changeValue
+      })
+      this.form[bundleConfig.label] = obj.label
+      this.form[bundleConfig.value] = changeValue
     },
     backToLastView() {
       const currentView = this.$store.state.tagsView.visitedViews[this.$store.state.tagsView.visitedViews.length - 1]

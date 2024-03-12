@@ -209,6 +209,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/document/client/sub',
+    component: Layout,
+    permissions: ['client:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'client-add',
+        component: () => import('@/views/document/client/client-add.vue'),
+        name: 'ClientAdd',
+        meta: { activeMenu: '/document/client', title: '客户信息登记' }
+      },
+      {
+        path: 'client-edit',
+        component: () => import('@/views/document/client/client-edit.vue'),
+        name: 'ClientEdit',
+        meta: { activeMenu: '/document/client', title: '客户信息修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

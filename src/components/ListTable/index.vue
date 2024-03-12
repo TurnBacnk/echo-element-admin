@@ -212,6 +212,7 @@
 <script>
 
 import request from '@/utils/request'
+import { queryUserInfoById } from '@/api/config/user'
 
 export default {
   name: 'PageTable',
@@ -372,6 +373,13 @@ export default {
     },
     rowClassNameMethod({ row, rowIndex }) {
       this.rowClassName(rowIndex, row)
+    },
+    personConvert(originValue) {
+      let result = null
+      queryUserInfoById(originValue).then(res => {
+        result = res.nickName
+      })
+      return result
     },
     dictionaryConvert(dictList, originValue) {
       for (let i = 0; i < dictList.length; i++) {

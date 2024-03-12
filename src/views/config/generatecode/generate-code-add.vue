@@ -28,7 +28,8 @@ export default {
         tableName: undefined,
         tableCode: undefined,
         status: undefined,
-        withDate: undefined
+        withDate: undefined,
+        length: undefined
       },
       collapseItemConfig: {},
       collapseConfig: [
@@ -46,6 +47,10 @@ export default {
           tableCode: [{required: true, message: '不能为空', trigger: 'blur'}],
           status: [{required: true, message: '不能为空', trigger: 'change'}],
           withDate: [{required: true, message: '不能为空', trigger: 'change'}],
+          length: [
+            {required: true, message: '不能为空', trigger: 'blur'},
+            {type: 'number', message: '必须为数字值', trigger: 'blur'}
+          ]
         }
       }
     }
@@ -86,6 +91,11 @@ export default {
             prop: 'withDate',
             type: 'select',
             options: this.constant['YesOrNo']
+          },
+          {
+            label: '编码长度',
+            prop: 'length',
+            type: 'number'
           }
         ]
       }

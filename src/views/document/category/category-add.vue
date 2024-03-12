@@ -16,7 +16,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getNextOrderNO } from '@/api/business/category'
+import { getCategoryTree, getNextOrderNO } from '@/api/business/category'
 
 export default {
   name: 'CategoryAdd',
@@ -47,8 +47,28 @@ export default {
       categoryTree: []
     }
   },
+  watch: {
+    'form.parentId': {
+      handler(newVal, oldVal) {
+        console.log(newVal)
+        this.getNextOrder(newVal)
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   async created() {
-    await this.getNextOrder()
+    const parentId = this.$route.params.parentId
+    const categoryName = this.$route.params.categoryName
+    if (parentId) {
+      this.form.parentId = parentId
+    }
+    if (categoryName) {
+      this.form.categoryName = categoryName
+    }
+    await getCategoryTree().then(res => {
+      this.categoryTree = res.data
+    })
     await this.init()
   },
   methods: {
@@ -61,15 +81,15 @@ export default {
             type: 'input'
           },
           {
+            label: '备注',
+            prop: 'remark',
+            type: 'input'
+          },
+          {
             label: '排序',
             prop: 'orderNo',
             disabled: true,
             type: 'number'
-          },
-          {
-            label: '备注',
-            prop: 'remark',
-            type: 'input'
           },
           {
             label: '上级分类',
@@ -81,8 +101,8 @@ export default {
       }
       this.showForm = true
     },
-    getNextOrder() {
-      getNextOrderNO(this.form.parentId).then(res => {
+    getNextOrder(parentId) {
+      getNextOrderNO(parentId).then(res => {
         this.form.orderNo = res.data
       })
     }
