@@ -22,8 +22,9 @@
                                  v-model="scope.row[column.prop]"
                                  :fetch-suggestions="column.completeFun"
                                  :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
+                                 style="width: 100%"
                 />
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" active-value="1" inactive-value="0" />
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value=1 :inactive-value=0 />
                 <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
                   <el-option
                     v-for="item in column.optionList"
@@ -34,7 +35,7 @@
                 </el-select>
               </div>
               <div v-else>
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" active-value="1" inactive-value="0" :disabled="true" />
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value=1 :inactive-value=0 :disabled="true" />
                 <template v-if="column.type !== 'switch'">
                   {{ scope.row[column.prop] }}
                 </template>

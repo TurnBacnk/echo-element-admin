@@ -30,7 +30,6 @@ import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import { getConstant } from '@/api/common/dict'
 import { enableOrDisableGenerateCodeRule } from '@/api/config/generate-code'
-import ro from 'element-ui/src/locale/lang/ro'
 
 export default {
   name: 'GenerateCode',

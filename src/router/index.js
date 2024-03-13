@@ -229,6 +229,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/document/vendor/sub',
+    component: Layout,
+    permissions: ['vendor:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'vendor-add',
+        component: () => import('@/views/document/vendor/vendor-add.vue'),
+        name: 'VendorAdd',
+        meta: { activeMenu: '/document/vendor', title: '供应商信息登记' }
+      },
+      {
+        path: 'vendor-edit',
+        component: () => import('@/views/document/vendor/vendor-edit.vue'),
+        name: 'VendorEdit',
+        meta: { activeMenu: '/document/vendor', title: '供应商信息修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

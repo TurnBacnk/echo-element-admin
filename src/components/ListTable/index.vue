@@ -42,7 +42,7 @@
         <!--    索引    -->
         <el-table-column
           v-else-if="column.columnType === 'Index'"
-          :type="column.type"
+          :type="column.type ? column.type : 'selection'"
           align="center"
         >
         </el-table-column>
@@ -374,23 +374,18 @@ export default {
     rowClassNameMethod({ row, rowIndex }) {
       this.rowClassName(rowIndex, row)
     },
-    personConvert(originValue) {
-      let result = null
-      queryUserInfoById(originValue).then(res => {
-        result = res.nickName
-      })
-      return result
-    },
     dictionaryConvert(dictList, originValue) {
       for (let i = 0; i < dictList.length; i++) {
-        if (dictList[i].value === originValue) {
+        // 兼容，String Integer
+        if (dictList[i].value == originValue) {
           return dictList[i].label
         }
       }
     },
     constantConvert(constantList, originValue) {
       for (let i = 0; i < constantList.length; i++) {
-        if (constantList[i].value === originValue) {
+        // 兼容，String Integer
+        if (constantList[i].value == originValue) {
           return constantList[i].label
         }
       }
