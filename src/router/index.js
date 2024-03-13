@@ -249,6 +249,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/document/warehouse/sub',
+    component: Layout,
+    permissions: ['warehouse:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'warehouse-add',
+        component: () => import('@/views/document/warehouse/warehouse-add.vue'),
+        name: 'WarehouseAdd',
+        meta: { activeMenu: '/document/warehouse', title: '仓库信息登记' }
+      },
+      {
+        path: 'warehouse-edit',
+        component: () => import('@/views/document/warehouse/warehouse-edit.vue'),
+        name: 'WarehouseEdit',
+        meta: { activeMenu: '/document/warehouse', title: '仓库信息修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
