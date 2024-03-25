@@ -15,6 +15,7 @@
       default-expand-all
       row-key="id"
       :tree-props="treeConfig"
+      :default-expand-all="expanded"
       style="width: 100%"
     >
       <template v-for="column in tableColumnConfig">
@@ -61,7 +62,7 @@
             {{ dictionaryConvert(column.dict.dictList, dictionaryScope.row[dictionaryScope.column.property]) }}
           </template>
         </el-table-column>
-        <!--    常量替换替换    -->
+        <!--    常量替换    -->
         <el-table-column
           v-else-if="column.columnType === 'Constant'"
           :fixed="column.fixed ? column.fixed : false"
@@ -298,6 +299,10 @@ export default {
     },
     treeConfig: {
       type: Object,
+      required: false
+    },
+    expanded: {
+      type: Boolean,
       required: false
     },
     pageable: {

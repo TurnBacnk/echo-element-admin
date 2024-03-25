@@ -16,12 +16,14 @@
     </el-form>
     <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @queryTable="handlerQuery"/>
     <page-table
+      v-if="refreshTable"
       ref="tableList"
       :query-form="queryForm"
       :data-source="dataSource"
       :table-column-config="tableColumnConfig"
       :tree-config="{children: 'children', hasChildren: 'hasChildren'}"
       :pageable="false"
+      :expanded="expand"
     />
     <el-dialog
       :visible.sync="addDialogVisible"
@@ -257,7 +259,9 @@ export default {
   components: { IconSelect, PageTable, ButtonGroup, TreeSelect },
   data() {
     return {
+      refreshTable: true,
       showSearch: true,
+      expand: false,
       queryForm: {
         menuName: undefined
       },
@@ -266,6 +270,13 @@ export default {
           text: '新增',
           click: () => {
             this.handleAdd()
+          }
+        },
+        {
+          text: '展开/折叠',
+          type: 'info',
+          click: () => {
+            this.expandTable()
           }
         }
       ],
@@ -488,6 +499,13 @@ export default {
         children: node.children
       };
     },
+    expandTable() {
+      this.expand = !this.expand
+      this.refreshTable = false
+      this.$nextTick(() => {
+        this.refreshTable = true
+      })
+    }
   }
 }
 

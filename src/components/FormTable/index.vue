@@ -37,7 +37,7 @@
 
                       <!--         data         -->
                       <el-date-picker v-if="itemConfig.type === 'date'" v-model="form[itemConfig.prop]" type="date"
-                                      :placeholder="itemConfig.placeholder" style="width: 90%"
+                                      :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label" style="width: 90%"
                       />
                       <!--         number         -->
                       <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1" :disabled="itemConfig.disabled" />
@@ -190,6 +190,13 @@ export default {
       default: () => {
         return true
       }
+    },
+    submitFun: {
+      type: Function,
+      required: false,
+      default: () => {
+        return true
+      }
     }
   },
   created() {
@@ -221,36 +228,49 @@ export default {
     },
     save() {
       if (this.saveFun()) {
-        this.$refs['form'][0].validate( valid => {
-          if (valid) {
-            request({
-              url: this.saveUrl,
-              method: 'post',
-              data: this.form
-            }).then(res => {
-              const { code, msg } = res
-              if (code === 100) {
-                this.$modal.msgSuccess(msg)
-              }
-            })
-            this.backToLastView()
+        let formArr = this.$refs['form']
+        formArr.forEach(function(ele) {
+          ele.validate(valid => {
+            if (!valid) {
+              return false
+            }
+          })
+        })
+        request({
+          url: this.saveUrl,
+          method: 'post',
+          data: this.form
+        }).then(res => {
+          const { code, msg } = res
+          if (code === 100) {
+            this.$modal.msgSuccess(msg)
           }
         })
+        this.backToLastView()
       }
     },
     submit() {
-      request({
-        url: this.submitUrl,
-        method: 'post',
-        data: this.form
-      }).then(res => {
-        const { code, msg } = res
-        if (code === 100) {
-          this.$modal.msgSuccess(msg)
-        }
-      })
-      this.backToLastView()
-    },
+      if (this.submitFun()) {
+        let formArr = this.$refs['form']
+        formArr.forEach(function(ele) {
+          ele.validate(valid => {
+            if (!valid) {
+              return false
+            }
+          })
+        })
+        request({
+          url: this.submitUrl,
+          method: 'post',
+          data: this.form
+        }).then(res => {
+          const { code, msg } = res
+          if (code === 100) {
+            this.$modal.msgSuccess(msg)
+          }
+        })
+        this.backToLastView()}
+      },
     selectChange(e, bundleConfig) {
       console.log(e)
       this.form[bundleConfig.label] = e.label

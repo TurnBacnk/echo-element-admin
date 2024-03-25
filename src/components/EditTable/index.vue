@@ -25,7 +25,7 @@
                                  style="width: 100%"
                 />
                 <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value=1 :inactive-value=0 />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]">
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" @change="column.click($event, scope.row)">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"
@@ -135,6 +135,9 @@ export default {
     deleteRow(index) {
       this.formData.tableData.splice(index, 1)
       this.$emit('update:data', this.tableData)
+    },
+    handleSelectChange(event, ) {
+
     }
   }
 }

@@ -269,6 +269,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/contract/sale/sub',
+    component: Layout,
+    permissions: ['sale:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'sale-contract-add',
+        component: () => import('@/views/contract/sale/sale-contract-add.vue'),
+        name: 'SaleContractAdd',
+        meta: { activeMenu: '/contract/sale-contract', title: '销售合同登记' }
+      },
+      {
+        path: 'sale-contract-edit',
+        component: () => import('@/views/contract/sale/sale-contract-edit.vue'),
+        name: 'SaleContractEdit',
+        meta: { activeMenu: '/contract/sale-contract', title: '销售合同修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
