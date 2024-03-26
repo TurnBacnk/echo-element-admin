@@ -249,7 +249,11 @@ export default {
       this.$refs.tableList.list()
     },
     restQuery() {
-
+      this.queryForm = {
+        contractCode: undefined,
+        contractName: undefined,
+        customerId: undefined
+      }
     }
   }
 }

@@ -213,7 +213,6 @@
 <script>
 
 import request from '@/utils/request'
-import { queryUserInfoById } from '@/api/config/user'
 
 export default {
   name: 'PageTable',

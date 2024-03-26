@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="采购订单编号" prop="orderCode">
-        <el-input v-model="queryForm.orderCode" placeholder="请输入采购订单编号" clearable/>
+        <el-input v-model="queryForm.orderCode" placeholder="请输入采购订单编号" clearable />
       </el-form-item>
-      <el-form-item label="单据日期" prop="deliverDate">
-        <el-input v-model="queryForm.deliverDate" placeholder="请输入交货日期" clearable/>
+      <el-form-item label="单据日期" prop="orderTime">
+        <el-date-picker v-model="queryForm.orderTime" placeholder="请选择单据日期" clearable type="date" size="small" value-format="yyyy-MM-dd" />
       </el-form-item>
       <el-form-item label="供应商" prop="vendorId">
         <el-select v-model="queryForm.vendorId">
@@ -22,7 +22,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>
@@ -31,7 +31,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getDictionary, getJavaCode } from '@/api/common/dict'
+import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
+import { voidOrderByIds } from '@/api/business/order'
 
 export default {
   name: 'BuyOrder',
@@ -56,10 +57,10 @@ export default {
           icon: 'el-icon-plus'
         },
         {
-          text: '删除',
+          text: '作废',
           type: 'danger',
           click: () => {
-            this.handleDel()
+            this.handleVoid()
           },
           plain: true,
           icon: 'el-icon-delete'
@@ -74,10 +75,17 @@ export default {
       javaCode: [],
       javaCodeConfig: {
         javaCodeNameList: ['VendorBuilder']
+      },
+      constant: [],
+      constantConfig: {
+        constantNameList: ['OrderStatus']
       }
     }
   },
   async created() {
+    await getConstant(this.constantConfig).then(res => {
+      this.constant = res.data
+    })
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
@@ -94,7 +102,7 @@ export default {
           type: 'selection'
         },
         {
-          label:'采购订单编号',
+          label: '采购订单编号',
           prop: 'orderCode'
         },
         {
@@ -111,15 +119,11 @@ export default {
         },
         {
           label: '供应商',
-          prop: 'vendorName',
+          prop: 'vendorName'
         },
         {
           label: '采购人员',
           prop: 'procurementUsername'
-        },
-        {
-          label: '仓库',
-          prop: 'warehouseName'
         },
         {
           label: '优惠金额',
@@ -136,21 +140,33 @@ export default {
           prop: 'status',
           columnType: 'Tag',
           tag: {
-            dictList: this.dictionary['OrderStatus'],
+            dictList: this.constant['OrderStatus'],
             type: (row) => {
-              if (row.status === 0) {
+              if (row === 0) {
                 return 'info'
-              } else {
+              }
+              if (row === 1) {
                 return 'success'
+              }
+              if (row === 2) {
+                return 'info'
+              }
+              if (row === 3) {
+                return 'primary'
+              }
+              if (row === 4) {
+                return 'danger'
+              }
+              if (row === 5) {
+                return 'success'
+              }
+              if (row === 6) {
+                return 'primary'
               }
             },
             effect: 'light',
             isConvert: true
           }
-        },
-        {
-          label: '关联的入库单',
-          prop: 'associatedInboundOrderId'
         },
         {
           columnType: 'Operation',
@@ -172,25 +188,38 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: '',
+        name: 'OrderAdd'
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'OrderEdit',
         params: {
           id: row.id
         }
       })
     },
-    handleDel() {
+    handleVoid() {
       const ids = this.$refs.tableList.checkedRowIds()
+      voidOrderByIds(ids).then(res => {
+        const { code, msg } = res
+        if (code === '100') {
+          this.$modal.msgSuccess(msg)
+          this.handleQuery()
+        }
+      })
     },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
-
+      this.queryForm = {
+        orderCode: undefined,
+        deliverDate: undefined,
+        vendorId: undefined,
+        procurementUserId: undefined,
+        warehouseId: undefined
+      }
     }
   }
 }

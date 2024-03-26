@@ -19,16 +19,16 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getProductInfoById } from '@/api/business/product-info'
-import { generateCode } from '@/api/config/generate-code'
+import { getOrderById } from '@/api/business/order'
 
 export default {
-  name: 'OrderEdit',
+  name: 'DictAdd',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '采购订单登记',
-      saveUrl: '/api/order/save',
+      contentText: '采购订单修改',
+      saveUrl: '/api/order/update',
       submitUrl: '/api/order/submit',
       canSubmit: true,
       collapseConfig: [
@@ -80,8 +80,8 @@ export default {
     }
   },
   async created() {
-    await generateCode('ORDER').then(res => {
-      this.form.orderCode = res.data
+    await getOrderById(this.$route.params.id).then(res => {
+      Object.assign(this.form, res.data)
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data

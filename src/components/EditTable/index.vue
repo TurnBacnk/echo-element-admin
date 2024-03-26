@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-button type="primary" style="margin-bottom: 10px" @click="addRow" size="mini">添加行</el-button>
-    <el-button type="primary" @click="handleImport" size="mini">批量导入</el-button>
-    <el-form :model="formData" ref="editTableForm" :rules="rules" size="small">
+    <el-button type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
+    <el-button type="primary" size="mini" @click="handleImport">批量导入</el-button>
+    <el-form ref="editTableForm" :model="formData" :rules="rules" size="small">
       <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id">
         <el-table-column
           v-for="(column, index) in columns"
@@ -14,18 +14,20 @@
           <template slot-scope="scope">
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
               <div v-if="scope.row._isEditing">
-                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" />
-                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" oninput="value=value.replace(/[^0-9.]/g,'')" />
-                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" size="small" style="width: 100%" />
-                <el-autocomplete v-if="column.type === 'autoComplete'"
-                                 class="inline-input"
-                                 v-model="scope.row[column.prop]"
-                                 :fetch-suggestions="column.completeFun"
-                                 :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
-                                 style="width: 100%"
+                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" />
+                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" oninput="value=value.replace(/[^\d.]/g,'')" size="small" :disabled="column.disabled" />
+                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" oninput="value=value.replace(/[^0-9.]/g,'')" :disabled="column.disabled" />
+                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
+                <el-autocomplete
+                  v-if="column.type === 'autoComplete'"
+                  v-model="scope.row[column.prop]"
+                  class="inline-input"
+                  :fetch-suggestions="column.completeFun"
+                  :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
+                  style="width: 100%"
                 />
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value=1 :inactive-value=0 />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" @change="column.click($event, scope.row)">
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" />
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" :disabled="column.disabled" @change="column.click($event, scope.row)">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"
@@ -35,7 +37,7 @@
                 </el-select>
               </div>
               <div v-else>
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value=1 :inactive-value=0 :disabled="true" />
+                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" :disabled="true" />
                 <template v-if="column.type !== 'switch'">
                   {{ scope.row[column.prop] }}
                 </template>
@@ -117,7 +119,6 @@ export default {
             this.$modal.msgWarning('请检查输入是否正确')
           }
         })
-
       } else {
         // 非编辑状态，变为编辑状态
         // 判断是否有未保存的项
@@ -136,7 +137,7 @@ export default {
       this.formData.tableData.splice(index, 1)
       this.$emit('update:data', this.tableData)
     },
-    handleSelectChange(event, ) {
+    handleSelectChange(event) {
 
     }
   }

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
       <el-form-item label="仓库名称" prop="warehouseName">
-        <el-input v-model="queryForm.warehouseCode" placeholder="请输入仓库名称" />
+        <el-input v-model="queryForm.warehouseName" placeholder="请输入仓库名称" />
       </el-form-item>
       <el-form-item label="仓库编码" prop="warehouseCode">
         <el-input v-model="queryForm.warehouseCode" placeholder="请输入仓库编码" />

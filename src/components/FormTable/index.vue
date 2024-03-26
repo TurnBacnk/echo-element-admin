@@ -32,12 +32,13 @@
                       <!--         phone         -->
                       <el-input v-if="itemConfig.type === 'inputNumber'" v-model="form[itemConfig.prop]"
                                 style="width: 90%" oninput="value=value.replace(/[^0-9.]/g,'')"
-                                :placeholder="itemConfig.placeholder" maxlength="11"
+                                :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label" maxlength="11"
+                                :disabled="itemConfig.disabled"
                       />
 
-                      <!--         data         -->
+                      <!--         date         -->
                       <el-date-picker v-if="itemConfig.type === 'date'" v-model="form[itemConfig.prop]" type="date"
-                                      :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label" style="width: 90%"
+                                      :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label" style="width: 90%" value-format="yyyy-MM-dd"
                       />
                       <!--         number         -->
                       <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1" :disabled="itemConfig.disabled" />

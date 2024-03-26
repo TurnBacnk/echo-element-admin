@@ -289,6 +289,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/buy/order/sub',
+    component: Layout,
+    permissions: ['order:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'order-add',
+        component: () => import('@/views/buy/order/order-add.vue'),
+        name: 'OrderAdd',
+        meta: { activeMenu: '/buy/order', title: '采购订单登记' }
+      },
+      {
+        path: 'order-edit',
+        component: () => import('@/views/buy/order/order-edit.vue'),
+        name: 'OrderEdit',
+        meta: { activeMenu: '/buy/order', title: '采购订单修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

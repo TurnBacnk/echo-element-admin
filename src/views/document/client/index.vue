@@ -1,32 +1,21 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="客户名称" prop="clientName">
         <el-input v-model="queryForm.clientName" placeholder="请输入客户名称" clearable @keyup.enter.native />
       </el-form-item>
       <el-form-item label="客户编号" prop="clientCode">
         <el-input v-model="queryForm.clientCode" placeholder="请输入客户编号" clearable @keyup.enter.native />
       </el-form-item>
-      <el-form-item label="客户类型" prop="clientType">
-        <el-select v-model="queryForm.clientType" clearable multiple>
-          <el-option
-            v-for="type in dictionary['ClientType']"
-            :key="type.key"
-            :value="type.value"
-            :label="type.label"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>
-
 
 <script>
 
@@ -43,8 +32,7 @@ export default {
       showSearch: true,
       queryForm: {
         clientName: undefined,
-        clientCode: undefined,
-        clientType: undefined
+        clientCode: undefined
       },
       buttonConfig: [
         {
@@ -108,7 +96,7 @@ export default {
         },
         {
           prop: 'clientResponsiblePersonName',
-          label: '负责人',
+          label: '负责人'
         },
         {
           columnType: 'Operation',
@@ -130,7 +118,7 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: 'ClientAdd',
+        name: 'ClientAdd'
       })
     },
     handleEdit(row) {
@@ -149,13 +137,15 @@ export default {
           this.handleQuery()
         }
       })
-
     },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
-
+      this.queryForm = {
+        clientName: undefined,
+        clientCode: undefined
+      }
     }
   }
 }

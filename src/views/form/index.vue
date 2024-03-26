@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="Activity time">
         <el-col :span="11">
-          <el-date-picker v-model="form.date1" type="date" placeholder="Pick a date" style="width: 100%;" />
+          <el-date-picker v-model="form.date1" type="date" placeholder="Pick a date" style="width: 100%;" value-format="yyyy-MM-dd" />
         </el-col>
         <el-col :span="2" class="line">-</el-col>
         <el-col :span="11">
