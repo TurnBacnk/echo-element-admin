@@ -309,6 +309,20 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/buy/inbound/sub',
+    component: Layout,
+    permissions: ['inbound:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'inbound-add',
+        component: () => import('@/views/buy/inbound/inbound-add.vue'),
+        name: 'InboundAdd',
+        meta: { activeMenu: '/buy/inbound', title: '采购入库单登记' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

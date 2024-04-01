@@ -198,7 +198,7 @@ export default {
           }
         }, {
           label: '期初数量',
-          prop: 'openingBalance'
+          prop: 'num'
         }, {
           label: '图片',
           prop: 'pictureId'

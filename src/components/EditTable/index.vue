@@ -15,7 +15,7 @@
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
               <div v-if="scope.row._isEditing">
                 <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" />
-                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" oninput="value=value.replace(/[^\d.]/g,'')" size="small" :disabled="column.disabled" />
+                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" oninput="value=value.replace(/[^0-9.]/g,'')" size="small" :disabled="column.disabled" />
                 <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" oninput="value=value.replace(/[^0-9.]/g,'')" :disabled="column.disabled" />
                 <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
                 <el-autocomplete
@@ -27,7 +27,7 @@
                   style="width: 100%"
                 />
                 <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" :disabled="column.disabled" @change="column.click($event, scope.row)">
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" @change="column.click($event, scope.row)" style="width: 100%">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"

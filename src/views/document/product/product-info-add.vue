@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <form-table
+      v-if="showForm"
       :save-url="saveUrl"
       :submit-url="submitUrl"
       :collapse-item-config="collapseItemConfig"
@@ -8,7 +9,6 @@
       :content-text="contextText"
       :form="form"
       :rules="rules"
-      v-if="showForm"
     />
   </div>
 </template>
@@ -31,7 +31,8 @@ export default {
       collapseItemConfig: {},
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '历史采购价格', name: 'historyInfo', type: 'table' }
+        { active: true, title: '历史采购价格', name: 'historyInfo', type: 'table' },
+        { active: true, title: '库存状况', name: 'warehouseInfo', type: 'table' }
       ],
       contextText: '产品登记',
       form: {
@@ -42,6 +43,7 @@ export default {
         barCode: undefined,
         unit: undefined,
         historyPriceList: [],
+        warehouseInfoList: [],
         pictureId: undefined,
         status: undefined,
         remark: undefined,
@@ -49,18 +51,21 @@ export default {
       },
       rules: {
         baseInfo: {
-          productCode: [{required: true, message: '请输入', trigger: 'blur'}],
-          productName: [{required: true, message: '请输入', trigger: 'blur'}],
-          specification: [{required: true, message: '请输入', trigger: 'blur'}],
-          category: [{required: true, message: '请选择', trigger: 'blur'}],
-          barCode: [{required: true, message: '请输入', trigger: 'blur'}],
-          unit: [{required: true, message: '请选择', trigger: 'change'}],
-          status: [{required: true, message: '请选择', trigger: 'change'}]
+          productCode: [{ required: true, message: '请输入', trigger: 'blur' }],
+          productName: [{ required: true, message: '请输入', trigger: 'blur' }],
+          specification: [{ required: true, message: '请输入', trigger: 'blur' }],
+          category: [{ required: true, message: '请选择', trigger: 'blur' }],
+          barCode: [{ required: true, message: '请输入', trigger: 'blur' }],
+          unit: [{ required: true, message: '请选择', trigger: 'change' }],
+          status: [{ required: true, message: '请选择', trigger: 'change' }]
         },
         historyInfo: {
-          beforeChangePrice: [{required: true, message: '请输入', trigger: 'blur'}],
-          afterChangePrice: [{required: true, message: '请输入', trigger: 'blur'}],
-          changeDateTime: [{required: true, message: '请选择', trigger: 'blur'}],
+          beforeChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
+          afterChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
+          changeDateTime: [{ required: true, message: '请选择', trigger: 'blur' }]
+        },
+        warehouseInfo: {
+          warehouseName: [{ required: true, message: '请选择', trigger: 'change' }]
         }
       },
       dictionary: [],
@@ -70,6 +75,10 @@ export default {
       constant: [],
       constantConfig: {
         constantNameList: ['Enable']
+      },
+      javaCode: [],
+      javaCodeConfig: {
+        javaCodeNameList: ['WarehouseBuilder']
       },
       categoryTree: []
     }
@@ -83,6 +92,9 @@ export default {
     })
     await getCategoryTree().then(res => {
       this.categoryTree = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
     })
     await this.generateCode()
     await this.init()
@@ -125,7 +137,7 @@ export default {
             label: '单位',
             prop: 'unit',
             type: 'select',
-            options: this.dictionary['Unit'],
+            options: this.dictionary['Unit']
           },
           {
             label: '状态',
@@ -163,6 +175,29 @@ export default {
               label: '变动日期',
               prop: 'changeDateTime',
               type: 'date'
+            }
+          ]
+        },
+        warehouseInfo: {
+          prop: 'warehouseInfoList',
+          column: [
+            {
+              label: '仓库',
+              prop: 'warehouseName',
+              type: 'select',
+              optionList: this.javaCode['WarehouseBuilder'],
+              click: (event, row) => {
+                const obj = this.javaCode['WarehouseBuilder'].find((item) => {
+                  return item.value === event
+                })
+                row.warehouseId = obj.value
+                row.warehouseName = obj.label
+              }
+            },
+            {
+              label: '数量',
+              prop: 'num',
+              type: 'input'
             }
           ]
         }

@@ -14,3 +14,10 @@ export function delVendorByIds(ids) {
     data: ids
   })
 }
+
+export function getVendorContactUserList(vendorId) {
+  return request({
+    url: '/api/vendor/get-contact-user-list-by-vendorId/' + vendorId,
+    method: 'get'
+  })
+}

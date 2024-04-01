@@ -1,19 +1,19 @@
 <template>
   <div>
-    <el-page-header :content="contentText" @back="goBack"/>
+    <el-page-header :content="contentText" @back="goBack" />
     <blockquote style="font-size: 14px;color: gray">
       <br> 制单日期： {{ new Date() }}
       <br> 制单人： {{ $store.state.user.name }}
     </blockquote>
     <div class="button-group">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="warning" v-if="canSubmit" @click="submit">提交</el-button>
+      <el-button v-if="canSubmit" type="warning" @click="submit">提交</el-button>
       <el-button type="info" @click="backToLastView">取消</el-button>
     </div>
     <el-collapse v-model="activeNames">
       <el-card v-for="config in collapseConfig" :key="config.name" style="margin: 10px;">
         <div slot="header" class="clearfix">
-          <span>{{ config.title }}<i class="header-icon el-icon-info"/></span>
+          <span>{{ config.title }}<i class="header-icon el-icon-info" /></span>
         </div>
         <el-collapse-item
           :name="config.name"
@@ -24,26 +24,38 @@
               <el-form ref="form" :model="form" label-width="120px">
                 <el-row>
                   <el-col v-for="itemConfig in collapseItemConfig[config.name]" :key="itemConfig.prop" :span="8">
-                    <el-form-item :label="itemConfig.label" :prop="itemConfig.prop" :rules="rules[config.name] ? rules[config.name][itemConfig.prop] : null" >
+                    <el-form-item :label="itemConfig.label" :prop="itemConfig.prop" :rules="rules[config.name] ? rules[config.name][itemConfig.prop] : null">
                       <!--         input         -->
-                      <el-input v-if="itemConfig.type === 'input'" v-model="form[itemConfig.prop]" style="width: 90%"
-                                :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label" :disabled="itemConfig.disabled"
+                      <el-input
+                        v-if="itemConfig.type === 'input'"
+                        v-model="form[itemConfig.prop]"
+                        style="width: 90%"
+                        :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label"
+                        :disabled="itemConfig.disabled"
                       />
-                      <!--         phone         -->
-                      <el-input v-if="itemConfig.type === 'inputNumber'" v-model="form[itemConfig.prop]"
-                                style="width: 90%" oninput="value=value.replace(/[^0-9.]/g,'')"
-                                :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label" maxlength="11"
-                                :disabled="itemConfig.disabled"
+                      <!--         inputNumber         -->
+                      <el-input
+                        v-if="itemConfig.type === 'inputNumber'"
+                        v-model="form[itemConfig.prop]"
+                        style="width: 90%"
+                        oninput="value=value.replace(/[^0-9.]/g,'')"
+                        :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label"
+                        maxlength="11"
+                        :disabled="itemConfig.disabled"
                       />
-
                       <!--         date         -->
-                      <el-date-picker v-if="itemConfig.type === 'date'" v-model="form[itemConfig.prop]" type="date"
-                                      :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label" style="width: 90%" value-format="yyyy-MM-dd"
+                      <el-date-picker
+                        v-if="itemConfig.type === 'date'"
+                        v-model="form[itemConfig.prop]"
+                        type="date"
+                        :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label"
+                        style="width: 90%"
+                        value-format="yyyy-MM-dd"
                       />
                       <!--         number         -->
-                      <el-input-number v-if="itemConfig.type === 'number'" v-model=form[itemConfig.prop] :min="1" :disabled="itemConfig.disabled" />
+                      <el-input-number v-if="itemConfig.type === 'number'" v-model="form[itemConfig.prop]" :min="1" :disabled="itemConfig.disabled" />
                       <!--         select         -->
-                      <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%" @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options)">
+                      <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%" filterable @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig)">
                         <el-option
                           v-for="option in itemConfig.options"
                           :key="option.value"
@@ -52,20 +64,31 @@
                         />
                       </el-select>
                       <!--         treeSelect         -->
-                      <tree-select v-if="itemConfig.type === 'treeSelect'" v-model="form[itemConfig.prop]"
-                                   :options="itemConfig.options" :normalizer="normalizer" :show-count="true"
-                                   :placeholder="itemConfig.placeholder" style="width: 90%;display: table" :appendToBody="true" size="mini"
+                      <tree-select
+                        v-if="itemConfig.type === 'treeSelect'"
+                        v-model="form[itemConfig.prop]"
+                        :options="itemConfig.options"
+                        :normalizer="normalizer"
+                        :show-count="true"
+                        :placeholder="itemConfig.placeholder"
+                        style="width: 90%;display: table"
+                        :append-to-body="true"
+                        size="mini"
                       />
                       <!--         textarea         -->
-                      <el-input v-if="itemConfig.type === 'textarea'" v-model="form[itemConfig.prop]" type="textarea"
-                                style="width: 90%"
+                      <el-input
+                        v-if="itemConfig.type === 'textarea'"
+                        v-model="form[itemConfig.prop]"
+                        type="textarea"
+                        style="width: 90%"
                       />
                       <!--        complete         -->
-                      <el-autocomplete v-if="itemConfig.type === 'autoComplete'"
-                                       class="inline-input"
-                                       v-model="form[itemConfig.prop]"
-                                       :fetch-suggestions="itemConfig.completeFun"
-                                       :placeholder="itemConfig.placeholder"
+                      <el-autocomplete
+                        v-if="itemConfig.type === 'autoComplete'"
+                        v-model="form[itemConfig.prop]"
+                        class="inline-input"
+                        :fetch-suggestions="itemConfig.completeFun"
+                        :placeholder="itemConfig.placeholder"
                       />
                       <el-switch
                         v-if="itemConfig.type === 'switch'"
@@ -83,10 +106,11 @@
               </el-form>
             </template>
             <template v-if="config.type === 'table'">
-              <edit-table :data="form[collapseItemConfig[config.name].prop]"
-                          :columns="collapseItemConfig[config.name].column"
-                          @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
-                          :rules="rules[config.name]"
+              <edit-table
+                :data="form[collapseItemConfig[config.name].prop]"
+                :columns="collapseItemConfig[config.name].column"
+                :rules="rules[config.name]"
+                @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
           </div>
@@ -105,11 +129,6 @@ import item from '@/layout/components/Sidebar/Item.vue'
 
 export default {
   name: 'FormTable',
-  computed: {
-    item() {
-      return item
-    }
-  },
   components: { EditTable, TreeSelect },
   props: {
     canSubmit: {
@@ -200,15 +219,6 @@ export default {
       }
     }
   },
-  created() {
-    // this.$nextTick(() => {
-    //   var elements = document.querySelectorAll('.vue-treeselect__control')
-    //   console.log(elements)
-    //   elements.forEach(function(element) {
-    //     element.style.removeProperty('display')
-    //   })
-    // })
-  },
   data() {
     const nameArr = []
     this.collapseConfig.forEach((value) => {
@@ -220,6 +230,20 @@ export default {
       activeNames: nameArr
     }
   },
+  computed: {
+    item() {
+      return item
+    }
+  },
+  created() {
+    // this.$nextTick(() => {
+    //   var elements = document.querySelectorAll('.vue-treeselect__control')
+    //   console.log(elements)
+    //   elements.forEach(function(element) {
+    //     element.style.removeProperty('display')
+    //   })
+    // })
+  },
   methods: {
     goBack() {
       this.backToLastView()
@@ -229,7 +253,7 @@ export default {
     },
     save() {
       if (this.saveFun()) {
-        let formArr = this.$refs['form']
+        const formArr = this.$refs['form']
         formArr.forEach(function(ele) {
           ele.validate(valid => {
             if (!valid) {
@@ -252,7 +276,7 @@ export default {
     },
     submit() {
       if (this.submitFun()) {
-        let formArr = this.$refs['form']
+        const formArr = this.$refs['form']
         formArr.forEach(function(ele) {
           ele.validate(valid => {
             if (!valid) {
@@ -270,8 +294,9 @@ export default {
             this.$modal.msgSuccess(msg)
           }
         })
-        this.backToLastView()}
-      },
+        this.backToLastView()
+      }
+    },
     selectChange(e, bundleConfig) {
       console.log(e)
       this.form[bundleConfig.label] = e.label
@@ -295,11 +320,11 @@ export default {
         return
       }
       // 需要绑定多个值
-      let obj = options.find((item) => {
+      const obj = options.find((item) => {
         return item.value === changeValue
       })
       this.form[bundleConfig.label] = obj.label
-      this.form[bundleConfig.value] = changeValue
+      this.form[bundleConfig.value] = obj.value
     },
     backToLastView() {
       const currentView = this.$store.state.tagsView.visitedViews[this.$store.state.tagsView.visitedViews.length - 1]
