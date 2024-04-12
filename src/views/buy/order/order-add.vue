@@ -20,6 +20,8 @@ import FormTable from '@/components/FormTable/index.vue'
 import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getProductInfoById } from '@/api/business/product-info'
 import { generateCode } from '@/api/config/generate-code'
+import {getClientContactListById} from "@/api/business/client";
+import {getVendorContactUserList} from "@/api/business/vendor";
 
 export default {
   name: 'OrderEdit',
@@ -50,9 +52,12 @@ export default {
         afterDiscountPayAmount: undefined,
         vendorContactId: undefined,
         vendorContactName: undefined,
+        vendorContactPhone: undefined,
         vendorContactLandLine: undefined,
         vendorContactAddress: undefined,
         vendorAddress: undefined,
+        saleContractId: undefined,
+        saleContractCode: undefined,
         orderItemList: []
       },
       rules: {
@@ -74,9 +79,10 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'WarehouseBuilder']
+        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'WarehouseBuilder', 'SaleContractBuilder']
       },
-      vendorContactList: []
+      vendorContactList: [],
+      saleContractDisabled: false
     }
   },
   async created() {
@@ -89,12 +95,46 @@ export default {
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
+    await this.initParams()
     await this.init()
   },
+  watch: {
+    'form.vendorId': {
+      handler(newVal, oldVal) {
+        getVendorContactUserList(newVal).then(res => {
+          // this.vendorContactList = [].concat(res.data)
+          res.data.forEach(item => {
+            this.vendorContactList.push(item);
+          })
+        })
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   methods: {
+    initParams() {
+      if (this.$route.params.saleContractId) {
+        this.form.saleContractId = this.$route.params.saleContractId
+        this.form.saleContractCode = this.$route.params.saleContractCode
+        this.saleContractDisabled = true
+      }
+    },
     init() {
+      console.log(this.saleContractDisabled)
       this.collapseItemConfig = {
         baseInfo: [
+          {
+            label: '销售合同',
+            prop: 'saleContractId',
+            type: 'selectTemplate',
+            bundle: {
+              label: 'saleContractCode',
+              value: 'saleContractId'
+            },
+            options: this.javaCode['SaleContractBuilder'],
+            disabled: this.saleContractDisabled
+          },
           {
             label: '订单编码',
             prop: 'orderCode',
@@ -126,7 +166,7 @@ export default {
             prop: 'procurementUserId',
             type: 'select',
             bundle: {
-              label: 'procurementUserName',
+              label: 'procurementUsername',
               value: 'procurementUserId'
             },
             options: this.javaCode['UserBuilder']
@@ -161,9 +201,14 @@ export default {
             prop: 'vendorContactId',
             type: 'select',
             bundle: {
-              label: 'vendorContactName',
-              value: 'vendorContactId'
+              id: 'vendorContactId',
+              contactName: 'vendorContactName',
+              phone: 'vendorContactPhone',
+              landLine: 'vendorContactLandLine',
+              address: 'vendorContactAddress'
             },
+            optionLabel: 'contactName',
+            optionValue: 'id',
             options: this.vendorContactList
           },
           {

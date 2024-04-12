@@ -21,7 +21,7 @@ import { getJavaCode } from '@/api/common/dict'
 import { generateCode } from '@/api/config/generate-code'
 
 export default {
-  name: 'DictAdd',
+  name: 'SaleContractAdd',
   components: { FormTable },
   data() {
     return {
@@ -34,7 +34,15 @@ export default {
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' }
       ],
       form: {
-        contractNo: undefined
+        contractNo: undefined,
+        contractCode: undefined,
+        contractName: undefined,
+        contractSignUserName: undefined,
+        contractSignUserId: undefined,
+        customerName: undefined,
+        customerId: undefined,
+        signDateTime: undefined,
+        contractAmount: undefined
       },
       rules: {
         baseInfo: {

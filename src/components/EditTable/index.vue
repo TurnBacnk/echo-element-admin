@@ -3,7 +3,8 @@
     <el-button type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
     <el-button type="primary" size="mini" @click="handleImport">批量导入</el-button>
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small">
-      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id">
+      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
+        <el-table-column :type="tableConfig.indexType" />
         <el-table-column
           v-for="(column, index) in columns"
           :key="index"
@@ -14,9 +15,9 @@
           <template slot-scope="scope">
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
               <div v-if="scope.row._isEditing">
-                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" />
-                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" oninput="value=value.replace(/[^0-9.]/g,'')" size="small" :disabled="column.disabled" />
-                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" oninput="value=value.replace(/[^0-9.]/g,'')" :disabled="column.disabled" />
+                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
+                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
+                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
                 <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
                 <el-autocomplete
                   v-if="column.type === 'autoComplete'"
@@ -27,7 +28,7 @@
                   style="width: 100%"
                 />
                 <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" @change="column.click($event, scope.row)" style="width: 100%">
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"
@@ -45,7 +46,7 @@
             </el-form-item>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" width="180" fixed="right">
           <template v-slot="scope">
             <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">
               {{ scope.row._isEditing ? '保存' : '编辑' }}
@@ -70,9 +71,31 @@ export default {
       type: Array,
       default: () => []
     },
+    tableConfig: {
+      type: Object,
+      default: function() {
+        return {
+          indexType: 'index'
+        }
+      }
+    },
     rules: {
       type: Object,
       default: () => {}
+    },
+    totalColumns: {
+      type: Array,
+      required: false
+    },
+    sumText: {
+      type: String,
+      required: false,
+      default: () => '合计'
+    },
+    showSummary: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -139,6 +162,45 @@ export default {
     },
     handleSelectChange(event) {
 
+    },
+    handleInputChange(event, row, column) {
+      if (column.input) {
+        column.input(event, row)
+      }
+      return event
+    },
+    handleNumberInputChange(event, row, column) {
+      if (column.input) {
+        column.input(event, row)
+      }
+      return event.replace(/[^0-9.]/g, '')
+    },
+    handleSummary(param) {
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = this.sumText
+          return
+        }
+        if (this.totalColumns.includes(column.property)) {
+          const values = data.map(item => Number(item[column.property]))
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr)
+              if (!isNaN(value)) {
+                return prev + curr
+              } else {
+                return prev
+              }
+            }, 0)
+            sums[index] += ' 元'
+          } else {
+            sums[index] = 'N/A'
+          }
+        }
+      })
+      return sums
     }
   }
 }

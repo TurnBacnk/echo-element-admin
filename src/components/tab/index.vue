@@ -5,7 +5,7 @@
     <el-tabs v-model="activeName" type="border-card">
       <el-tab-pane v-for="item in tabMapOptions" :key="item.key" :label="item.label" :name="item.key">
         <keep-alive>
-          <tab-pane v-if="activeName===item.key" :type="item.key" @create="showCreatedTimes" />
+          <tab-pane v-if="activeName===item.key" :data-source="item.dataSource" />
         </keep-alive>
       </el-tab-pane>
     </el-tabs>
@@ -21,16 +21,16 @@ export default {
   data() {
     return {
       tabMapOptions: [
-        { label: '待我审核', key: 'CN' },
-        { label: '我发起的', key: 'US' }
+        { label: '待我审核', key: 'needApproval', dataSource: '/api/approval-instance/get-all-need-approval' },
+        { label: '我发起的', key: 'mySubmit', dataSource: '/api/approval-instance/get-all-need-approval' }
       ],
-      activeName: 'CN',
+      activeName: 'needApproval',
       createdTimes: 0
     }
   },
   watch: {
     activeName(val) {
-      this.$router.push(`${this.$route.path}?tab=${val}`)
+      // this.$router.push(`${this.$route.path}?tab=${val}`)
     }
   },
   created() {
@@ -41,9 +41,6 @@ export default {
     }
   },
   methods: {
-    showCreatedTimes() {
-      this.createdTimes = this.createdTimes + 1
-    }
   }
 }
 </script>

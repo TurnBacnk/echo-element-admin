@@ -24,7 +24,11 @@
               <el-form ref="form" :model="form" label-width="120px">
                 <el-row>
                   <el-col v-for="itemConfig in collapseItemConfig[config.name]" :key="itemConfig.prop" :span="8">
-                    <el-form-item :label="itemConfig.label" :prop="itemConfig.prop" :rules="rules[config.name] ? rules[config.name][itemConfig.prop] : null">
+                    <el-form-item
+                      :label="itemConfig.label"
+                      :prop="itemConfig.prop"
+                      :rules="rules[config.name] ? rules[config.name][itemConfig.prop] : null"
+                    >
                       <!--         input         -->
                       <el-input
                         v-if="itemConfig.type === 'input'"
@@ -53,15 +57,50 @@
                         value-format="yyyy-MM-dd"
                       />
                       <!--         number         -->
-                      <el-input-number v-if="itemConfig.type === 'number'" v-model="form[itemConfig.prop]" :min="1" :disabled="itemConfig.disabled" />
+                      <el-input-number
+                        v-if="itemConfig.type === 'number'"
+                        v-model="form[itemConfig.prop]"
+                        :min="1"
+                        :disabled="itemConfig.disabled"
+                      />
                       <!--         select         -->
-                      <el-select v-if="itemConfig.type === 'select'" v-model="form[itemConfig.prop]" style="width: 90%" filterable @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig)">
+                      <el-select
+                        v-if="itemConfig.type === 'select'"
+                        v-model="form[itemConfig.prop]"
+                        :multiple="itemConfig.multiple === undefined ? false : itemConfig.multiple"
+                        style="width: 90%"
+                        filterable
+                        :remote="itemConfig.remote ? itemConfig.remote : false"
+                        :remote-method="itemConfig.remoteMethod ? itemConfig.remoteMethod : () => {}"
+                        :disabled="itemConfig.disabled"
+                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
+                      >
+                        <el-option
+                          v-for="option in itemConfig.options"
+                          :key="itemConfig.optionValue ? option[itemConfig.optionValue] : option.value"
+                          :label="itemConfig.optionLabel ? option[itemConfig.optionLabel] : option.label"
+                          :value="itemConfig.optionValue ? option[itemConfig.optionValue] : option.value"
+                        />
+                      </el-select>
+                      <!--         selectTemplate         -->
+                      <el-select
+                        v-if="itemConfig.type === 'selectTemplate'"
+                        v-model="form[itemConfig.prop]"
+                        :multiple="itemConfig.multiple === undefined ? false : itemConfig.multiple"
+                        style="width: 90%"
+                        filterable
+                        :disabled="itemConfig.disabled"
+                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
+                      >
                         <el-option
                           v-for="option in itemConfig.options"
                           :key="option.value"
                           :label="option.label"
                           :value="option.value"
-                        />
+                        >
+                          <span style="float: left">{{ option.label }}</span>
+                          <span style="float: right; color: #8492a6; font-size: 13px">{{ option.rightLabel }}</span>
+                        </el-option>
                       </el-select>
                       <!--         treeSelect         -->
                       <tree-select
@@ -110,6 +149,9 @@
                 :data="form[collapseItemConfig[config.name].prop]"
                 :columns="collapseItemConfig[config.name].column"
                 :rules="rules[config.name]"
+                :total-columns="collapseItemConfig[config.name].totalColumns"
+                :sum-text="config.sumText"
+                :show-summary="config.showSummary ? config.showSummary : false"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
@@ -202,7 +244,8 @@ export default {
     },
     rules: {
       type: Object,
-      default: () => {}
+      default: () => {
+      }
     },
     saveFun: {
       type: Function,
@@ -315,16 +358,28 @@ export default {
         children: node.children
       }
     },
-    handleSelectChange(changeValue, bundleConfig, options) {
-      if (bundleConfig === undefined) {
-        return
-      }
-      // 需要绑定多个值
-      const obj = options.find((item) => {
-        return item.value === changeValue
+    handleSelectChange(changeValue, bundleConfig, options, clickConfig, optionValue) {
+      var _this = this
+      this.$nextTick(() => {
+        if (bundleConfig === undefined) {
+          return
+        }
+        // 需要绑定多个值
+        const obj = options.find((item) => {
+          if (optionValue === undefined) {
+            return item.value === changeValue
+          }
+          return item[optionValue] === changeValue
+
+        })
+
+        var keys = Object.keys(bundleConfig)
+
+        keys.forEach(function(key) {
+          var value = bundleConfig[key]
+          _this.form[value] = obj[key]
+        })
       })
-      this.form[bundleConfig.label] = obj.label
-      this.form[bundleConfig.value] = obj.value
     },
     backToLastView() {
       const currentView = this.$store.state.tagsView.visitedViews[this.$store.state.tagsView.visitedViews.length - 1]
@@ -396,13 +451,14 @@ blockquote p {
   transition: 0s;
   font-weight: 100;
 }
+
 .vue-treeselect__count {
   margin-left: 5px;
   font-weight: normal;
   opacity: 0.6;
 }
 
-.el-collapse,.el-collapse-item__wrap {
+.el-collapse, .el-collapse-item__wrap {
   border: none;
 }
 
@@ -411,10 +467,12 @@ table th,
 table td {
   border-bottom: none !important;
 }
+
 //去掉最下面的那一条线
 .el-table::before {
   height: 0px;
 }
+
 .customer-table .el-table__fixed-right::before,
 .el-table__fixed::before {
   width: 0;

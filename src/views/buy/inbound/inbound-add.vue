@@ -76,8 +76,9 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['VendorBuilder', 'UserBuilder', 'ProductBuilder', 'WarehouseBuilder', 'OrderBuilder']
-      }
+        javaCodeNameList: ['VendorBuilder', 'UserBuilder', 'ProductBuilder', 'WarehouseBuilder', 'OrderBuilder', 'SaleContractBuilder']
+      },
+      saleContractDisabled: false
     }
   },
   async created() {
@@ -90,12 +91,31 @@ export default {
     await generateCode('INBOUND').then(res => {
       this.form.inboundCode = res.data
     })
+    await this.initParams()
     await this.init()
   },
   methods: {
+    initParams() {
+      if (this.$route.params.saleContractId) {
+        this.form.saleContractId = this.$route.params.saleContractId
+        this.form.saleContractCode = this.$route.params.saleContractCode
+        this.saleContractDisabled = true
+      }
+    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
+          {
+            label: '销售合同',
+            prop: 'saleContractId',
+            type: 'selectTemplate',
+            bundle: {
+              label: 'saleContractCode',
+              value: 'saleContractId'
+            },
+            options: this.javaCode['SaleContractBuilder'],
+            disabled: this.saleContractDisabled
+          },
           {
             label: '入库单编号',
             prop: 'inboundCode',

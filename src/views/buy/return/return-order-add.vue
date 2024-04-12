@@ -1,3 +1,4 @@
+
 <template>
   <div class="app-container">
     <form-table
@@ -17,9 +18,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getProductInfoById } from '@/api/business/product-info'
-import { getOrderById } from '@/api/business/order'
+import { getJavaCode } from '@/api/common/dict'
+import { generateCode } from '@/api/config/generate-code'
 
 export default {
   name: 'DictAdd',
@@ -27,41 +28,40 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '采购订单修改',
-      saveUrl: '/api/order/update',
-      submitUrl: '/api/order/submit',
+      contentText: '退货单登记',
+      saveUrl: '/api/return-order/save',
+      submitUrl: '',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '物料信息', name: 'goodsInfo', type: 'table' }
+        { active: true, title: '产品信息', name: 'productInfo', type: 'table' }
       ],
       form: {
-        orderCode: undefined,
-        orderTime: undefined,
-        deliveryDate: undefined,
+        returnOrderCode: undefined,
+        returnOrderTime: undefined,
         vendorId: undefined,
         vendorName: undefined,
+        inboundOrderCode: undefined,
         procurementUserId: undefined,
         procurementUserName: undefined,
-        contractCode: undefined,
-        contractTime: undefined,
         discountRate: undefined,
         discountAmount: undefined,
         afterDiscountPayAmount: undefined,
-        vendorContactId: undefined,
-        vendorContactName: undefined,
-        vendorContactLandLine: undefined,
-        vendorContactAddress: undefined,
-        vendorAddress: undefined,
-        orderItemList: [],
-        saleContractId: undefined,
-        saleContractCode: undefined
+        returnOrderItemList: []
       },
       rules: {
         baseInfo: {
-
+          returnOrderCode: [
+            { required: true, message: '退货单编号不能为空', trigger: 'blur' }
+          ],
+          returnOrderTime: [
+            { required: true, message: '退货时间不能不为空', trigger: 'blur' }
+          ],
+          vendorId: [
+            { required: true, message: '供应商不能为空', trigger: 'blur' }
+          ]
         },
-        goodsInfo: {
+        productInfo: {
 
         }
       },
@@ -72,24 +72,20 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: ['Unit']
+        dictionaryNameList: []
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'WarehouseBuilder']
-      },
-      vendorContactList: []
+        javaCodeNameList: ['VendorBuilder', 'InboundOrderBuilder', 'UserBuilder', 'ProductBuilder', 'WarehouseBuilder']
+      }
     }
   },
   async created() {
-    await getOrderById(this.$route.params.id).then(res => {
-      Object.assign(this.form, res.data)
+    await generateCode('RETURN').then(res => {
+      this.form.returnOrderCode = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
-    })
-    await getDictionary(this.dictionaryConfig).then(res => {
-      this.dictionary = res.data
     })
     await this.init()
   },
@@ -98,19 +94,14 @@ export default {
       this.collapseItemConfig = {
         baseInfo: [
           {
-            label: '订单编码',
-            prop: 'orderCode',
+            label: '退货单编号',
+            prop: 'returnOrderCode',
             type: 'input',
             disabled: true
           },
           {
-            label: '订单时间',
-            prop: 'orderTime',
-            type: 'date'
-          },
-          {
-            label: '交货日期',
-            prop: 'deliveryDate',
+            label: '退货时间',
+            prop: 'returnOrderTime',
             type: 'date'
           },
           {
@@ -124,73 +115,39 @@ export default {
             options: this.javaCode['VendorBuilder']
           },
           {
+            label: '入库单编号',
+            prop: 'inboundOrderCode',
+            type: 'select',
+            options: this.javaCode['InboundOrderBuilder']
+          },
+          {
             label: '采购人员',
             prop: 'procurementUserId',
             type: 'select',
+            options: this.javaCode['UserBuilder'],
             bundle: {
-              label: 'procurementUsername',
+              label: 'procurementUserName',
               value: 'procurementUserId'
-            },
-            options: this.javaCode['UserBuilder']
+            }
           },
           {
-            label: '合同号',
-            prop: 'contractCode',
-            type: 'input'
-          },
-          {
-            label: '合同日期',
-            prop: 'contractTime',
-            type: 'date'
-          },
-          {
-            label: '优惠率(%)',
+            label: '优惠率',
             prop: 'discountRate',
             type: 'inputNumber'
           },
           {
-            label: '优惠金额(元)',
+            label: '优惠金额',
             prop: 'discountAmount',
             type: 'inputNumber'
           },
           {
-            label: '优惠后应付款(元)',
+            label: '优惠后应付款',
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber'
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              label: 'vendorContactName',
-              value: 'vendorContactId'
-            },
-            options: this.vendorContactList
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input'
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input'
           }
         ],
-        goodsInfo: {
-          prop: 'orderItemList',
+        productInfo: {
+          prop: 'productInfo',
           column: [
             {
               label: '产品名称',
@@ -236,7 +193,7 @@ export default {
             },
             {
               label: '数量',
-              prop: 'amount',
+              prop: 'number',
               type: 'number'
             },
             {

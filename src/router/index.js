@@ -323,6 +323,48 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/buy/return/sub',
+    component: Layout,
+    permissions: ['return-order:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'return-order-add',
+        component: () => import('@/views/buy/return/return-order-add.vue'),
+        name: 'ReturnOrderAdd',
+        meta: { activeMenu: '/buy/return-order', title: '退货单登记' }
+      }
+    ]
+  },
+  {
+    path: '/config/approval/sub',
+    component: Layout,
+    permissions: ['approval:admin:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'approval-add',
+        component: () => import('@/views/config/approval/approval-add.vue'),
+        name: 'ApprovalAdd',
+        meta: { activeMenu: '/config/approval', title: '审核定义' }
+      }
+    ]
+  },
+  {
+    path: '/sale/outbound/sub',
+    component: Layout,
+    permissions: ['sale-outbound:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'sale-outbound-add',
+        component: () => import('@/views/sale/outbound/outbound-add.vue'),
+        name: 'SaleOutboundAdd',
+        meta: { activeMenu: '/sale/outbound', title: '销售出库登记' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

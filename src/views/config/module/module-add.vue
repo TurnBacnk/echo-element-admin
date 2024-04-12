@@ -1,12 +1,15 @@
 <template>
   <div class="app-container">
     <form-table
+      v-if="showForm"
       :save-url="saveUrl"
       :submit-url="submitUrl"
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
       :content-text="contentText"
       :form="form"
+      :rules="rules"
+      :can-submit="canSubmit"
     />
   </div>
 </template>
@@ -21,6 +24,8 @@ export default {
   components: { FormTable },
   data() {
     return {
+      showForm: false,
+      canSubmit: false,
       saveUrl: '/api/module/save',
       submitUrl: '/api/module/submit',
       collapseConfig: [
@@ -42,6 +47,11 @@ export default {
       constant: [],
       constantConfig: {
         constantNameList: ['Enable']
+      },
+      rules: {
+        baseInfo: {
+
+        }
       }
     }
   },
@@ -65,7 +75,7 @@ export default {
             label: '业务模块编码',
             prop: 'businessModuleKey',
             type: 'input',
-            placeholder: '请输入业务模块编码',
+            placeholder: '请输入业务模块编码'
           },
           {
             label: '排序',
@@ -80,6 +90,7 @@ export default {
           }
         ]
       }
+      this.showForm = true
     }
   }
 }

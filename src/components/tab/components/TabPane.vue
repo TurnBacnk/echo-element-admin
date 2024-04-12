@@ -14,39 +14,38 @@
 
     <el-table-column width="180px" align="center" label="发起日期">
       <template slot-scope="scope">
-        <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+        <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
       </template>
     </el-table-column>
 
     <el-table-column min-width="300px" label="业务名称">
       <template slot-scope="{row}">
-        <span>{{ row.title }}</span>
-        <el-tag>{{ row.type }}</el-tag>
+        <el-link type="primary" @click.native="goToApprovalPage(row)"> {{ row.businessName }} </el-link>
       </template>
     </el-table-column>
 
     <el-table-column width="110px" align="center" label="发起人">
       <template slot-scope="scope">
-        <span>{{ scope.row.author }}</span>
+        <span>{{ scope.row.createBy }}</span>
       </template>
     </el-table-column>
 
     <el-table-column width="120px" label="下级审批人">
       <template slot-scope="scope">
-        <svg-icon v-for="n in +scope.row.importance" :key="n" icon-class="star" />
+        <span>{{ scope.row.approvalUserName }}</span>
       </template>
     </el-table-column>
 
     <el-table-column align="center" label="审核意见" width="95">
       <template slot-scope="scope">
-        <span>{{ scope.row.pageviews }}</span>
+        <span>{{ scope.row.approvalOpinion }}</span>
       </template>
     </el-table-column>
 
     <el-table-column class-name="status-col" label="审核状态" width="110">
       <template slot-scope="{row}">
-        <el-tag :type="row.status | statusFilter">
-          {{ row.status }}
+        <el-tag :type="row.approvalStatus | statusFilter">
+          {{ row.approvalStatusText }}
         </el-tag>
       </template>
     </el-table-column>
@@ -57,14 +56,16 @@
 // import { fetchList } from '@/api/article'
 
 import { parseTime } from '@/utils'
+import request from '@/utils/request'
 
 export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        0: 'info',
+        1: '',
+        2: 'success',
+        3: 'danger'
       }
       return statusMap[status]
     }
@@ -73,6 +74,10 @@ export default {
     type: {
       type: String,
       default: 'CN'
+    },
+    dataSource: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -87,18 +92,37 @@ export default {
       loading: false
     }
   },
-  created() {
-    this.getList()
+  async created() {
+    await this.getList()
   },
   methods: {
     parseTime,
     getList() {
       this.loading = true
-      this.$emit('create') // for test
-      // fetchList(this.listQuery).then(response => {
-      //   this.list = response.data.items
-      //   this.loading = false
-      // })
+      request({
+        url: this.dataSource,
+        method: 'get'
+      }).then(res => {
+        this.list = res.data
+      })
+      this.loading = false
+    },
+    goToApprovalPage(row) {
+      var businessName = row.businessName
+      var match = businessName.match(/\[(.*?)\]/)
+      if (match) {
+        var businessNameWithPrefix = match[1]
+        var businessCodeIndex = businessNameWithPrefix.indexOf('-')
+        if (businessCodeIndex !== -1) {
+          var businessCode = businessNameWithPrefix.substring(businessCodeIndex + 1)
+          this.$router.push({
+            name: row.viewPage,
+            params: {
+              code: businessCode
+            }
+          })
+        }
+      }
     }
   }
 }

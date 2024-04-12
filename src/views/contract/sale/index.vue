@@ -23,7 +23,7 @@
       </el-form-item>
     </el-form>
     <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
-    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
+    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" :show-approval="true"/>
   </div>
 </template>
 
@@ -53,6 +53,15 @@ export default {
           },
           plain: true,
           icon: 'el-icon-plus'
+        },
+        {
+          text: '提交',
+          click: () => {
+            this.handleSubmit()
+          },
+          plain: true,
+          type: 'warning',
+          icon: 'el-icon-s-promotion'
         },
         {
           text: '删除',
@@ -89,12 +98,19 @@ export default {
     init() {
       this.tableColumnConfig = [
         {
-          columnType: 'Index',
+          columnType: 'Index'
         },
         {
           prop: 'contractNo',
           label: '合同编号',
-          fixed: 'left'
+          fixed: 'left',
+          width: '250',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+
+            }
+          }
         },
         {
           label: '合同号',
@@ -135,19 +151,51 @@ export default {
         },
         {
           label: '采购订单数量',
-          prop: 'procurementOrderCount'
+          prop: 'procurementOrderCount',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              return ''
+            },
+            isConvert: false,
+            effect: 'light'
+          }
         },
         {
           label: '入库订单数量',
-          prop: 'inboundOrderCount'
+          prop: 'inboundOrderCount',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              return ''
+            },
+            isConvert: false,
+            effect: 'light'
+          }
         },
         {
           label: '出库单数量',
           prop: 'outboundOrderCount',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              return ''
+            },
+            isConvert: false,
+            effect: 'light'
+          }
         },
         {
           label: '发票数量',
-          prop: 'billingCount'
+          prop: 'billingCount',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              return ''
+            },
+            isConvert: false,
+            effect: 'light'
+          }
         },
         {
           label: '合同状态',
@@ -163,7 +211,16 @@ export default {
               }
             },
             effect: 'light'
-          },
+          }
+        },
+        {
+          prop: 'approvalStatus',
+          label: '审批状态',
+          columnType: 'ApprovalStatus'
+        },
+        {
+          prop: 'approvalUserName',
+          label: '审核人'
         },
         {
           columnType: 'Operation',
@@ -176,6 +233,21 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                return row.approvalStatus !== 0
+              }
+            },
+            {
+              text: '执行',
+              css: 'text',
+              click: (index, row) => {
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return true
+                }
+                if (row.status !== 5) {
+                  return true
+                }
                 return false
               }
             },
@@ -183,9 +255,17 @@ export default {
               text: '挂载入库',
               css: 'text',
               click: (index, row) => {
-
+                this.handleInbound(row)
               },
               isDisabled: (row) => {
+                // 草稿无法挂载
+                if (row.approvalStatus === 0) {
+                  return true
+                }
+                // 非草稿，合同完结，无法挂载
+                if (row.status === 1) {
+                  return true
+                }
                 return false
               }
             },
@@ -196,6 +276,14 @@ export default {
 
               },
               isDisabled: (row) => {
+                // 草稿无法挂载
+                if (row.approvalStatus === 0) {
+                  return true
+                }
+                // 非草稿，合同完结，无法挂载
+                if (row.status === 1) {
+                  return true
+                }
                 return false
               }
             },
@@ -203,9 +291,31 @@ export default {
               text: '挂载采购',
               css: 'text',
               click: (index, row) => {
+                this.handleOrder(row)
+              },
+              isDisabled: (row) => {
+                // 草稿无法挂载
+                if (row.approvalStatus === 0) {
+                  return true
+                }
+                // 非草稿，合同完结，无法挂载
+                if (row.status === 1) {
+                  return true
+                }
+                return false
+              }
+            },
+            {
+              text: '结案',
+              css: 'text',
+              click: (index, row) => {
 
               },
               isDisabled: (row) => {
+                // 非审核通过的合同不允许结案
+                if (row.approvalStatus !== 2) {
+                  return true
+                }
                 return false
               }
             },
@@ -216,6 +326,14 @@ export default {
 
               },
               isDisabled: (row) => {
+                // 草稿无法挂载
+                if (row.approvalStatus === 0) {
+                  return true
+                }
+                // 非草稿，合同完结，无法挂载
+                if (row.status === 1) {
+                  return true
+                }
                 return false
               }
             }
@@ -253,6 +371,38 @@ export default {
         contractCode: undefined,
         contractName: undefined,
         customerId: undefined
+      }
+    },
+    handleOrder(row) {
+      this.$router.push({
+        name: 'OrderAdd',
+        params: {
+          saleContractCode: row.contractCode,
+          saleContractId: row.id
+        }
+      })
+    },
+    handleInbound(row) {
+      this.$router.push({
+        name: 'InboundAdd',
+        params: {
+          saleContractCode: row.contractCode,
+          saleContractId: row.id
+        }
+      })
+    },
+    handleSubmit() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canSubmit = true
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
+          canSubmit = false
+        }
+      })
+      if (canSubmit) {
+        // TODO submit
+      } else {
+        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }
     }
   }

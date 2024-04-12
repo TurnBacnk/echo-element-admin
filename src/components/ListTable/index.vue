@@ -12,7 +12,6 @@
       :span-method="spanMethod"
       :stripe="stripe"
       :summary-method="summaryMethod"
-      default-expand-all
       row-key="id"
       :tree-props="treeConfig"
       :default-expand-all="expanded"
@@ -23,7 +22,7 @@
         <el-table-column
           v-if="column.columnType === 'Operation'"
           :label="column.label"
-          :min-width="250"
+          :min-width="column.width ? column.width : 300"
           align="center"
           fixed="right"
         >
@@ -45,14 +44,13 @@
           v-else-if="column.columnType === 'Index'"
           :type="column.type ? column.type : 'selection'"
           align="center"
-        >
-        </el-table-column>
+        />
         <!--    字典替换    -->
         <el-table-column
           v-else-if="column.columnType === 'Dictionary'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -67,7 +65,7 @@
           v-else-if="column.columnType === 'Constant'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -86,11 +84,12 @@
             </el-tag>
           </template>
         </el-table-column>
+        <!--    Icon    -->
         <el-table-column
           v-else-if="column.columnType === 'Icon'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -100,11 +99,12 @@
             <svg-icon :icon-class="iconScope.row[iconScope.column.property]" />
           </template>
         </el-table-column>
+        <!--    Money    -->
         <el-table-column
           v-else-if="column.columnType === 'Money'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label + getCurrencyUnitLabel() : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -114,11 +114,12 @@
             {{ convertMoney(column.money, moneyScope.row[moneyScope.column.property]) }}
           </template>
         </el-table-column>
+        <!--    Link    -->
         <el-table-column
           v-else-if="column.columnType === 'Link'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -128,11 +129,12 @@
             <el-link type="primary" @click.native="column.link.click(linkScope.$index, linkScope.row)"> {{ linkScope.row[linkScope.column.property] }} </el-link>
           </template>
         </el-table-column>
+        <!--    Tag    -->
         <el-table-column
           v-else-if="column.columnType === 'Tag'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :min-width="180"
+          :min-width="column.width ? column.width : 180"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -148,8 +150,8 @@
                   :color="column.tag.color ? column.tag.color : ''"
                   :size="column.tag.size ? column.tag.size : 'medium'"
                   :effect="column.tag.effect ? column.tag.effect : 'plain'"
-                  @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
                   style="margin-left: 5px;margin-right: 0"
+                  @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
                 >
                   <template v-if="column.tag.isConvert">
                     {{ dictionaryConvert(column.tag.dictList, tag) }}
@@ -167,15 +169,43 @@
                 :hit="column.tag.hit ? column.tag.hit : false"
                 :color="column.tag.color ? column.tag.color : ''"
                 :size="column.tag.size ? column.tag.size : 'medium'"
-                :effect="column.tag.effect ? column.tag.effect : 'plain'"
-                @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
+                :effect="column.tag.effect ? column.tag.effect : 'light'"
                 style="margin-left: 5px;margin-right: 0"
+                @click.native="column.tag.click ? column.tag.click(tagScope.$index, tagScope.row) : undefined"
               >
                 <template v-if="column.tag.isConvert">
                   {{ dictionaryConvert(column.tag.dictList, tagScope.row[tagScope.column.property]) }}
                 </template>
                 <template v-else>
                   {{ tagScope.row[tagScope.column.property] }}
+                </template>
+              </el-tag>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-else-if="column.columnType === 'ApprovalStatus'"
+          :fixed="column.fixed ? column.fixed : false"
+          :label="column.label ? column.label : ''"
+          :min-width="column.width ? column.width : 180"
+          :prop="column.prop ? column.prop : undefined"
+          :show-overflow-tooltip="true"
+          :sortable="column.sortable ? column.sortable : false"
+          :type="column.type ? column.type : undefined"
+        >
+          <template slot-scope="approvalScope">
+            <template>
+              <el-tag
+                :type="approvalTagType(approvalScope.row)"
+                :disable-transitions="false"
+                :hit="false"
+                size="medium"
+                effect="light"
+                style="margin-left: 5px;margin-right: 0"
+                @click.native="showApprovalInstance(approvalScope.row)"
+              >
+                <template>
+                  {{ getApprovalStatusText(approvalScope.row) }}
                 </template>
               </el-tag>
             </template>
@@ -190,9 +220,8 @@
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
           :type="column.type ? column.type : undefined"
-          min-width="180"
-        >
-        </el-table-column>
+          :min-width="column.width ? column.width : 180"
+        />
       </template>
     </el-table>
     <el-pagination
@@ -205,8 +234,7 @@
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-    >
-    </el-pagination>
+    />
   </div>
 </template>
 
@@ -308,6 +336,11 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    showApproval: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -321,21 +354,21 @@ export default {
       loading: true
     }
   },
-  created() {
-    this.list()
-  },
   watch: {
     screenHeight(val) {
       this.screenHeight = val
       this.height = this.screenHeight - 500
     }
   },
+  created() {
+    this.list()
+  },
   mounted() {
     window.onresize = () => {
-      return (() => {
+      return () => {
         window.screenHeight = window.innerHeight
         this.screenHeight = window.screenHeight
-      })
+      }
     }
   },
   methods: {
@@ -401,13 +434,37 @@ export default {
      */
     convertMoney(moneyConfig, originMoney) {
       if (!originMoney) {
-        const zero = 0;
+        const zero = 0
         return zero.toFixed(6)
       }
       return originMoney.toFixed(6)
     },
     getCurrencyUnitLabel() {
       return '(' + this.$store.getters.currency + '/' + this.$store.getters.currencySymbol + ')'
+    },
+    approvalTagType(row) {
+      if (row.approvalStatus === 0) {
+        // 草稿
+        return 'info'
+      }
+      if (row.approvalStatus === 1) {
+        // 审核中
+        return ''
+      }
+      if (row.approvalStatus === 2) {
+        // 审核通过
+        return 'success'
+      }
+      if (row.approvalStatus === 3) {
+        // 审核驳回
+        return 'danger'
+      }
+    },
+    showApprovalInstance(row) {
+
+    },
+    getApprovalStatusText(row) {
+      return row.approvalStatusText
     }
 
   }

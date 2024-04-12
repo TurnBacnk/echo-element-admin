@@ -14,3 +14,10 @@ export function getClientById(id) {
     method: 'get'
   })
 }
+
+export function getClientContactListById(id) {
+  return request({
+    url: '/api/client/get-client-contact-list/' + id,
+    method: 'get'
+  })
+}

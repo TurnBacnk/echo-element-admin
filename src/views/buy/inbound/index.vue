@@ -23,7 +23,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {delInboundOrderByIds} from "@/api/business/inbound";
+import { delInboundOrderByIds } from '@/api/business/inbound'
 
 export default {
   name: 'Inbound',
@@ -44,7 +44,7 @@ export default {
           icon: 'el-icon-plus'
         },
         {
-          text: '删除',
+          text: '废弃',
           type: 'danger',
           click: () => {
             this.handleDel()
@@ -84,11 +84,23 @@ export default {
         },
         {
           prop: 'discountAmount',
-          label: '优惠金额'
+          label: '优惠金额',
+          columnType: 'Money'
         },
         {
           prop: 'afterDiscountPayAmount',
-          label: '优惠后应付款'
+          label: '优惠后应付款',
+          columnType: 'Money'
+        },
+        {
+          prop: 'saleContractCode',
+          label: '关联的销售合同',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+
+            }
+          }
         },
         {
           prop: 'orderCode',
