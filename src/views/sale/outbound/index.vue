@@ -10,7 +10,7 @@
       </el-form-item>
     </el-form>
     <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
-    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
+    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" :show-approval="true" />
   </div>
 </template>
 
@@ -63,7 +63,7 @@ export default {
         {
           columnType: 'Link',
           prop: 'saleContractCode',
-          label: '销售合同编码',
+          label: '销售合同',
           link: {
             click: (row, index) => {
 
@@ -71,7 +71,7 @@ export default {
           }
         },
         {
-          prop: 'saleContractTime',
+          prop: 'outboundTime',
           label: '出库日期'
         },
         {
@@ -79,7 +79,7 @@ export default {
           label: '客户'
         },
         {
-          prop: 'saleUsername',
+          prop: 'saleUserName',
           label: '销售人员'
         },
         {
@@ -110,6 +110,13 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                // 草稿可以修改
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === undefined) {
+
+                }
                 return false
               }
             }
@@ -124,7 +131,7 @@ export default {
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'SaleOutboundEdit',
         params: {
           id: row.id
         }

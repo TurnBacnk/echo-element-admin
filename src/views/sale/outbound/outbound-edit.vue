@@ -20,18 +20,18 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import { getJavaCode } from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
 import { getClientContactListById } from '@/api/business/client'
 import { getProductInfoById } from '@/api/business/product-info'
+import { getSaleOutboundInfoById } from '@/api/business/sale-outbound'
 
 export default {
-  name: 'SaleOutboundAdd',
+  name: 'SaleOutboundEdit',
   components: { FormTable },
   data() {
     return {
       showForm: false,
       contentText: '',
-      saveUrl: '/api/sale-outbound/save',
+      saveUrl: '/api/sale-outbound/update',
       submitUrl: '/api/sale-outbound/submit',
       canSubmit: true,
       collapseConfig: [
@@ -64,15 +64,10 @@ export default {
       },
       rules: {
         baseInfo: {
-          saleContractId: [{ required: true, message: '请选择销售合同', trigger: 'blur' }],
-          clientId: [{ required: true, message: '请选择客户', trigger: 'blur' }],
-          saleUserId: [{ required: true, message: '请选择销售人员', trigger: 'blur' }]
+
         },
         goodsInfo: {
-          productId: [{ required: true, message: '请选择产品', trigger: 'blur' }],
-          number: [{ required: true, message: '请输入数量', trigger: 'blur' }],
-          discountRate: [{ required: true, message: '请输入优惠率', trigger: 'blur' }],
-          taxRate: [{}]
+
         }
       },
       collapseItemConfig: [],
@@ -106,9 +101,8 @@ export default {
     }
   },
   async created() {
-    await this.initParams()
-    await generateCode('SALE-OUTBOUND').then(res => {
-      this.form.saleOutboundCode = res.data
+    await getSaleOutboundInfoById(this.$route.params.id).then(res => {
+      Object.assign(this.form, res.data)
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
@@ -116,13 +110,6 @@ export default {
     await this.init()
   },
   methods: {
-    initParams() {
-      if (this.$route.params.saleContractId) {
-        this.form.saleContractCode = this.$route.params.saleContractCode
-        this.form.saleContractId = this.$route.params.saleContractId
-        this.saleContractDisabled = true
-      }
-    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
@@ -210,17 +197,17 @@ export default {
           },
           {
             label: '联系人座机',
-            prop: 'clientLandLine',
+            prop: 'contactLandLine',
             type: 'input'
           },
           {
-            label: '联系人地址',
+            label: '客户地址',
             prop: 'clientAddress',
             type: 'input'
           },
           {
-            label: '联系人地区',
-            prop: 'clientRegion ',
+            label: '客户地区',
+            prop: 'clientRegion',
             type: 'input'
           },
           {
@@ -356,7 +343,7 @@ export default {
               disabled: true
             },
             {
-              label: '销售价格',
+              label: '销售金额',
               prop: 'salePriceAfterTax',
               type: 'number',
               disabled: true
@@ -386,7 +373,7 @@ export default {
               disabled: true
             },
             {
-              label: '税额合计价格',
+              label: '税额合计金额',
               prop: 'totalTaxAmount',
               type: 'number',
               disabled: true

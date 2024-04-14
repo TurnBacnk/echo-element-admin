@@ -273,7 +273,7 @@ export default {
               text: '挂载出库',
               css: 'text',
               click: (index, row) => {
-
+                this.handleOutbound(row)
               },
               isDisabled: (row) => {
                 // 草稿无法挂载
@@ -404,6 +404,15 @@ export default {
       } else {
         this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }
+    },
+    handleOutbound(row) {
+      this.$router.push({
+        name: 'SaleOutboundAdd',
+        params: {
+          saleContractCode: row.contractCode,
+          saleContractId: row.id
+        }
+      })
     }
   }
 }

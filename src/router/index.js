@@ -362,6 +362,12 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/outbound/outbound-add.vue'),
         name: 'SaleOutboundAdd',
         meta: { activeMenu: '/sale/outbound', title: '销售出库登记' }
+      },
+      {
+        path: 'sale-outbound-edit',
+        component: () => import('@/views/sale/outbound/outbound-edit.vue'),
+        name: 'SaleOutboundEdit',
+        meta: { activeMenu: '/sale/outbound', title: '销售出库修改' }
       }
     ]
   },

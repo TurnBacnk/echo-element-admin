@@ -359,6 +359,7 @@ export default {
       }
     },
     handleSelectChange(changeValue, bundleConfig, options, clickConfig, optionValue) {
+      console.log("123")
       var _this = this
       this.$nextTick(() => {
         if (bundleConfig === undefined) {
@@ -370,7 +371,6 @@ export default {
             return item.value === changeValue
           }
           return item[optionValue] === changeValue
-
         })
 
         var keys = Object.keys(bundleConfig)
