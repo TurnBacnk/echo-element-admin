@@ -21,3 +21,10 @@ export function deleteConfigListByIds(ids) {
     data: ids
   })
 }
+
+export function getConfigById(id) {
+  return request({
+    url: '/api/approval-config/get-by-id/' + id,
+    method: 'get'
+  })
+}

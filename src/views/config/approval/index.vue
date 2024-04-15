@@ -38,8 +38,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {getConstant, getJavaCode} from '@/api/common/dict'
-import {deleteConfigById, deleteConfigListByIds, startOrPauseApproval} from '@/api/config/approval'
+import { getConstant, getJavaCode } from '@/api/common/dict'
+import { deleteConfigById, deleteConfigListByIds, startOrPauseApproval } from '@/api/config/approval'
 
 export default {
   name: 'Client',
@@ -75,7 +75,7 @@ export default {
       tableColumnConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['StartPause']
+        constantNameList: ['StartPause', 'BusinessModel', 'Enable']
       },
       javaCode: [],
       javaCodeConfig: {
@@ -99,8 +99,16 @@ export default {
           columnType: 'Index'
         },
         {
-          prop: 'moduleName',
-          label: '业务模块'
+          prop: 'moduleKey',
+          label: '业务模块',
+          columnType: 'Constant',
+          constant: {
+            constantList: this.constant['BusinessModel'],
+            type: (row) => {
+              return ''
+            },
+            effect: 'light'
+          }
         },
         {
           prop: 'approvalName',
@@ -111,12 +119,12 @@ export default {
           label: '启停状态',
           columnType: 'Constant',
           constant: {
-            constantList: this.constant['StartPause'],
+            constantList: this.constant['Enable'],
             type: (row) => {
               if (row.status === 1) {
-                return 'info'
-              } else {
                 return 'success'
+              } else {
+                return 'info'
               }
             },
             effect: 'light'
@@ -133,6 +141,9 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                if (row.status === 0) {
+                  return true
+                }
                 return false
               }
             },
@@ -177,7 +188,7 @@ export default {
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'ApprovalEdit',
         params: {
           id: row.id
         }

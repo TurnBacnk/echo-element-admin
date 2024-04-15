@@ -1,15 +1,12 @@
 <template>
   <div>
     <el-page-header :content="contentText" @back="goBack" />
-    <blockquote style="font-size: 14px;color: gray">
-      <br> 制单日期： {{ new Date() }}
-      <br> 制单人： {{ $store.state.user.name }}
-    </blockquote>
-    <div class="button-group">
-      <el-button type="primary" @click="save">保存</el-button>
-      <el-button v-if="canSubmit" type="warning" @click="submit">提交</el-button>
-      <el-button type="info" @click="backToLastView">取消</el-button>
-    </div>
+    <template v-if="!isView">
+      <blockquote style="font-size: 14px;color: gray">
+        <br> 制单日期： {{ new Date() }}
+        <br> 制单人： {{ $store.state.user.name }}
+      </blockquote>
+    </template>
     <el-collapse v-model="activeNames">
       <el-card v-for="config in collapseConfig" :key="config.name" style="margin: 10px;">
         <div slot="header" class="clearfix">
@@ -21,7 +18,7 @@
           <div>
             <!--         form         -->
             <template v-if="config.type === 'form'">
-              <el-form ref="form" :model="form" label-width="120px">
+              <el-form ref="form" :model="form" label-width="120px" :disabled="isView">
                 <el-row>
                   <el-col v-for="itemConfig in collapseItemConfig[config.name]" :key="itemConfig.prop" :span="8">
                     <el-form-item
@@ -152,6 +149,7 @@
                 :total-columns="collapseItemConfig[config.name].totalColumns"
                 :sum-text="config.sumText"
                 :show-summary="config.showSummary ? config.showSummary : false"
+                :is-view="isView"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
@@ -159,6 +157,36 @@
         </el-collapse-item>
       </el-card>
     </el-collapse>
+    <el-footer class="footer-css" v-if="!isView">
+      <div class="button-group">
+        <template v-if="!isView && !isApproval">
+          <el-button type="primary" @click="save">保存</el-button>
+          <el-button v-if="canSubmit" type="warning" @click="submit">提交</el-button>
+          <el-button type="info" @click="backToLastView">取消</el-button>
+        </template>
+        <template v-if="isApproval">
+          <div class="button-group">
+            <el-button type="success" @click="approvalPass">通过</el-button>
+            <el-button type="danger" @click="dialogVisible = true">拒绝</el-button>
+          </div>
+        </template>
+      </div>
+    </el-footer>
+    <el-dialog title="审核意见" :visible.sync="dialogVisible" width="30%">
+      <el-form ref="approvalForm" :model="approvalForm" label-width="150px">
+        <el-form-item prop="opinion" label="审核意见">
+          <el-input
+            v-model="approvalForm.opinion"
+            type="textarea"
+            style="width: 90%"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="dialogVisible = false;approvalForm.opinion = undefined">取 消</el-button>
+        <el-button type="primary" @click="approvalRefuse">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -168,6 +196,8 @@ import request from '@/utils/request'
 import TreeSelect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import item from '@/layout/components/Sidebar/Item.vue'
+import {startOrPauseApproval} from "@/api/config/approval";
+import {approvalPassOrRefuse} from "@/api/config/approval-instance";
 
 export default {
   name: 'FormTable',
@@ -260,6 +290,21 @@ export default {
       default: () => {
         return true
       }
+    },
+    showQuotes: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    isView: {
+      type: Boolean,
+      request: false,
+      default: false
+    },
+    isApproval: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -270,7 +315,11 @@ export default {
       }
     })
     return {
-      activeNames: nameArr
+      activeNames: nameArr,
+      approvalForm: {
+        opinion: undefined
+      },
+      dialogVisible: false
     }
   },
   computed: {
@@ -279,13 +328,6 @@ export default {
     }
   },
   created() {
-    // this.$nextTick(() => {
-    //   var elements = document.querySelectorAll('.vue-treeselect__control')
-    //   console.log(elements)
-    //   elements.forEach(function(element) {
-    //     element.style.removeProperty('display')
-    //   })
-    // })
   },
   methods: {
     goBack() {
@@ -310,7 +352,7 @@ export default {
           data: this.form
         }).then(res => {
           const { code, msg } = res
-          if (code === 100) {
+          if (code === '100') {
             this.$modal.msgSuccess(msg)
           }
         })
@@ -333,7 +375,7 @@ export default {
           data: this.form
         }).then(res => {
           const { code, msg } = res
-          if (code === 100) {
+          if (code === '100') {
             this.$modal.msgSuccess(msg)
           }
         })
@@ -400,6 +442,32 @@ export default {
           }
         }
       })
+    },
+    approvalPass() {
+      const obj = {
+        instanceId: this.form.instanceId,
+        approvalOrRefuse: 1
+      }
+      approvalPassOrRefuse(obj).then(res => {
+        const { code, msg } = res
+        if (code === '100') {
+          this.$modal.msgSuccess(msg)
+        }
+      })
+    },
+    approvalRefuse() {
+      const obj = {
+        instanceId: this.form.instanceId,
+        approvalOrRefuse: 2,
+        opinion: this.approvalForm.opinion
+      }
+      approvalPassOrRefuse(obj).then(res => {
+        const { code, msg } = res
+        if (code === '100') {
+          this.dialogVisible = false
+          this.$modal.msgSuccess(msg)
+        }
+      })
     }
   }
 }
@@ -428,9 +496,9 @@ blockquote p {
 }
 
 .button-group {
-  margin-top: 20px;
+  margin-top: 10px;
   margin-left: 10px;
-  text-align: left;
+  text-align: center;
 }
 
 .vue-treeselect__control {
@@ -476,6 +544,15 @@ table td {
 .customer-table .el-table__fixed-right::before,
 .el-table__fixed::before {
   width: 0;
+}
+
+.footer-css {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2); /* 上边框阴影 */
+  width: 100%;
 }
 
 </style>

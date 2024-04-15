@@ -23,7 +23,7 @@
     />
     <el-dialog
       :visible.sync="addVisible"
-      title="角色新增"
+      :title=title
       width="500px"
       append-to-body
       @close="closeAddForm"
@@ -129,7 +129,8 @@ export default {
         sort: [
           { required: true, message: '排序不能为空', trigger: 'blur' }
         ]
-      }
+      },
+      title: ''
     }
   },
   async created() {
@@ -224,6 +225,7 @@ export default {
       })
     },
     handleEdit(index, row) {
+      this.title = '角色修改'
       const id = row.id
       // 根据id查询数据
       getRoleById(id).then(res => {
@@ -262,6 +264,7 @@ export default {
         roleName: undefined,
         roleKey: undefined
       }
+      this.title = '角色新增'
     },
     getMenuTree() {
       getMenuTree().then(res => {

@@ -30,9 +30,9 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '',
+      contentText: '销售出库修改',
       saveUrl: '/api/sale-outbound/update',
-      submitUrl: '/api/sale-outbound/submit',
+      submitUrl: '/api/sale-outbound/single-submit',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },

@@ -54,6 +54,11 @@ export default {
       needTagsView: state => state.settings.tagsView
     })
   },
+  data() {
+    return {
+      footer_show: false
+    }
+  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })

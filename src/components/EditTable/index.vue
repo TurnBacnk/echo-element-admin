@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-button type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
-    <el-button type="primary" size="mini" @click="handleImport">批量导入</el-button>
-    <el-form ref="editTableForm" :model="formData" :rules="rules" size="small">
+    <el-button v-if="!isView" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
+    <el-button v-if="!isView" type="primary" size="mini" @click="handleImport">批量导入</el-button>
+    <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
       <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
         <el-table-column :type="tableConfig.indexType" />
         <el-table-column
@@ -93,6 +93,11 @@ export default {
       default: () => '合计'
     },
     showSummary: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    isView: {
       type: Boolean,
       required: false,
       default: false

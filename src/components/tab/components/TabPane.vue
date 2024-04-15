@@ -5,16 +5,17 @@
       align="center"
       label="编号"
       width="65"
+      type="index"
       element-loading-text="请给我点时间！"
     >
-      <template slot-scope="scope">
-        <span>{{ scope.row.id }}</span>
-      </template>
+      <!--      <template slot-scope="scope">-->
+      <!--        <span>{{ scope.row.id }}</span>-->
+      <!--      </template>-->
     </el-table-column>
 
     <el-table-column width="180px" align="center" label="发起日期">
       <template slot-scope="scope">
-        <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+        <span>{{ scope.row.createTime }}</span>
       </template>
     </el-table-column>
 
@@ -26,7 +27,7 @@
 
     <el-table-column width="110px" align="center" label="发起人">
       <template slot-scope="scope">
-        <span>{{ scope.row.createBy }}</span>
+        <span>{{ scope.row.createByName }}</span>
       </template>
     </el-table-column>
 
@@ -53,9 +54,6 @@
 </template>
 
 <script>
-// import { fetchList } from '@/api/article'
-
-import { parseTime } from '@/utils'
 import request from '@/utils/request'
 
 export default {
@@ -96,7 +94,6 @@ export default {
     await this.getList()
   },
   methods: {
-    parseTime,
     getList() {
       this.loading = true
       request({

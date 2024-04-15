@@ -348,6 +348,12 @@ export const asyncRoutes = [
         component: () => import('@/views/config/approval/approval-add.vue'),
         name: 'ApprovalAdd',
         meta: { activeMenu: '/config/approval', title: '审核定义' }
+      },
+      {
+        path: 'approval-ediut',
+        component: () => import('@/views/config/approval/approval-edit.vue'),
+        name: 'ApprovalEdit',
+        meta: { activeMenu: '/config/approval', title: '审核定义修改' }
       }
     ]
   },
@@ -368,6 +374,12 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/outbound/outbound-edit.vue'),
         name: 'SaleOutboundEdit',
         meta: { activeMenu: '/sale/outbound', title: '销售出库修改' }
+      },
+      {
+        path: 'sale-outbound-view',
+        component: () => import('@/views/sale/outbound/outbound-view.vue'),
+        name: 'SaleOutboundView',
+        meta: { activeMenu: '/sale/outbound', title: '销售出库' }
       }
     ]
   },

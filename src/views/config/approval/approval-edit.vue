@@ -11,6 +11,7 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
+      :save-fun="saveFun"
     />
   </div>
 </template>
@@ -19,15 +20,17 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getJavaCode } from '@/api/common/dict'
+import {getConfigById} from "@/api/config/approval";
+import {im} from "mathjs";
 
 export default {
-  name: 'ApprovalAdd',
+  name: 'ApprovalEdit',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '审核定义登记',
-      saveUrl: '/api/approval-config/save',
+      contentText: '审核定义修改',
+      saveUrl: '/api/approval-config/update',
       submitUrl: '',
       canSubmit: false,
       collapseConfig: [
@@ -111,6 +114,9 @@ export default {
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getConfigById(this.$route.params.id).then(res => {
+      Object.assign(this.form, res.data)
     })
     await this.init()
   },

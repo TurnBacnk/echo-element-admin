@@ -19,7 +19,7 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import { delSaleOutboundById, delSaleOutboundByIds } from '@/api/business/sale-outbound'
-import {getConstant} from "@/api/common/dict";
+import { getConstant } from '@/api/common/dict'
 
 export default {
   name: 'Client',
@@ -83,8 +83,28 @@ export default {
           prop: 'saleContractCode',
           label: '销售合同',
           link: {
-            click: (row, index) => {
-
+            click: (index, row) => {
+              this.$router.push({
+                name: 'SaleOutboundView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          }
+        },
+        {
+          columnType: 'Link',
+          prop: 'saleOutboundCode',
+          label: '销售出库单编号',
+          link: {
+            click: (index, row) => {
+              this.$router.push({
+                name: 'SaleOutboundView',
+                params: {
+                  id: row.id
+                }
+              })
             }
           }
         },
@@ -152,7 +172,7 @@ export default {
                 if (row.approvalStatus === 0) {
                   return false
                 }
-                return false
+                return true
               }
             },
             {
@@ -207,6 +227,7 @@ export default {
         const { msg, code } = res
         if (code === '100') {
           this.$modal.msgSuccess(msg)
+          this.handleQuery()
         }
       })
     },
@@ -215,6 +236,7 @@ export default {
         const { code, msg } = res
         if (code === '100') {
           this.$modal.msgSuccess(msg)
+          this.handleQuery()
         }
       })
     },

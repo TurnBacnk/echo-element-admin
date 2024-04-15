@@ -22,7 +22,7 @@ export default {
     return {
       tabMapOptions: [
         { label: '待我审核', key: 'needApproval', dataSource: '/api/approval-instance/get-all-need-approval' },
-        { label: '我发起的', key: 'mySubmit', dataSource: '/api/approval-instance/get-all-need-approval' }
+        { label: '我发起的', key: 'mySubmit', dataSource: '/api/approval-instance/get-all-my-publish-approval' }
       ],
       activeName: 'needApproval',
       createdTimes: 0
