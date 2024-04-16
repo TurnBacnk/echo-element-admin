@@ -17,7 +17,7 @@
       <el-form-item label="启停状态" prop="status">
         <el-select v-model="queryForm.status" placeholder="请输入启停状态">
           <el-option
-            v-for="status in constant['StartPause']"
+            v-for="status in constant['Enable']"
             :key="status.value"
             :label="status.label"
             :value="status.value"
@@ -151,20 +151,21 @@ export default {
               text: '启用',
               css: 'text',
               click: (index, row) => {
-                this.handleStartOrPause(row, 0)
+                this.handleStartOrPause(row, 1)
               },
               isDisabled: (row) => {
-                return row.status === 0
+                return row.status === 1
               }
             },
             {
               text: '停用',
               css: 'text',
               click: (index, row) => {
-                this.handleStartOrPause(row, 1)
+                this.handleStartOrPause(row, 0)
               },
               isDisabled: (row) => {
-                return row.status === 1
+                // 启用状态下可以停用
+                return row.status === 0
               }
             },
             {

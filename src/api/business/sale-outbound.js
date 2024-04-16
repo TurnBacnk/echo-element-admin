@@ -29,3 +29,17 @@ export function changeSaleOutboundStatusById(id, status) {
     data: id
   })
 }
+
+export function getSaleOutboundInfoByCode(code) {
+  return request({
+    url: '/api/sale-outbound/get-sale-outbound-info-by-code/' + code,
+    method: 'get'
+  })
+}
+
+export function getSaleOutboundList() {
+  return request({
+    url: '/api/sale-outbound/get-sale-outbound-list',
+    method: 'get'
+  })
+}

@@ -383,6 +383,32 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/sale/return-order/sub',
+    component: Layout,
+    permissions: ['sale-return-order:user:list'],
+    hidden: true,
+    children: [
+      {
+        path: 'sale-return-order-add',
+        component: () => import('@/views/sale/return/sale-return-order-add.vue'),
+        name: 'SaleReturnOrderAdd',
+        meta: { activeMenu: '/sale/return', title: '销售退货登记' }
+      },
+      {
+        path: 'sale-return-order-edit',
+        component: () => import('@/views/sale/return/sale-return-order-edit.vue'),
+        name: 'SaleReturnOrderEdit',
+        meta: { activeMenu: '/save/return', title: '销售退货修改' }
+      },
+      {
+        path: 'sale-return-order-view',
+        component: () => import('@/views/sale/return/sale-return-order-view.vue'),
+        name: 'SaleReturnOrderView',
+        meta: { activeMenu: '/save/return', title: '销售退货' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

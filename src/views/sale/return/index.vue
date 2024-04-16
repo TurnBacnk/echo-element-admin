@@ -1,8 +1,11 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
-      <el-form-item label="" prop="">
-
+      <el-form-item label="销售退货单编号" prop="saleReturnOrderCode">
+        <el-input v-model="queryForm.saleReturnOrderCode" clearable placeholder="请输入销售出库单编号" size="mini" />
+      </el-form-item>
+      <el-form-item label="退货日期">
+        <el-date-picker type="date" v-model="queryForm.saleReturnOrderTime" placeholder="请选择退货日期" clearable  />
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
@@ -25,7 +28,10 @@ export default {
   data() {
     return {
       showSearch: true,
-      queryForm: {},
+      queryForm: {
+        saleReturnOrderCode: undefined,
+        saleReturnOrderTime: undefined
+      },
       buttonConfig: [
         {
           text: '新增',
@@ -34,6 +40,15 @@ export default {
           },
           plain: true,
           icon: 'el-icon-plus'
+        },
+        {
+          text: '提交',
+          click: () => {
+            this.handleSubmit()
+          },
+          plain: true,
+          type: 'warning',
+          icon: 'el-icon-s-promotion'
         },
         {
           text: '删除',
@@ -45,7 +60,7 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/',
+      dataSource: '/api/sale-return/list',
       tableColumnConfig: []
     }
   },
@@ -55,6 +70,48 @@ export default {
   methods: {
     init() {
       this.tableColumnConfig = [
+        {
+          columnType: 'Index'
+        },
+        {
+          prop: 'saleReturnOrderCode',
+          label: '销售退货单编号'
+        },
+        {
+          prop: 'saleOutboundCode',
+          label: '销售出库单编号'
+        },
+        {
+          prop: 'saleReturnOrderTime',
+          label: '退货日期'
+        },
+        {
+          prop: 'clientName',
+          label: '客户名称'
+        },
+        {
+          prop: 'saleUserName',
+          label: '销售人员'
+        },
+        {
+          prop: 'discountAmount',
+          label: '优惠金额',
+          columnType: 'Money'
+        },
+        {
+          prop: 'afterDiscountReceiveAmount',
+          label: '优惠后应付款',
+          columnType: 'Money'
+        },
+        {
+          prop: 'approvalStatus',
+          label: '审批状态',
+          columnType: 'ApprovalStatus'
+        },
+        {
+          prop: 'approvalUserName',
+          label: '审核人'
+        },
         {
           columnType: 'Operation',
           label: '操作',
@@ -75,12 +132,12 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: '',
+        name: 'SaleReturnOrderAdd',
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'SaleReturnOrderEdit',
         params: {
           id: row.id
         }
@@ -93,7 +150,21 @@ export default {
       this.$refs.tableList.list()
     },
     restQuery() {
-
+      this.$refs.queryForm.resetFields()
+    },
+    handleSubmit() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canSubmit = true
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
+          canSubmit = false
+        }
+      })
+      if (canSubmit) {
+        // TODO submit
+      } else {
+        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
+      }
     }
   }
 }

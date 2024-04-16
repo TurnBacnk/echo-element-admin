@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-button v-if="!isView" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
-    <el-button v-if="!isView" type="primary" size="mini" @click="handleImport">批量导入</el-button>
+    <el-button v-if="showButton" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
+    <el-button v-if="showButton" type="primary" size="mini" @click="handleImport">批量导入</el-button>
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
       <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
         <el-table-column :type="tableConfig.indexType" />
@@ -101,6 +101,21 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    showButton: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
+  },
+  watch: {
+    'data': {
+      handler(newVal, oldVal) {
+        this.formData.tableData = newVal.map(item => ({
+          ...item,
+          _isEditing: false
+        }))
+      }
     }
   },
   data() {
@@ -163,7 +178,7 @@ export default {
     },
     deleteRow(index) {
       this.formData.tableData.splice(index, 1)
-      this.$emit('update:data', this.tableData)
+      this.$emit('update:data', this.formData.tableData)
     },
     handleSelectChange(event) {
 
@@ -194,7 +209,7 @@ export default {
             sums[index] = values.reduce((prev, curr) => {
               const value = Number(curr)
               if (!isNaN(value)) {
-                return prev + curr
+                return this.$math.format(this.$math.add(prev, curr), { precision: 2, notation: 'fixed' })
               } else {
                 return prev
               }

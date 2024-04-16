@@ -150,6 +150,7 @@
                 :sum-text="config.sumText"
                 :show-summary="config.showSummary ? config.showSummary : false"
                 :is-view="isView"
+                :show-button="config.showButton"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
@@ -198,6 +199,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import item from '@/layout/components/Sidebar/Item.vue'
 import {startOrPauseApproval} from "@/api/config/approval";
 import {approvalPassOrRefuse} from "@/api/config/approval-instance";
+import Ar from "element-ui/src/locale/lang/ar";
 
 export default {
   name: 'FormTable',
@@ -401,12 +403,12 @@ export default {
       }
     },
     handleSelectChange(changeValue, bundleConfig, options, clickConfig, optionValue) {
-      console.log("123")
       var _this = this
       this.$nextTick(() => {
         if (bundleConfig === undefined) {
           return
         }
+        console.log("123")
         // 需要绑定多个值
         const obj = options.find((item) => {
           if (optionValue === undefined) {
@@ -417,9 +419,16 @@ export default {
 
         var keys = Object.keys(bundleConfig)
 
-        keys.forEach(function(key) {
+        keys.forEach(key => {
           var value = bundleConfig[key]
-          _this.form[value] = obj[key]
+          if (obj[key] instanceof Array) {
+            _this.handleDataUpdate(obj[key], value)
+            // obj[key].forEach((item) => {
+            //   _this.form[value].push(item)
+            // })
+          } else {
+            _this.form[value] = obj[key]
+          }
         })
       })
     },
@@ -468,6 +477,12 @@ export default {
           this.$modal.msgSuccess(msg)
         }
       })
+    },
+    handleInputChange(event, inputConfig) {
+      if (inputConfig.input) {
+        inputConfig.input(event)
+      }
+      return event
     }
   }
 }
