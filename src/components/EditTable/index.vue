@@ -36,10 +36,21 @@
                     :value="item.value"
                   />
                 </el-select>
+                <el-select v-if="column.type === 'selectConstant'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
+                  <el-option
+                    v-for="item in column.optionList"
+                    :key="item.key"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </div>
               <div v-else>
                 <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" :disabled="true" />
-                <template v-if="column.type !== 'switch'">
+                <template v-else-if="column.type === 'selectConstant'">
+                  {{ convertConstant(scope.row[column.prop], column.optionList) }}
+                </template>
+                <template v-if="column.type !== 'switch' && column.type !== 'selectConstant'">
                   {{ scope.row[column.prop] }}
                 </template>
               </div>
@@ -92,31 +103,9 @@ export default {
       required: false,
       default: () => '合计'
     },
-    showSummary: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    isView: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    showButton: {
-      type: Boolean,
-      required: false,
-      default: false
-    }
-  },
-  watch: {
-    'data': {
-      handler(newVal, oldVal) {
-        this.formData.tableData = newVal.map(item => ({
-          ...item,
-          _isEditing: false
-        }))
-      }
-    }
+    showSummary: Boolean,
+    isView: Boolean,
+    showButton: Boolean
   },
   data() {
     const initData = this.data.map(item => ({
@@ -127,6 +116,16 @@ export default {
       editingIndex: null,
       formData: {
         tableData: initData
+      }
+    }
+  },
+  watch: {
+    'data': {
+      handler(newVal, oldVal) {
+        this.formData.tableData = newVal.map(item => ({
+          ...item,
+          _isEditing: false
+        }))
       }
     }
   },
@@ -141,7 +140,8 @@ export default {
         return
       }
       const newRow = this.columns.reduce((acc, column) => {
-        acc[column.prop] = undefined
+        // 添加默认值
+        acc[column.prop] = column.defaultValue !== undefined ? column.defaultValue : undefined
         return acc
       }, { _isEditing: true })
       this.formData.tableData.push(newRow)
@@ -221,6 +221,14 @@ export default {
         }
       })
       return sums
+    },
+    convertConstant(value, optionList) {
+      const obj = optionList.find(item => {
+        if (item.value === value) {
+          return item
+        }
+      })
+      return obj.label
     }
   }
 }

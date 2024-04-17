@@ -189,7 +189,8 @@ export default {
               prop: 'isMainContact',
               type: 'switch'
             }
-          ]
+          ],
+          showForm: true
         }
       }
       this.showForm = true

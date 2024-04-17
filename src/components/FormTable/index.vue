@@ -148,9 +148,9 @@
                 :rules="rules[config.name]"
                 :total-columns="collapseItemConfig[config.name].totalColumns"
                 :sum-text="config.sumText"
-                :show-summary="config.showSummary ? config.showSummary : false"
+                :show-summary="collapseItemConfig[config.name].showSummary ? collapseItemConfig[config.name].showSummary : false"
                 :is-view="isView"
-                :show-button="config.showButton"
+                :show-button="collapseItemConfig[config.name].showButton ? collapseItemConfig[config.name].showButton : false"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
@@ -158,19 +158,17 @@
         </el-collapse-item>
       </el-card>
     </el-collapse>
-    <el-footer class="footer-css" v-if="!isView">
+    <el-footer v-if="!isView" class="footer-css">
       <div class="button-group">
-        <template v-if="!isView && !isApproval">
-          <el-button type="primary" @click="save">保存</el-button>
-          <el-button v-if="canSubmit" type="warning" @click="submit">提交</el-button>
-          <el-button type="info" @click="backToLastView">取消</el-button>
-        </template>
-        <template v-if="isApproval">
-          <div class="button-group">
-            <el-button type="success" @click="approvalPass">通过</el-button>
-            <el-button type="danger" @click="dialogVisible = true">拒绝</el-button>
-          </div>
-        </template>
+        <el-button type="primary" @click="save">保存</el-button>
+        <el-button v-if="canSubmit" type="warning" @click="submit">提交</el-button>
+        <el-button type="info" @click="backToLastView">取消</el-button>
+      </div>
+    </el-footer>
+    <el-footer v-if="isApproval" class="footer-css">
+      <div class="button-group">
+        <el-button type="success" @click="approvalPass">通过</el-button>
+        <el-button type="danger" @click="dialogVisible = true">拒绝</el-button>
       </div>
     </el-footer>
     <el-dialog title="审核意见" :visible.sync="dialogVisible" width="30%">
@@ -197,9 +195,7 @@ import request from '@/utils/request'
 import TreeSelect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import item from '@/layout/components/Sidebar/Item.vue'
-import {startOrPauseApproval} from "@/api/config/approval";
-import {approvalPassOrRefuse} from "@/api/config/approval-instance";
-import Ar from "element-ui/src/locale/lang/ar";
+import { approvalPassOrRefuse } from '@/api/config/approval-instance'
 
 export default {
   name: 'FormTable',
@@ -341,47 +337,53 @@ export default {
     save() {
       if (this.saveFun()) {
         const formArr = this.$refs['form']
+        let canSave = true
         formArr.forEach(function(ele) {
           ele.validate(valid => {
             if (!valid) {
-              return false
+              canSave = false
             }
           })
         })
-        request({
-          url: this.saveUrl,
-          method: 'post',
-          data: this.form
-        }).then(res => {
-          const { code, msg } = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-          }
-        })
-        this.backToLastView()
+        if (canSave) {
+          request({
+            url: this.saveUrl,
+            method: 'post',
+            data: this.form
+          }).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+          this.backToLastView()
+        }
       }
     },
     submit() {
       if (this.submitFun()) {
         const formArr = this.$refs['form']
+        let camSubmit = true
         formArr.forEach(function(ele) {
           ele.validate(valid => {
             if (!valid) {
-              return false
+              camSubmit = false
             }
           })
         })
-        request({
-          url: this.submitUrl,
-          method: 'post',
-          data: this.form
-        }).then(res => {
-          const { code, msg } = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-          }
-        })
-        this.backToLastView()
+        if (camSubmit) {
+          request({
+            url: this.submitUrl,
+            method: 'post',
+            data: this.form
+          }).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+          this.backToLastView()
+        }
       }
     },
     selectChange(e, bundleConfig) {
@@ -408,7 +410,7 @@ export default {
         if (bundleConfig === undefined) {
           return
         }
-        console.log("123")
+        console.log('123')
         // 需要绑定多个值
         const obj = options.find((item) => {
           if (optionValue === undefined) {
@@ -455,19 +457,20 @@ export default {
     approvalPass() {
       const obj = {
         instanceId: this.form.instanceId,
-        approvalOrRefuse: 1
+        passOrRefuse: 1
       }
       approvalPassOrRefuse(obj).then(res => {
         const { code, msg } = res
         if (code === '100') {
           this.$modal.msgSuccess(msg)
+          this.backToLastView()
         }
       })
     },
     approvalRefuse() {
       const obj = {
         instanceId: this.form.instanceId,
-        approvalOrRefuse: 2,
+        passOrRefuse: 2,
         opinion: this.approvalForm.opinion
       }
       approvalPassOrRefuse(obj).then(res => {
@@ -475,6 +478,7 @@ export default {
         if (code === '100') {
           this.dialogVisible = false
           this.$modal.msgSuccess(msg)
+          this.backToLastView()
         }
       })
     },
@@ -483,6 +487,11 @@ export default {
         inputConfig.input(event)
       }
       return event
+    },
+    computeShowButton(showButton) {
+      console.log(showButton instanceof Boolean)
+      console.log(showButton instanceof String)
+      return !!showButton
     }
   }
 }

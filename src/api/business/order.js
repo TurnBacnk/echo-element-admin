@@ -14,3 +14,26 @@ export function voidOrderByIds(ids) {
     data: ids
   })
 }
+
+export function delBuyOrderByIds(ids) {
+  return request({
+    url: '/api/order/delete-by-ids',
+    method: 'post',
+    data: ids
+  })
+}
+
+export function submitBuyOrderByIds(ids) {
+  return request({
+    url: '/api/order/submit-order-by-ids',
+    method: 'post',
+    data: ids
+  })
+}
+
+export function submitBuyOrderById(id) {
+  return request({
+    url: '/api/order/submit-order-by-id/' + id,
+    method: 'get'
+  })
+}

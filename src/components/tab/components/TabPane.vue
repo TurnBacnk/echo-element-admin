@@ -37,7 +37,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column align="center" label="审核意见" width="95">
+    <el-table-column align="center" label="审核意见" width="200">
       <template slot-scope="scope">
         <span>{{ scope.row.approvalOpinion }}</span>
       </template>
@@ -105,20 +105,16 @@ export default {
       this.loading = false
     },
     goToApprovalPage(row) {
-      var businessName = row.businessName
-      var match = businessName.match(/\[(.*?)\]/)
+      const match = row.businessName.match(/\[(.*?)\]/)
       if (match) {
-        var businessNameWithPrefix = match[1]
-        var businessCodeIndex = businessNameWithPrefix.indexOf('-')
-        if (businessCodeIndex !== -1) {
-          var businessCode = businessNameWithPrefix.substring(businessCodeIndex + 1)
-          this.$router.push({
-            name: row.viewPage,
-            params: {
-              code: businessCode
-            }
-          })
-        }
+        const code = match[1]
+        this.$router.push({
+          name: row.viewPage,
+          params: {
+            code: code,
+            instanceId: row.id
+          }
+        })
       }
     }
   }

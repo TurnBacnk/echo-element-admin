@@ -166,11 +166,12 @@ export const asyncRoutes = [
         meta: { activeMenu: '/config/dict', title: '字典修改' }
       }
     ]
-    },
+  },
   {
     path: '/document/product/sub',
     component: Layout,
-    permissions: ['productInfo:user:list'],
+    // permissions: ['productInfo:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -192,7 +193,8 @@ export const asyncRoutes = [
   {
     path: '/document/category/sub',
     component: Layout,
-    permissions: ['category:user:list'],
+    // permissions: ['category:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -212,7 +214,8 @@ export const asyncRoutes = [
   {
     path: '/document/client/sub',
     component: Layout,
-    permissions: ['client:user:list'],
+    // permissions: ['client:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -232,7 +235,8 @@ export const asyncRoutes = [
   {
     path: '/document/vendor/sub',
     component: Layout,
-    permissions: ['vendor:user:list'],
+    // permissions: ['vendor:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -252,7 +256,8 @@ export const asyncRoutes = [
   {
     path: '/document/warehouse/sub',
     component: Layout,
-    permissions: ['warehouse:user:list'],
+    // permissions: ['warehouse:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -270,49 +275,37 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/contract/sale/sub',
-    component: Layout,
-    permissions: ['sale:user:list'],
-    hidden: true,
-    children: [
-      {
-        path: 'sale-contract-add',
-        component: () => import('@/views/contract/sale/sale-contract-add.vue'),
-        name: 'SaleContractAdd',
-        meta: { activeMenu: '/contract/sale-contract', title: '销售合同登记' }
-      },
-      {
-        path: 'sale-contract-edit',
-        component: () => import('@/views/contract/sale/sale-contract-edit.vue'),
-        name: 'SaleContractEdit',
-        meta: { activeMenu: '/contract/sale-contract', title: '销售合同修改' }
-      }
-    ]
-  },
-  {
     path: '/buy/order/sub',
     component: Layout,
-    permissions: ['order:user:list'],
+    // permissions: ['order:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
         path: 'order-add',
         component: () => import('@/views/buy/order/order-add.vue'),
-        name: 'OrderAdd',
+        name: 'BuyOrderAdd',
         meta: { activeMenu: '/buy/order', title: '采购订单登记' }
       },
       {
         path: 'order-edit',
         component: () => import('@/views/buy/order/order-edit.vue'),
-        name: 'OrderEdit',
+        name: 'BuyOrderEdit',
         meta: { activeMenu: '/buy/order', title: '采购订单修改' }
+      },
+      {
+        path: 'order-view',
+        component: () => import('@/views/buy/order/order-view.vue'),
+        name: 'BuyOrderView',
+        meta: { activeMenu: '/buy/order', title: '采购订单' }
       }
     ]
   },
   {
     path: '/buy/inbound/sub',
     component: Layout,
-    permissions: ['inbound:user:list'],
+    // permissions: ['inbound:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -326,7 +319,8 @@ export const asyncRoutes = [
   {
     path: '/buy/return/sub',
     component: Layout,
-    permissions: ['return-order:user:list'],
+    // permissions: ['return-order:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -358,9 +352,43 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/sale/sale-order/sub',
+    component: Layout,
+    // permissions: ['order:user:list'],
+    roles: ['user'],
+    hidden: true,
+    children: [
+      {
+        path: 'sale-order-add',
+        component: () => import('@/views/sale/order/sale-order-add.vue'),
+        name: 'SaleOrderAdd',
+        meta: { activeMenu: '/sale/order', title: '销售订单登记' }
+      },
+      {
+        path: 'sale-order-edit',
+        component: () => import('@/views/sale/order/sale-order-edit.vue'),
+        name: 'SaleOrderEdit',
+        meta: { activeMenu: '/sale/order', title: '销售订单修改' }
+      },
+      {
+        path: 'sale-order-view',
+        component: () => import('@/views/sale/order/sale-order-view.vue'),
+        name: 'SaleOrderView',
+        meta: { activeMenu: '/sale/order', title: '销售订单' }
+      },
+      {
+        path: 'sale-order-approval',
+        component: () => import('@/views/sale/order/sale-order-approval.vue'),
+        name: 'SaleOrderApproval',
+        meta: { activeMenu: '/sale/order', title: '销售订单审核' }
+      }
+    ]
+  },
+  {
     path: '/sale/outbound/sub',
     component: Layout,
-    permissions: ['sale-outbound:user:list'],
+    // permissions: ['sale-outbound:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {
@@ -386,7 +414,8 @@ export const asyncRoutes = [
   {
     path: '/sale/return-order/sub',
     component: Layout,
-    permissions: ['sale-return-order:user:list'],
+    // permissions: ['sale-return-order:user:list'],
+    roles: ['user'],
     hidden: true,
     children: [
       {

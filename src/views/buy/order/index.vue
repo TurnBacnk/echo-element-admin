@@ -31,8 +31,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
-import { voidOrderByIds } from '@/api/business/order'
+import {getConstant, getDictionary, getJavaCode} from '@/api/common/dict'
+import {delBuyOrderByIds, submitBuyOrderById, submitBuyOrderByIds} from '@/api/business/order'
 
 export default {
   name: 'BuyOrder',
@@ -57,10 +57,19 @@ export default {
           icon: 'el-icon-plus'
         },
         {
-          text: '作废',
+          text: '提交',
+          type: 'warning',
+          click: () => {
+            this.handleSubmitByIds()
+          },
+          icon: 'el-icon-s-promotion',
+          plain: true
+        },
+        {
+          text: '删除',
           type: 'danger',
           click: () => {
-            this.handleVoid()
+            this.handleDelByIds()
           },
           plain: true,
           icon: 'el-icon-delete'
@@ -103,7 +112,18 @@ export default {
         },
         {
           label: '采购订单编号',
-          prop: 'orderCode'
+          prop: 'orderCode',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+              this.$router.push({
+                name: 'BuyOrderView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          }
         },
         {
           label: '合同号',
@@ -169,6 +189,15 @@ export default {
           }
         },
         {
+          prop: 'approvalStatus',
+          label: '审批状态',
+          columnType: 'ApprovalStatus'
+        },
+        {
+          prop: 'approvalUserName',
+          label: '审核人'
+        },
+        {
           columnType: 'Operation',
           label: '操作',
           button: [
@@ -179,7 +208,37 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
-                return false
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              },
+              icon: 'el-icon-edit'
+            },
+            {
+              text: '提交',
+              css: 'text',
+              click: (index, row) => {
+                submitBuyOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              icon: 'el-icon-s-promotion',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
               }
             }
           ]
@@ -188,20 +247,20 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: 'OrderAdd'
+        name: 'BuyOrderAdd'
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'OrderEdit',
+        name: 'BuyOrderEdit',
         params: {
           id: row.id
         }
       })
     },
-    handleVoid() {
+    handleDelByIds() {
       const ids = this.$refs.tableList.checkedRowIds()
-      voidOrderByIds(ids).then(res => {
+      delBuyOrderByIds(ids).then(res => {
         const { code, msg } = res
         if (code === '100') {
           this.$modal.msgSuccess(msg)
@@ -219,6 +278,28 @@ export default {
         vendorId: undefined,
         procurementUserId: undefined,
         warehouseId: undefined
+      }
+    },
+    handleSubmitByIds() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canSubmit = true
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
+          canSubmit = false
+        }
+      })
+      if (canSubmit) {
+        // TODO submit
+        const ids = this.$refs.tableList.checkedRowIds()
+        submitBuyOrderByIds(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      } else {
+        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }
     }
   }

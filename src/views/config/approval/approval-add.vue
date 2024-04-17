@@ -194,7 +194,8 @@ export default {
                 row.userName = obj.label
               }
             }
-          ]
+          ],
+          showButton: true
         }
       }
       this.showForm = true

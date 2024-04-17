@@ -31,6 +31,7 @@
               v-for="button in column.button"
               :disabled="button.isDisabled(scope.row)"
               :type="button.css"
+              :icon="button.icon"
               plain
               size="mini"
               @click="button.click(scope.$index, scope.row)"

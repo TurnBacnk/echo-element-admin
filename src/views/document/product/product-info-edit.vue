@@ -175,7 +175,8 @@ export default {
               prop: 'changeDateTime',
               type: 'date'
             }
-          ]
+          ],
+          showForm: true
         },
         warehouseInfo: {
           prop: 'warehouseInfoList',
@@ -198,7 +199,8 @@ export default {
               prop: 'num',
               type: 'input'
             }
-          ]
+          ],
+          showForm: true
         }
       }
       this.showForm = true

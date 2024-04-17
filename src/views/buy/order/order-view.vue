@@ -11,6 +11,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :save-fun="saveFun"
+      :is-view="true"
     />
   </div>
 </template>
@@ -29,9 +30,9 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '采购订单修改',
-      saveUrl: '/api/order/update',
-      submitUrl: '/api/order/update-and-submit-single',
+      contentText: '采购订单',
+      saveUrl: '/api/order/save',
+      submitUrl: '/api/order/submit',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -463,7 +464,7 @@ export default {
           ],
           totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
           showSummary: true,
-          showButton: true
+          showButton: false
         }
       }
       this.showForm = true
