@@ -23,7 +23,12 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { delInboundOrderByIds } from '@/api/business/inbound'
+import {
+  delInboundOrderById,
+  delInboundOrderByIds,
+  submitInboundOrderById,
+  submitInboundOrderByIds
+} from '@/api/business/inbound'
 
 export default {
   name: 'Inbound',
@@ -36,18 +41,19 @@ export default {
       },
       buttonConfig: [
         {
-          text: '新增',
+          text: '提交',
+          type: 'warning',
           click: () => {
-            this.handleAdd()
+            this.handleSubmitByIds()
           },
-          plain: true,
-          icon: 'el-icon-plus'
+          icon: 'el-icon-s-promotion',
+          plain: true
         },
         {
-          text: '废弃',
+          text: '删除',
           type: 'danger',
           click: () => {
-            this.handleDel()
+            this.handleDelByIds()
           },
           plain: true,
           icon: 'el-icon-delete'
@@ -68,7 +74,18 @@ export default {
         },
         {
           prop: 'inboundCode',
-          label: '采购入库单编号'
+          label: '采购入库单编号',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+              this.$router.push({
+                name: 'BuyInboundOrderView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          }
         },
         {
           prop: 'inboundTime',
@@ -79,7 +96,7 @@ export default {
           label: '供应商'
         },
         {
-          prop: 'procurementUserName',
+          prop: 'procurementUsername',
           label: '采购人员'
         },
         {
@@ -93,34 +110,94 @@ export default {
           columnType: 'Money'
         },
         {
-          prop: 'saleContractCode',
-          label: '关联的销售合同',
-          columnType: 'Link',
-          link: {
-            click: (index, row) => {
-
-            }
-          }
-        },
-        {
           prop: 'orderCode',
-          label: '关联的订单',
+          label: '关联的采购订单',
           columnType: 'Link',
           link: {
             click: (index, row) => {
-
+              this.$router.push({
+                name: 'BuyOrderView',
+                params: {
+                  id: row.orderId
+                }
+              })
             }
           }
         },
         {
-          prop: 'returnOrderCode',
-          label: '关联的退货单',
-          columnType: 'Link',
-          link: {
-            click: (index, row) => {
-
+          prop: 'approvalStatus',
+          label: '审批状态',
+          columnType: 'ApprovalStatus'
+        },
+        {
+          prop: 'approvalUserName',
+          label: '审核人'
+        },
+        {
+          columnType: 'Operation',
+          label: '操作',
+          button: [
+            {
+              text: '修改',
+              css: 'text',
+              click: (index, row) => {
+                this.handleEdit(row)
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              },
+              icon: 'el-icon-edit'
+            },
+            {
+              text: '提交',
+              css: 'text',
+              click: (index, row) => {
+                submitInboundOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              icon: 'el-icon-s-promotion',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              }
+            },
+            {
+              text: '删除',
+              css: 'text',
+              click: (index, row) => {
+                delInboundOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              icon: 'el-icon-delete',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0 || row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              }
             }
-          }
+          ]
         }
       ]
     },
@@ -131,13 +208,13 @@ export default {
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'InboundEdit',
+        name: 'BuyInboundEdit',
         params: {
           id: row.id
         }
       })
     },
-    handleDel() {
+    handleDelByIds() {
       const ids = this.$refs.tableList.checkedRowIds()
       delInboundOrderByIds(ids).then(res => {
         const { msg, code } = res
@@ -152,6 +229,27 @@ export default {
     },
     restQuery() {
 
+    },
+    handleSubmitByIds() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canSubmit = true
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
+          canSubmit = false
+        }
+      })
+      if (canSubmit) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        submitInboundOrderByIds(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      } else {
+        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
+      }
     }
   }
 }

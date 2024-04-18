@@ -6,3 +6,10 @@ export function getMessage(username) {
     method: 'get'
   })
 }
+
+export function getMessageCount(id) {
+  return request({
+    url: '/api/message/get-message-count/' + id,
+    method: 'get'
+  })
+}

@@ -3,14 +3,15 @@
     <el-button v-if="showButton" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
     <el-button v-if="showButton" type="primary" size="mini" @click="handleImport">批量导入</el-button>
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
-      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
-        <el-table-column :type="tableConfig.indexType" />
+      <el-table :data="formData.tableData" style="width: 100%"  max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
+        <el-table-column :type="tableConfig.indexType" fixed="left" />
         <el-table-column
           v-for="(column, index) in columns"
           :key="index"
           :prop="column.prop"
           :label="column.label"
           :width="column.width"
+          :fixed="column.fixed ? column.fixed : undefined"
         >
           <template slot-scope="scope">
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
@@ -178,6 +179,7 @@ export default {
     },
     deleteRow(index) {
       this.formData.tableData.splice(index, 1)
+      this.editingIndex = null
       this.$emit('update:data', this.formData.tableData)
     },
     handleSelectChange(event) {

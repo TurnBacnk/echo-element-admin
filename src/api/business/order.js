@@ -37,3 +37,10 @@ export function submitBuyOrderById(id) {
     method: 'get'
   })
 }
+
+export function getBuyOrderByCode(code) {
+  return request({
+    url: '/api/order/get-order-by-code/' + code,
+    method: 'get'
+  })
+}

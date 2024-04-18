@@ -12,6 +12,7 @@
       :can-submit="canSubmit"
       :save-fun="saveFun"
       :is-view="true"
+      :is-approval="true"
     />
   </div>
 </template>
@@ -22,15 +23,15 @@ import FormTable from '@/components/FormTable/index.vue'
 import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getProductInfoById } from '@/api/business/product-info'
 import { getVendorContactUserList } from '@/api/business/vendor'
-import { getOrderById } from '@/api/business/order'
+import { getBuyOrderByCode } from '@/api/business/order'
 
 export default {
-  name: 'OrderEdit',
+  name: 'OrderApproval',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '采购订单',
+      contentText: '采购订单审核',
       saveUrl: '/api/order/save',
       submitUrl: '/api/order/submit',
       canSubmit: true,
@@ -155,8 +156,9 @@ export default {
     }
   },
   async created() {
-    await getOrderById(this.$route.params.id).then(res => {
+    await getBuyOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
+      this.form.instanceId = this.$route.params.instanceId
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data

@@ -240,6 +240,26 @@ export default {
                 }
                 return true
               }
+            },
+            {
+              text: '采购入库',
+              css: 'text',
+              click: (index, row) => {
+                this.$router.push({
+                  name: 'BuyInboundAdd',
+                  params: {
+                    orderId: row.id,
+                    orderCode: row.orderCode
+                  }
+                })
+              },
+              icon: 'el-icon-box',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 2) {
+                  return false
+                }
+                return true
+              }
             }
           ]
         }
@@ -289,7 +309,6 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
         const ids = this.$refs.tableList.checkedRowIds()
         submitBuyOrderByIds(ids).then(res => {
           const { code, msg } = res

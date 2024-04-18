@@ -298,6 +298,12 @@ export const asyncRoutes = [
         component: () => import('@/views/buy/order/order-view.vue'),
         name: 'BuyOrderView',
         meta: { activeMenu: '/buy/order', title: '采购订单' }
+      },
+      {
+        path: 'order-approval',
+        component: () => import('@/views/buy/order/order-approval.vue'),
+        name: 'BuyOrderApproval',
+        meta: { activeMenu: '/buy/order', title: '采购订单审核' }
       }
     ]
   },
@@ -311,8 +317,20 @@ export const asyncRoutes = [
       {
         path: 'inbound-add',
         component: () => import('@/views/buy/inbound/inbound-add.vue'),
-        name: 'InboundAdd',
+        name: 'BuyInboundAdd',
         meta: { activeMenu: '/buy/inbound', title: '采购入库单登记' }
+      },
+      {
+        path: 'inbound-edit',
+        component: () => import('@/views/buy/inbound/inbound-edit.vue'),
+        name: 'BuyInboundEdit',
+        meta: { activeMenu: '/buy/inbound', title: '采购入库单修改' }
+      },
+      {
+        path: 'inbound-view',
+        component: () => import('@/views/buy/inbound/inbound-view.vue'),
+        name: 'BuyInboundView',
+        meta: { activeMenu: '/buy/inbound', title: '采购入库单' }
       }
     ]
   },

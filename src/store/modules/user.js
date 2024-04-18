@@ -10,7 +10,8 @@ const getDefaultState = () => {
     roles: [],
     currency: '',
     currencySymbol: '',
-    permission: []
+    permission: [],
+    id: ''
   }
 }
 
@@ -40,6 +41,9 @@ const mutations = {
   },
   SET_PERMISSIONS: (state, permissions)=> {
     state.permission = permissions
+  },
+  SET_ID: (state, id) => {
+    state.id = id
   }
 }
 
@@ -69,7 +73,7 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        let { roles, nickName, avatar, currency, currencySymbol, permission } = data
+        let { roles, nickName, avatar, currency, currencySymbol, permission, id } = data
         // avatar = (state.avatar === "" || state.avatar == null) ? require("@/assets/images/404.png") : state.avatar;
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -81,6 +85,7 @@ const actions = {
         commit('SET_CURRENCY', currency)
         commit('SET_CURRENCY_SYMBOL', currencySymbol)
         commit('SET_PERMISSIONS', permission)
+        commit('SET_ID', id)
         resolve(data)
       }).catch(error => {
         reject(error)

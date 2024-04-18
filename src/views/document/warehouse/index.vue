@@ -48,7 +48,7 @@ export default {
       tableColumnConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['Enable']
+        constantNameList: ['Enable', 'YesOrNo']
       }
     }
   },
@@ -67,6 +67,22 @@ export default {
         {
           label: '仓库名称',
           prop: 'warehouseName'
+        },
+        {
+          label: '是否自建仓库',
+          prop: 'isSelfBuiltWarehouse',
+          columnType: 'Constant',
+          constant: {
+            optionList: this.constant['YesOrNo'],
+            type: (row) => {
+              if (row.isSelfBuiltWarehouse === 1) {
+                return 'success'
+              } else {
+                return 'warning'
+              }
+            },
+            effect: 'light'
+          }
         },
         {
           label: '仓库编码',

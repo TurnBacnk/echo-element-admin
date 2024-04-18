@@ -19,19 +19,18 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getProductInfoById } from '@/api/business/product-info'
 import { getDictionary, getJavaCode } from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
-import { getBuyOrderByCode } from '@/api/business/order'
+import { getInboundOrderById } from '@/api/business/inbound'
 import { getVendorContactUserList } from '@/api/business/vendor'
 
 export default {
-  name: 'InboundAdd',
+  name: 'InboundEdit',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '采购入库单登记',
-      saveUrl: '/api/inbound-order/save',
-      submitUrl: '/api/inbound-order/save-and-submit-single',
+      contentText: '采购入库单修改',
+      saveUrl: '/api/inbound-order/update',
+      submitUrl: '/api/inbound-order/update-and-submit-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -114,31 +113,18 @@ export default {
     }
   },
   async created() {
-    await generateCode('BUY-INBOUND').then(res => {
-      this.form.inboundCode = res.data
-    })
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await this.initParams()
+    await getInboundOrderById(this.$route.params.id).then(res => {
+      Object.assign(this.form, res.data)
+    })
     await this.init()
   },
   methods: {
-    async initParams() {
-      const { orderId, orderCode } = this.$route.params
-      await getBuyOrderByCode(orderCode).then(res => {
-        Object.assign(this.form, res.data)
-        this.form.id = undefined
-        this.form.orderId = orderId
-        this.form.orderCode = orderCode
-        res.data.orderItemList.forEach((item) => {
-          this.form.inboundOrderItemList.push(item)
-        })
-      })
-    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
