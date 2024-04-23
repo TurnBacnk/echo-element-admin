@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="退货单编号" prop="returnOrderCode">
         <el-input v-model="queryForm.returnOrderCode" clearable size="mini" placeholder="请输入退货单编号" />
       </el-form-item>
@@ -18,10 +18,11 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {getConstant} from "@/api/common/dict";
+import {getConstant} from '@/api/common/dict'
+import {delBuyReturnOrderByIds, submitReturnOrderById, submitReturnOrderByIds} from '@/api/business/buy-return'
 
 export default {
-  name: 'Return',
+  name: 'BuyReturnOrder',
   components: { PageTable, ButtonGroup },
   data() {
     return {
@@ -31,12 +32,13 @@ export default {
       },
       buttonConfig: [
         {
-          text: '新增',
+          text: '提交',
+          type: 'warning',
           click: () => {
-            this.handleAdd()
+            this.handleSubmitByIds()
           },
-          plain: true,
-          icon: 'el-icon-plus'
+          icon: 'el-icon-s-promotion',
+          plain: true
         },
         {
           text: '删除',
@@ -73,16 +75,32 @@ export default {
           label: '退货单编号',
           columnType: 'Link',
           link: {
-            click: (index, row) => {}
-          }
+            click: (index, row) => {
+              this.$router.push({
+                name: 'BuyReturnOrderView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          },
+          width: '300px'
         },
         {
           prop: 'inboundOrderCode',
           label: '关联的入库单',
           columnType: 'Link',
           link: {
-            click: (index, row) => {}
-          }
+            click: (index, row) => {
+              this.$router.push({
+                name: 'BuyInboundView',
+                params: {
+                  id: row.inboundOrderId
+                }
+              })
+            }
+          },
+          width: '300px'
         },
         {
           prop: 'returnOrderTime',
@@ -98,11 +116,13 @@ export default {
         },
         {
           prop: 'discountAmount',
-          label: '优惠金额'
+          label: '优惠金额',
+          columnType: 'Money'
         },
         {
           prop: 'afterDiscountPayAmount',
-          label: '优惠后应付款'
+          label: '优惠后应付款',
+          columnType: 'Money'
         },
         {
           prop: 'status',
@@ -125,6 +145,15 @@ export default {
           }
         },
         {
+          prop: 'approvalStatus',
+          label: '审批状态',
+          columnType: 'ApprovalStatus'
+        },
+        {
+          prop: 'approvalUserName',
+          label: '审核人'
+        },
+        {
           columnType: 'Operation',
           label: '操作',
           button: [
@@ -137,6 +166,29 @@ export default {
               isDisabled: (row) => {
                 return false
               }
+            },
+            {
+              text: '提交',
+              css: 'text',
+              click: (index, row) => {
+                submitReturnOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              icon: 'el-icon-s-promotion',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              }
             }
           ]
         }
@@ -144,19 +196,56 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: 'ReturnOrderAdd'
+        name: 'BuyReturnOrderAdd'
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'ReturnEdit',
+        name: 'BuyReturnOrderEdit',
         params: {
           id: row.id
         }
       })
     },
     handleDel() {
-      const ids = this.$refs.tableList.checkedRowIds()
+      var checkedRows = this.$refs.tableList.checkedRows()
+      checkedRows.forEach(row => {
+        if (row.approvalStatus === 2) {
+          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
+        } else if (row.approvalStatus === 1) {
+          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
+        } else {
+          const ids = this.$refs.tableList.checkedRowIds()
+          delBuyReturnOrderByIds(ids).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+              this.handleQuery()
+            }
+          })
+        }
+      })
+    },
+    handleSubmitByIds() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canSubmit = true
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
+          canSubmit = false
+        }
+      })
+      if (canSubmit) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        submitReturnOrderByIds(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      } else {
+        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
+      }
     },
     handleQuery() {
       this.$refs.tableList.list()

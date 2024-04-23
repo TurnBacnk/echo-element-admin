@@ -410,7 +410,6 @@ export default {
         if (bundleConfig === undefined) {
           return
         }
-        console.log('123')
         // 需要绑定多个值
         const obj = options.find((item) => {
           if (optionValue === undefined) {

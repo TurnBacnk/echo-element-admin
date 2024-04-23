@@ -74,7 +74,7 @@ export default {
       },
       constant: [],
       constantConfig: {
-        constantNameList: ['Enable']
+        constantNameList: ['Enable', 'YesOrNo']
       },
       javaCode: [],
       javaCodeConfig: {
@@ -114,6 +114,10 @@ export default {
             prop: 'productName',
             type: 'input',
             placeholder: '请输入产品名称'
+          },
+          {
+            label: '是否组装件',
+            prop: 'is'
           },
           {
             label: '规格型号',
@@ -189,11 +193,21 @@ export default {
               optionList: this.javaCode['WarehouseBuilder'],
               click: (event, row) => {
                 const obj = this.javaCode['WarehouseBuilder'].find((item) => {
-                  return item.value === event
+                  if (item.value === event) {
+                    return item
+                  }
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
+                row.isSelfBuiltWarehouse = obj.data
               }
+            },
+            {
+              label: '是否自建仓库',
+              prop: 'isSelfBuiltWarehouse',
+              optionList: this.constant['YesOrNo'],
+              type: 'select',
+              disabled: true
             },
             {
               label: '数量',

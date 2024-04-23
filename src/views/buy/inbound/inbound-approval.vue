@@ -1,4 +1,3 @@
-
 <template>
   <div class="app-container">
     <form-table
@@ -11,7 +10,8 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
-      :save-fun="saveFun"
+      :is-view="true"
+      :is-approval="true"
     />
   </div>
 </template>
@@ -20,52 +20,50 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import { getProductInfoById } from '@/api/business/product-info'
-import {getDictionary, getJavaCode} from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
+import { getDictionary, getJavaCode } from '@/api/common/dict'
+import {getInboundOrderByCode} from '@/api/business/inbound'
 import { getVendorContactUserList } from '@/api/business/vendor'
-import { getReturnOrderByInboundId } from '@/api/business/buy-return'
 
 export default {
-  name: 'DictAdd',
+  name: 'InboundEdit',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '退货单登记',
-      saveUrl: '/api/return-order/save',
-      submitUrl: '/api/return-order/save-and-submit-single',
+      contentText: '采购入库单',
+      saveUrl: '/api/inbound-order/update',
+      submitUrl: '/api/inbound-order/update-and-submit-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '产品信息', name: 'productInfo', type: 'table' }
+        { active: true, title: '物料信息', name: 'goodsInfo', type: 'table' }
       ],
       form: {
-        returnOrderCode: undefined,
-        returnOrderTime: new Date(),
+        inboundCode: undefined,
+        inboundTime: new Date(),
         vendorId: undefined,
         vendorName: undefined,
-        inboundOrderCode: undefined,
-        inboundOrderId: undefined,
         procurementUserId: undefined,
         procurementUserName: undefined,
+        otherAmount: undefined,
         discountRate: undefined,
         discountAmount: undefined,
         afterDiscountPayAmount: undefined,
-        returnOrderItemList: []
+        vendorContactUserId: undefined,
+        vendorContactUserName: undefined,
+        vendorContactUserPhone: undefined,
+        vendorContactUserLandLine: undefined,
+        vendorContactUserAddress: undefined,
+        vendorAddress: undefined,
+        orderId: undefined,
+        orderCode: undefined,
+        inboundOrderItemList: []
       },
       rules: {
         baseInfo: {
-          returnOrderCode: [
-            { required: true, message: '退货单编号不能为空', trigger: 'blur' }
-          ],
-          returnOrderTime: [
-            { required: true, message: '退货时间不能不为空', trigger: 'blur' }
-          ],
-          vendorId: [
-            { required: true, message: '供应商不能为空', trigger: 'blur' }
-          ]
+
         },
-        productInfo: {
+        goodsInfo: {
 
         }
       },
@@ -80,12 +78,31 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['VendorBuilder', 'InboundOrderBuilder', 'UserBuilder', 'ProductBuilder', 'WarehouseBuilder']
+        javaCodeNameList: ['VendorBuilder', 'UserBuilder', 'ProductBuilder', 'WarehouseBuilder', 'OrderBuilder']
       },
       vendorContactList: []
     }
   },
   watch: {
+    'form.inboundOrderItemList.length': {
+      handler(newVal, oldVal) {
+        if (newVal === 0) {
+          // 数组为空
+          this.form.afterDiscountPayAmount = 0
+          this.form.discountAmount = 0
+        } else {
+          let temp = 0
+          if (this.form.discountRate !== undefined) {
+            this.form.inboundOrderItemList.forEach((ele) => {
+              temp = this.$math.add(ele.taxTotalAmount, temp)
+            })
+            this.form.discountAmount = this.$math.format(this.$math.multiply(this.$math.multiply(this.form.discountRate, 0.01), temp), { precision: 2, notation: 'fixed' })
+            this.form.afterDiscountPayAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), { precision: 2, notation: 'fixed' })
+          }
+        }
+      },
+      deep: true
+    },
     'form.vendorId': {
       handler(newVal, oldVal) {
         getVendorContactUserList(newVal).then(res => {
@@ -95,82 +112,40 @@ export default {
           })
         })
       }
-    },
-    'form.discountRate': {
-      handler(newVal, oldVal) {
-        let temp = 0
-        this.form.inboundOrderItemList.forEach((ele) => {
-          temp = this.$math.add(ele.taxTotalAmount, temp)
-        })
-        if (newVal === '0') {
-          this.form.discountAmount = 0
-          this.form.afterDiscountPayAmount = this.$math.format(temp, { precision: 2, notation: 'fixed' })
-        } else {
-          this.form.discountAmount = this.$math.format(this.$math.multiply(newVal * 0.01, temp), { precision: 2, notation: 'fixed' })
-          this.form.afterDiscountPayAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), { precision: 2, notation: 'fixed' })
-        }
-      },
-      deep: true
-    },
-    'form.returnOrderItemList.length': {
-      handler(newVal, oldVal) {
-        if (newVal === 0) {
-          // 数组为空
-          this.form.afterDiscountPayAmount = 0
-          this.form.discountAmount = 0
-        } else {
-          let temp = 0
-          if (this.form.discountRate !== undefined) {
-            this.form.returnOrderItemList.forEach((ele) => {
-              temp = this.$math.add(ele.taxTotalAmount, temp)
-            })
-            this.form.discountAmount = this.$math.format(this.$math.multiply(this.$math.multiply(this.form.discountRate, 0.01), temp), { precision: 2, notation: 'fixed' })
-            this.form.afterDiscountPayAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), { precision: 2, notation: 'fixed' })
-          }
-        }
-      },
-      deep: true
     }
   },
   async created() {
-    await getReturnOrderByInboundId(this.$route.params.inboundId).then(res => {
-      Object.assign(this.form, res.data)
-      this.form.id = undefined
-      this.form.procurementUserName = res.data.procurementUsername
-      res.data.inboundOrderItemList.forEach((ele) => {
-        ele.id = undefined
-        this.form.returnOrderItemList.push(ele)
-      })
-    })
-    await generateCode('PROCUREMENT_RETURN').then(res => {
-      this.form.returnOrderCode = res.data
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await getDictionary(this.dictionaryConfig).then(res => {
-      this.dictionary = res.data
+    await getInboundOrderByCode(this.$route.params.code).then(res => {
+      Object.assign(this.form, res.data)
+      this.form.instanceId = this.$route.params.instanceId
     })
     await this.init()
-    await this.initParams()
   },
   methods: {
-    async initParams() {
-      this.form.inboundOrderCode = this.$route.params.inboundCode
-      this.form.inboundOrderId = this.$route.params.inboundId
-    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
           {
-            label: '退货单编号',
-            prop: 'returnOrderCode',
+            label: '采购订单',
+            prop: 'orderCode',
             type: 'input',
             disabled: true
           },
           {
-            label: '退货时间',
-            prop: 'returnOrderTime',
+            label: '入库单编号',
+            prop: 'inboundCode',
+            type: 'input',
+            disabled: true
+          },
+          {
+            label: '入库时间',
+            prop: 'inboundTime',
             type: 'date'
           },
           {
@@ -185,37 +160,31 @@ export default {
             disabled: true
           },
           {
-            label: '入库单编号',
-            prop: 'inboundOrderCode',
-            type: 'select',
-            options: this.javaCode['InboundOrderBuilder'],
-            disabled: true
-          },
-          {
             label: '采购人员',
-            prop: 'procurementUserId',
-            type: 'select',
-            options: this.javaCode['UserBuilder'],
-            bundle: {
-              label: 'procurementUserName',
-              value: 'procurementUserId'
-            },
+            prop: 'procurementUserName',
+            type: 'input',
             disabled: true
           },
           {
-            label: '优惠率',
+            label: '其他费用',
+            prop: 'otherAmount',
+            type: 'inputNumber',
+            disabled: true
+          },
+          {
+            label: '折扣率',
             prop: 'discountRate',
             type: 'inputNumber',
             disabled: true
           },
           {
-            label: '优惠金额',
+            label: '折扣金额',
             prop: 'discountAmount',
             type: 'inputNumber',
             disabled: true
           },
           {
-            label: '优惠后应付款',
+            label: '折扣后应付金额',
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
             disabled: true
@@ -261,8 +230,8 @@ export default {
             disabled: true
           }
         ],
-        productInfo: {
-          prop: 'returnOrderItemList',
+        goodsInfo: {
+          prop: 'inboundOrderItemList',
           column: [
             {
               label: '产品名称',
@@ -280,7 +249,9 @@ export default {
                   row.productDescription = data.productDescription
                   row.unit = data.unit
                 })
-              }
+              },
+              fixed: 'left',
+              disabled: true
             },
             {
               label: '产品编码',
@@ -334,20 +305,7 @@ export default {
               label: '采购单价(元)',
               prop: 'procurementPrice',
               type: 'number',
-              input: (newNumber, currentRow) => {
-                currentRow.taxIncludedPrice = this.computeTaxIncludePrice(newNumber, currentRow.taxRate)
-                // 有数量
-                if (currentRow.amount) {
-                  // 设置折扣额
-                  currentRow.discountAmount = this.computeDiscountAmount(newNumber, currentRow.discountRate, currentRow.amount)
-                  // 折扣额设置完成后，设置采购金额
-                  currentRow.procurementAmount = this.computeProcurementAmount(newNumber, currentRow.amount, currentRow.discountAmount)
-                  // 设置税额
-                  currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, currentRow.taxRate)
-                  // 设置税价合计
-                  currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                }
-              }
+              disabled: true
             },
             {
               label: '含税价(元)',
@@ -359,22 +317,7 @@ export default {
               label: '折扣率(%)',
               prop: 'discountRate',
               type: 'number',
-              defaultValue: 0,
-              input: (newNumber, currentRow) => {
-                if (currentRow.amount) {
-                  if (currentRow.procurementPrice) {
-                    // 有数量 有折扣率
-                    // 设置折扣额
-                    currentRow.discountAmount = this.computeDiscountAmount(currentRow.procurementPrice, newNumber, currentRow.amount)
-                    // 折扣额设置完成后，设置采购金额
-                    currentRow.procurementAmount = this.computeProcurementAmount(currentRow.procurementPrice, currentRow.amount, currentRow.discountAmount)
-                    // 设置税额
-                    currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, currentRow.taxRate)
-                    // 设置税价合计
-                    currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                  }
-                }
-              }
+              disabled: true
             },
             {
               label: '折扣额(元)',
@@ -385,33 +328,18 @@ export default {
             {
               label: '采购金额(元)',
               prop: 'procurementAmount',
-              type: 'number'
-            },
-            {
-              label: '税率(%)',
-              prop: 'taxRate',
               type: 'number',
-              defaultValue: this.$store.state.businessParam.taxRate,
-              input: (newNumber, currentRow) => {
-                if (currentRow.amount) {
-                  if (currentRow.procurementPrice) {
-                    // 设置含税价
-                    currentRow.taxIncludedPrice = this.computeTaxIncludePrice(currentRow.procurementPrice, newNumber)
-                    // 设置折扣额
-                    currentRow.discountAmount = this.computeDiscountAmount(currentRow.procurementPrice, currentRow.discountRate, currentRow.amount)
-                    // 折扣额设置完成后，设置采购金额
-                    currentRow.procurementAmount = this.computeProcurementAmount(currentRow.procurementPrice, currentRow.amount, currentRow.discountAmount)
-                    // 设置税额
-                    currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, newNumber)
-                    // 设置税价合计
-                    currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                  }
-                }
-              }
+              disabled: true
             },
             {
               label: '税额(元)',
               prop: 'taxAmount',
+              type: 'number',
+              disabled: true
+            },
+            {
+              label: '税率(%)',
+              prop: 'taxRate',
               type: 'number',
               disabled: true
             },
@@ -435,9 +363,8 @@ export default {
               }
             }
           ],
-          totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
           showSummary: true,
-          showButton: false
+          totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount']
         }
       }
       this.showForm = true
@@ -458,7 +385,7 @@ export default {
       return this.$math.format(this.$math.multiply(procurementPrice, this.$math.add(1, taxRate * 0.01)), { precision: 2, notation: 'fixed' })
     },
     saveFun() {
-      if (this.form.returnOrderItemList.length === 0) {
+      if (this.form.inboundOrderItemList.length === 0) {
         this.$modal.msgWarning('请至少选择一项产品')
         return false
       }

@@ -29,6 +29,7 @@ import {
   submitInboundOrderById,
   submitInboundOrderByIds
 } from '@/api/business/inbound'
+import {delBuyOrderByIds} from "@/api/business/order";
 
 export default {
   name: 'Inbound',
@@ -79,7 +80,7 @@ export default {
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'BuyInboundOrderView',
+                name: 'BuyInboundView',
                 params: {
                   id: row.id
                 }
@@ -196,6 +197,28 @@ export default {
                 }
                 return true
               }
+            },
+            {
+              text: '采购退货',
+              css: 'text',
+              click: (index, row) => {
+                this.$router.push({
+                  name: 'BuyOrderReturnAdd',
+                  params: {
+                    inboundCode: row.inboundCode,
+                    inboundId: row.id
+                  }
+                })
+              },
+              icon: 'el-icon-error',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 2) {
+                  if (row.canReturn === 1) {
+                    return false
+                  }
+                }
+                return true
+              }
             }
           ]
         }
@@ -215,12 +238,21 @@ export default {
       })
     },
     handleDelByIds() {
-      const ids = this.$refs.tableList.checkedRowIds()
-      delInboundOrderByIds(ids).then(res => {
-        const { msg, code } = res
-        if (code === '100') {
-          this.$modal.msgSuccess(msg)
-          this.handleQuery()
+      const rows = this.$refs.tableList.checkedRows()
+      rows.forEach(row => {
+        if (row.approvalStatus === 2) {
+          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
+        } else if (row.approvalStatus === 1) {
+          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
+        } else {
+          const ids = this.$refs.tableList.checkedRowIds()
+          delBuyOrderByIds(ids).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+              this.handleQuery()
+            }
+          })
         }
       })
     },

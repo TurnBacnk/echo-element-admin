@@ -331,6 +331,12 @@ export const asyncRoutes = [
         component: () => import('@/views/buy/inbound/inbound-view.vue'),
         name: 'BuyInboundView',
         meta: { activeMenu: '/buy/inbound', title: '采购入库单' }
+      },
+      {
+        path: 'inbound-approval',
+        component: () => import('@/views/buy/inbound/inbound-approval.vue'),
+        name: 'BuyInboundApproval',
+        meta: { activeMenu: '/buy/inbound', title: '采购入库单审核' }
       }
     ]
   },
@@ -344,8 +350,26 @@ export const asyncRoutes = [
       {
         path: 'return-order-add',
         component: () => import('@/views/buy/return/return-order-add.vue'),
-        name: 'ReturnOrderAdd',
+        name: 'BuyOrderReturnAdd',
         meta: { activeMenu: '/buy/return-order', title: '退货单登记' }
+      },
+      {
+        path: 'return-order-edit',
+        component: () => import('@/views/buy/return/return-order-edit.vue'),
+        name: 'BuyReturnOrderEdit',
+        meta: { activeMenu: '/buy/return-order', title: '退货单修改' }
+      },
+      {
+        path: 'return-order-view',
+        component: () => import('@/views/buy/return/return-order-view.vue'),
+        name: 'BuyReturnOrderView',
+        meta: { activeMenu: '/buy/return-order', title: '退货单' }
+      },
+      {
+        path: 'return-order-approval',
+        component: () => import('@/views/buy/return/return-order-approval.vue'),
+        name: 'BuyReturnOrderApproval',
+        meta: { activeMenu: '/buy/return-order', title: '退货单深恶黑' }
       }
     ]
   },

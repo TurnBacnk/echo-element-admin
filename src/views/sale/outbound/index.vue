@@ -18,8 +18,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { delSaleOutboundById, delSaleOutboundByIds } from '@/api/business/sale-outbound'
-import { getConstant } from '@/api/common/dict'
+import {delSaleOutboundById, delSaleOutboundByIds, submitSaleOutboundOrderByIds} from '@/api/business/sale-outbound'
+import {getConstant} from '@/api/common/dict'
 
 export default {
   name: 'Client',
@@ -32,21 +32,13 @@ export default {
       },
       buttonConfig: [
         {
-          text: '新增',
-          click: () => {
-            this.handleAdd()
-          },
-          plain: true,
-          icon: 'el-icon-plus'
-        },
-        {
           text: '提交',
-          click: () => {
-            this.handleSubmit()
-          },
-          plain: true,
           type: 'warning',
-          icon: 'el-icon-s-promotion'
+          click: () => {
+            this.handleSubmitByIds()
+          },
+          icon: 'el-icon-s-promotion',
+          plain: true
         },
         {
           text: '删除',
@@ -80,14 +72,14 @@ export default {
         },
         {
           columnType: 'Link',
-          prop: 'saleContractCode',
-          label: '销售合同',
+          prop: 'saleOrderCode',
+          label: '销售订单',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'SaleOutboundView',
+                name: 'SaleOrderView',
                 params: {
-                  id: row.id
+                  id: row.saleOrderId
                 }
               })
             }
@@ -222,14 +214,27 @@ export default {
       })
     },
     handleDel() {
-      const ids = this.$refs.tableList.checkedRowIds()
-      delSaleOutboundByIds(ids).then(res => {
-        const { msg, code } = res
-        if (code === '100') {
-          this.$modal.msgSuccess(msg)
-          this.handleQuery()
+      const rows = this.$refs.tableList.checkedRows()
+      let canDel = true
+      rows.forEach((ele) => {
+        if (ele.approvalStatus === 1) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
+        } else if (ele.approvalStatus === 2) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
         }
       })
+      if (canDel) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        delSaleOutboundByIds(ids).then(res => {
+          const { msg, code } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      }
     },
     handleDelById(id) {
       delSaleOutboundById(id).then(res => {
@@ -243,7 +248,7 @@ export default {
     handleQuery() {
       this.$refs.tableList.list()
     },
-    handleSubmit() {
+    handleSubmitByIds() {
       var checkedRows = this.$refs.tableList.checkedRows()
       var canSubmit = true
       checkedRows.forEach(function(ele) {
@@ -252,7 +257,14 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
+        const ids = this.$refs.tableList.checkedRowIds()
+        submitSaleOutboundOrderByIds(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
       } else {
         this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }

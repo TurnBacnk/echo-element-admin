@@ -263,7 +263,7 @@ export default {
               }
             },
             {
-              text: '采购入库',
+              text: '采购订单 ',
               css: 'text',
               click: (index, row) => {
                 this.$router.push({
@@ -276,10 +276,12 @@ export default {
               },
               icon: 'el-icon-box',
               isDisabled: (row) => {
-                if (row.canProcurement === 1) {
-                  return true
+                if (row.approvalStatus === 2) {
+                  if (row.canProcurement === 1) {
+                    return false
+                  }
                 }
-                return false
+                return true
               }
             },
             {
@@ -296,10 +298,12 @@ export default {
               },
               icon: 'el-icon-sell',
               isDisabled: (row) => {
-                if (row.canOutbound === 1) {
-                  return true
+                if (row.approvalStatus === 2) {
+                  if (row.canOutbound === 1) {
+                    return false
+                  }
                 }
-                return false
+                return true
               }
             }
           ]

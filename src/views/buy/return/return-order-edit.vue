@@ -19,11 +19,10 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getProductInfoById } from '@/api/business/product-info'
+import {getProductInfoById} from '@/api/business/product-info'
 import {getDictionary, getJavaCode} from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
-import { getVendorContactUserList } from '@/api/business/vendor'
-import { getReturnOrderByInboundId } from '@/api/business/buy-return'
+import {getVendorContactUserList} from '@/api/business/vendor'
+import {getReturnOrderById} from '@/api/business/buy-return'
 
 export default {
   name: 'DictAdd',
@@ -31,9 +30,9 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '退货单登记',
-      saveUrl: '/api/return-order/save',
-      submitUrl: '/api/return-order/save-and-submit-single',
+      contentText: '退货单修改',
+      saveUrl: '/api/return-order/update',
+      submitUrl: '/update-and-submit-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -41,7 +40,7 @@ export default {
       ],
       form: {
         returnOrderCode: undefined,
-        returnOrderTime: new Date(),
+        returnOrderTime: undefined,
         vendorId: undefined,
         vendorName: undefined,
         inboundOrderCode: undefined,
@@ -133,17 +132,8 @@ export default {
     }
   },
   async created() {
-    await getReturnOrderByInboundId(this.$route.params.inboundId).then(res => {
+    await getReturnOrderById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
-      this.form.id = undefined
-      this.form.procurementUserName = res.data.procurementUsername
-      res.data.inboundOrderItemList.forEach((ele) => {
-        ele.id = undefined
-        this.form.returnOrderItemList.push(ele)
-      })
-    })
-    await generateCode('PROCUREMENT_RETURN').then(res => {
-      this.form.returnOrderCode = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
@@ -152,13 +142,8 @@ export default {
       this.dictionary = res.data
     })
     await this.init()
-    await this.initParams()
   },
   methods: {
-    async initParams() {
-      this.form.inboundOrderCode = this.$route.params.inboundCode
-      this.form.inboundOrderId = this.$route.params.inboundId
-    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [

@@ -22,6 +22,7 @@ import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getProductInfoById } from '@/api/business/product-info'
 import { generateCode } from '@/api/config/generate-code'
 import { getVendorContactUserList } from '@/api/business/vendor'
+import {getSaleOrderInfoById} from "@/api/business/sale-order";
 
 export default {
   name: 'OrderEdit',
@@ -155,11 +156,27 @@ export default {
     await this.init()
   },
   methods: {
-    initParams() {
+    async initParams() {
       if (this.$route.params.saleOrderId) {
         this.form.saleOrderId = this.$route.params.saleOrderId
         this.form.saleOrderCode = this.$route.params.saleOrderCode
-        this.saleContractDisabled = true
+        this.saleOrderDisabled = true
+        await getSaleOrderInfoById(this.form.saleOrderId).then(res => {
+          const { data } = res
+          data.saleOrderItemList.forEach((ele) => {
+            const orderItem = {
+              productName: ele.productName,
+              productId: ele.productId,
+              productCode: ele.productCode,
+              barCode: ele.barCode,
+              productSpec: ele.specification,
+              productDescription: ele.productDescription,
+              unit: ele.unit,
+              amount: ele.number
+            }
+            this.form.orderItemList.push(orderItem)
+          })
+        })
       }
     },
     init() {

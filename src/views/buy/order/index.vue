@@ -123,7 +123,8 @@ export default {
                 }
               })
             }
-          }
+          },
+          width: '300px'
         },
         {
           label: '合同号',
@@ -256,7 +257,9 @@ export default {
               icon: 'el-icon-box',
               isDisabled: (row) => {
                 if (row.approvalStatus === 2) {
-                  return false
+                  if (row.canInbound === 1) {
+                    return false
+                  }
                 }
                 return true
               }
@@ -279,14 +282,27 @@ export default {
       })
     },
     handleDelByIds() {
-      const ids = this.$refs.tableList.checkedRowIds()
-      delBuyOrderByIds(ids).then(res => {
-        const { code, msg } = res
-        if (code === '100') {
-          this.$modal.msgSuccess(msg)
-          this.handleQuery()
+      var checkedRows = this.$refs.tableList.checkedRows();
+      let canDel = true
+      checkedRows.forEach(row => {
+        if (row.approvalStatus === 2) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
+        } else if (row.approvalStatus === 1) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
         }
       })
+      if (canDel) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        delBuyOrderByIds(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      }
     },
     handleQuery() {
       this.$refs.tableList.list()
