@@ -1,12 +1,12 @@
-<template>
+  <template>
   <div>
     <el-page-header :content="contentText" @back="goBack" />
-    <template v-if="!isView">
-      <blockquote style="font-size: 14px;color: gray">
-        <br> 制单日期： {{ new Date() }}
-        <br> 制单人： {{ $store.state.user.name }}
-      </blockquote>
-    </template>
+<!--    <template v-if="!isView">-->
+<!--      <blockquote style="font-size: 14px;color: gray">-->
+<!--        <br> 制单日期： {{ new Date() }}-->
+<!--        <br> 制单人： {{ $store.state.user.name }}-->
+<!--      </blockquote>-->
+<!--    </template>-->
     <el-collapse v-model="activeNames">
       <el-card v-for="config in collapseConfig" :key="config.name" style="margin: 10px;">
         <div slot="header" class="clearfix">
@@ -154,6 +154,24 @@
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>
+          </div>
+        </el-collapse-item>
+      </el-card>
+      <el-card style="margin: 10px;" v-if="false" >
+        <div slot="header" class="clearfix">
+          <span>备注信息<i class="header-icon el-icon-info" /></span>
+        </div>
+        <el-collapse-item
+          name="备注信息"
+        >
+          <div>
+            <el-form label-width="80px">
+              <el-form-item label="备注">
+                <el-input type="textarea" :autosize="{ minRows: 3 }" />
+              </el-form-item>
+              <el-form-item label="附件">
+              </el-form-item>
+            </el-form>
           </div>
         </el-collapse-item>
       </el-card>

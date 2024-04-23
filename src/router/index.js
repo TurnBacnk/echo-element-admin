@@ -450,6 +450,12 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/outbound/outbound-view.vue'),
         name: 'SaleOutboundView',
         meta: { activeMenu: '/sale/outbound', title: '销售出库' }
+      },
+      {
+        path: 'sale-outbound-approval',
+        component: () => import('@/views/sale/outbound/outbound-approval.vue'),
+        name: 'SaleOutboundApproval',
+        meta: { activeMenu: '/sale/outbound', title: '销售出库审核' }
       }
     ]
   },

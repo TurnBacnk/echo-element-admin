@@ -319,7 +319,7 @@ export default {
             },
             {
               label: '数量',
-              prop: 'number',
+              prop: 'amount',
               type: 'number',
               input: (newNumber, currentRow) => {
                 if (currentRow.salePrice) {
@@ -352,12 +352,12 @@ export default {
                 if (currentRow.discountRate) {
                   // 优惠率已经填写
                   // 计算优惠金额
-                  currentRow.discountAmount = this.computeDiscountAmount(newSalePrice, currentRow.discountRate, currentRow.number)
+                  currentRow.discountAmount = this.computeDiscountAmount(newSalePrice, currentRow.discountRate, currentRow.amount)
                   // 优惠价格变化 重新计算销售价格
-                  currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(newSalePrice, currentRow.number, currentRow.discountAmount)
+                  currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(newSalePrice, currentRow.amount, currentRow.discountAmount)
                   // 销售价格发生变化 且税率已经填写 重新计算税额
                   if (currentRow.taxRate) {
-                    currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.number)
+                    currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.amount)
                     // 重新计算含税价格合计
                     var temp = currentRow.totalTaxAmount
                     currentRow.totalTaxAmount = this.computeTotalTaxAmount(currentRow.salePriceAfterTax, currentRow.taxAmount)
@@ -378,13 +378,13 @@ export default {
               type: 'number',
               input: (newDiscountRate, currentRow) => {
                 // 优惠价格
-                currentRow.discountAmount = this.computeDiscountAmount(currentRow.salePrice, newDiscountRate, currentRow.number)
+                currentRow.discountAmount = this.computeDiscountAmount(currentRow.salePrice, newDiscountRate, currentRow.amount)
                 // 销售价格
-                currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(currentRow.salePrice, currentRow.number, currentRow.discountAmount)
+                currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(currentRow.salePrice, currentRow.amount, currentRow.discountAmount)
                 // 如果税率存在，计算税额，计算含税价格
                 if (currentRow.taxRate) {
                   // 税额
-                  currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.number)
+                  currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.amount)
                   // 含税金额
                   var temp = currentRow.totalTaxAmount
                   currentRow.totalTaxAmount = this.computeTotalTaxAmount(currentRow.salePriceAfterTax, currentRow.taxAmount)
@@ -417,7 +417,7 @@ export default {
                 }
                 if (currentRow.salePriceAfterTax) {
                   // 税额
-                  currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, newTaxRate, currentRow.number)
+                  currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, newTaxRate, currentRow.amount)
                   // 税额合计
                   var temp = currentRow.totalTaxAmount
                   currentRow.totalTaxAmount = this.computeTotalTaxAmount(currentRow.salePriceAfterTax, currentRow.taxAmount)

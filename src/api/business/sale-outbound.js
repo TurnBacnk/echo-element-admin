@@ -51,3 +51,10 @@ export function submitSaleOutboundOrderByIds(ids) {
     data: ids
   })
 }
+
+export function submitSaleOutboundOrderById(id) {
+  return request({
+    url: '/api/sale-outbound/submit-sale-outbound-order-by-id/' + id,
+    method: 'get',
+  })
+}

@@ -18,8 +18,14 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {delSaleOutboundById, delSaleOutboundByIds, submitSaleOutboundOrderByIds} from '@/api/business/sale-outbound'
+import {
+  delSaleOutboundById,
+  delSaleOutboundByIds,
+  submitSaleOutboundOrderById,
+  submitSaleOutboundOrderByIds
+} from '@/api/business/sale-outbound'
 import {getConstant} from '@/api/common/dict'
+import {submitSingleById} from "@/api/business/sale-order";
 
 export default {
   name: 'Client',
@@ -168,21 +174,6 @@ export default {
               }
             },
             {
-              text: '订单完成',
-              css: 'text',
-              click: (index, row) => {
-                this.changeSaleOutboundStatus(row.id, 2)
-              },
-              isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  if (row.status !== 2) {
-                    return false
-                  }
-                }
-                return true
-              }
-            },
-            {
               text: '删除',
               css: 'text',
               click: (index, row) => {
@@ -195,7 +186,30 @@ export default {
                 }
                 return true
               }
-            }
+            },
+            {
+              text: '提交',
+              css: 'text',
+              click: (index, row) => {
+                submitSaleOutboundOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              icon: 'el-icon-s-promotion',
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              }
+            },
           ]
         }
       ]
@@ -250,6 +264,10 @@ export default {
     },
     handleSubmitByIds() {
       var checkedRows = this.$refs.tableList.checkedRows()
+      if (checkedRows.length === 0) {
+        this.$modal.msgWarning('请选择数据')
+        return
+      }
       var canSubmit = true
       checkedRows.forEach(function(ele) {
         if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
