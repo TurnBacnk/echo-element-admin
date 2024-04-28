@@ -311,7 +311,7 @@ export default {
           },
           {
             label: '客户地区',
-            prop: 'clientRegion ',
+            prop: 'clientRegion',
             type: 'input',
           },
           {

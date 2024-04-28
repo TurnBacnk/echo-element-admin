@@ -1,3 +1,4 @@
+
 <template>
   <div class="app-container">
     <form-table
@@ -10,9 +11,9 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
-      :save-fun="saveFun"
-      :is-approval="true"
       :is-view="true"
+      :is-approval="true"
+      :save-fun="saveFun"
     />
   </div>
 </template>
@@ -20,41 +21,37 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import {getDictionary, getJavaCode} from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
-import { getClientContactListById } from '@/api/business/client'
-import { getProductInfoById } from '@/api/business/product-info'
-import {getSaleOrderInfoById} from "@/api/business/sale-order";
-import EditTable from "@/components/EditTable/index.vue";
-import {getSaleOutboundInfoByCode, getSaleOutboundInfoById} from "@/api/business/sale-outbound";
+import {getJavaCode} from "@/api/common/dict";
+import {getClientContactListById} from "@/api/business/client";
+import {getProductInfoById} from "@/api/business/product-info";
+import {generateCode} from "@/api/config/generate-code";
+import {getSaleReturnOrderByCode, getSaleReturnOrderById} from "@/api/business/sale-return";
 
 export default {
-  name: 'SaleOutboundEdit',
-  components: {EditTable, FormTable },
+  name: 'SaleReturnOrderView',
+  components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '销售出库审核',
-      saveUrl: '/api/sale-outbound/update',
-      submitUrl: '/api/sale-outbound/update-and-single-submit',
+      contentText: '销售退货审核',
+      saveUrl: '/api/sale-return/update',
+      submitUrl: '/api/sale-return/update-and-submit-single',
       canSubmit: true,
       collapseConfig: [
-        {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
-        {active: true, title: '物资信息', name: 'goodsInfo', type: 'table'},
-        {active: true, title: '其他费用', name: 'otherAmount', type: 'table'}
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '物资信息', name: 'goodsInfo', type: 'table' }
       ],
       form: {
-        saleOrderID: undefined,
-        saleOrderCode: undefined,
-        saleOutboundCode: undefined,
-        outboundTime: new Date(),
+        saleReturnOrderCode: undefined,
+        saleReturnOrderTime: new Date(),
         clientId: undefined,
         clientName: undefined,
+        saleOutboundOrderId: undefined,
+        saleOutboundOrderCode: undefined,
         saleUserId: undefined,
         saleUserName: undefined,
-        otherAmount: 0,
-        discountAmount: 0,
-        discountRate: 0,
+        discountRate: undefined,
+        discountAmount: undefined,
         afterDiscountReceiveAmount: undefined,
         clientContactId: undefined,
         clientContactName: undefined,
@@ -62,25 +59,21 @@ export default {
         contactLandLine: undefined,
         contactAddress: undefined,
         clientAddress: undefined,
-        clientRegion: undefined,
-        logisticsCompany: undefined,
-        trackingNumber: undefined,
-        saleOutboundItemList: [],
-        saleOutboundOtherAmounts: []
+        saleReturnItemList: []
       },
       rules: {
         baseInfo: {
-          saleContractId: [{required: true, message: '请选择销售合同', trigger: 'blur'}],
-          clientId: [{required: true, message: '请选择客户', trigger: 'blur'}],
-          saleUserId: [{required: true, message: '请选择销售人员', trigger: 'blur'}]
+          saleReturnOrderCode: [{ required: true, message: '请输入退货单编号', trigger: 'blur' }],
+          clientId: [{ required: true, message: '请选择客户', trigger: 'blur' }],
+          saleOutboundContractId: [{ required: true, message: '请选择销售出库单', trigger: 'blur' }],
+          saleUserId: [{ required: true, message: '请选择', trigger: 'blur' }]
         },
         goodsInfo: {
-          productId: [{required: true, message: '请选择产品', trigger: 'blur'}],
-          number: [{required: true, message: '请输入数量', trigger: 'blur'}],
-          discountRate: [{required: true, message: '请输入优惠率', trigger: 'blur'}],
-          taxRate: [{required: true, message: '请输入税率', trigger: 'blur'}]
-        },
-        otherAmount: {}
+          productId: [{ required: true, message: '请选择产品', trigger: 'blur' }],
+          amount: [{ required: true, message: '请输入数量', trigger: 'blur' }],
+          discountRate: [{ required: true, message: '请输入优惠率', trigger: 'blur' }],
+          taxRate: [{ required: true, message: '请输入税率', trigger: 'blur' }]
+        }
       },
       collapseItemConfig: [],
       constant: [],
@@ -89,68 +82,23 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: ['Unit']
+        dictionaryNameList: []
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['SaleOrderBuilder', 'CustomerBuilder', 'UserBuilder', 'ProductBuilder', 'VendorBuilder']
+        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder']
       },
-      saleContractDisabled: false,
       clientContactUser: []
     }
   },
   watch: {
-    'form.otherAmount': {
-      handler(newVal, oldVal) {
-        if (this.form.discountRate !== 0) {
-          // 有优惠
-          let temp = 0
-          this.form.saleOutboundItemList.forEach((ele) => {
-            temp = this.$math.add(ele.totalTaxAmount, temp)
-          })
-          this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.multiply(this.$math.add(temp, newVal), this.form.discountRate + 1), {
-            precision: 2,
-            notation: 'fixed'
-          })
-        } else {
-          this.form.afterDiscountReceiveAmount = this.$math.add(newVal, this.form.afterDiscountReceiveAmount)
-        }
-      }
-    },
     'form.clientId': {
       handler(newVal, oldVal) {
-        getClientContactListById(newVal).then(res => {
-          this.clientContactUser.length = 0
+        getClientContactListById(newVal).then((res) => {
           res.data.forEach(item => {
             this.clientContactUser.push(item)
           })
         })
-      },
-      immediate: true,
-      deep: true
-    },
-    'form.saleOutboundItemList.length': {
-      handler(newVal, oldVal) {
-        if (newVal === 0) {
-          // 数组为空
-          this.form.afterDiscountReceiveAmount = 0
-          this.form.discountAmount = 0
-        } else {
-          var temp = 0
-          if (this.form.discountRate) {
-            this.form.saleOutboundItemList.forEach((ele) => {
-              temp = this.$math.add(ele.totalTaxAmount, temp)
-            })
-            this.form.discountAmount = this.$math.format(this.$math.multiply(this.form.discountRate * 0.01, temp), {
-              precision: 2,
-              notation: 'fixed'
-            })
-            this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), {
-              precision: 2,
-              notation: 'fixed'
-            })
-          }
-        }
       }
     },
     'form.discountRate': {
@@ -159,83 +107,68 @@ export default {
           this.form.discountAmount = 0
         } else {
           var temp = 0
-          this.form.saleOutboundItemList.forEach((ele) => {
+          this.form.saleReturnItemList.forEach((ele) => {
             temp = this.$math.add(ele.totalTaxAmount, temp)
           })
-          this.form.discountAmount = this.$math.format(this.$math.multiply(newVal * 0.01, temp), {
-            precision: 2,
-            notation: 'fixed'
-          })
-          this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), {
-            precision: 2,
-            notation: 'fixed'
-          })
+          this.form.discountAmount = this.$math.format(this.$math.multiply(newVal * 0.01, temp), { precision: 2, notation: 'fixed' })
+          this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), { precision: 2, notation: 'fixed' })
         }
       }
     },
-    'form.saleOutboundOtherAmounts.length': {
+    'form.saleReturnItemList.length': {
       handler(newVal, oldVal) {
         if (newVal === 0) {
-          this.form.otherAmount = 0
+          // 数组为空
+          this.form.afterDiscountReceiveAmount = 0
+          this.form.discountAmount = 0
         } else {
-          let _this = this
-          this.form.otherAmount = 0
-          this.form.saleOutboundOtherAmounts.forEach((ele) => {
-            this.form.otherAmount = _this.$math.add(this.form.otherAmount, ele.clientPayAmount)
-          })
+          var temp = 0
+          if (this.form.discountRate) {
+            this.form.saleReturnItemList.forEach((ele) => {
+              temp = this.$math.add(ele.totalTaxAmount, temp)
+            })
+            this.form.discountAmount = this.$math.format(this.$math.multiply(this.form.discountRate * 0.01, temp), { precision: 2, notation: 'fixed' })
+            this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.subtract(temp, this.form.discountAmount), { precision: 2, notation: 'fixed' })
+          }
         }
-      }
+      },
+      immediate: true,
+      deep: true
     }
   },
   async created() {
-    await this.initParams()
-    await getSaleOutboundInfoByCode(this.$route.params.code).then(res => {
+    await getSaleReturnOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
       this.form.instanceId = this.$route.params.instanceId
     })
-    await generateCode('SALE-OUTBOUND').then(res => {
-      this.form.saleOutboundCode = res.data
+    await generateCode('SALE_RETURN_ORDER').then(res => {
+      this.form.saleReturnOrderCode = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await getDictionary(this.dictionaryConfig).then(res => {
-      this.dictionary = res.data
-    })
     await this.init()
   },
   methods: {
-    initParams() {
-      if (this.$route.params.saleOrderId) {
-        this.form.saleOrderCode = this.$route.params.saleOrderCode
-        this.form.saleOrderId = this.$route.params.saleOrderId
-        this.saleContractDisabled = true
-      }
-    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
           {
-            label: '销售合同',
-            prop: 'saleOrderId',
-            type: 'selectTemplate',
-            bundle: {
-              rightLabel: 'saleOrderCode',
-              value: 'saleOrderId'
-            },
-            options: this.javaCode['SaleOrderBuilder'],
-            disabled: this.saleContractDisabled
-          },
-          {
-            label: '销售出库单编号',
-            prop: 'saleOutboundCode',
+            label: '销售出库单',
+            prop: 'saleOutboundOrderCode',
             type: 'input',
             disabled: true
           },
           {
-            label: '出库日期',
-            prop: 'outboundTime',
-            type: 'date'
+            label: '销售退货单编号',
+            prop: 'saleReturnOrderCode',
+            type: 'input',
+            disabled: true
+          },
+          {
+            label: '退货时间',
+            prop: 'saleReturnOrderTime',
+            type: 'date',
           },
           {
             label: '客户',
@@ -258,14 +191,6 @@ export default {
             },
             options: this.javaCode['UserBuilder'],
             disabled: true
-          },
-          {
-            label: '其他费用',
-            prop: 'otherAmount',
-            type: 'inputNumber',
-            blur: () => {
-              this.dialogVisible = true
-            }
           },
           {
             label: '优惠率',
@@ -293,8 +218,8 @@ export default {
               id: 'clientContactId',
               contactName: 'clientContactName',
               phone: 'contactPhone',
-              landLine: 'clientLandLine',
-              address: 'clientAddress'
+              landLine: 'contactLandLine',
+              address: 'contactAddress'
             },
             options: this.clientContactUser,
             optionLabel: 'contactName',
@@ -302,7 +227,7 @@ export default {
             disabled: true
           },
           {
-            label: '联系人手机号',
+            label: '联系人手机',
             prop: 'contactPhone',
             type: 'input',
             disabled: true
@@ -320,23 +245,14 @@ export default {
             disabled: true
           },
           {
-            label: '客户地区',
-            prop: 'clientRegion',
-            type: 'input'
-          },
-          {
-            label: '物流公司',
-            prop: 'logisticsCompany',
-            type: 'input'
-          },
-          {
-            label: '物流单号',
-            prop: 'trackingNumber',
-            type: 'input'
+            label: '客户地址',
+            prop: 'clientAddress',
+            type: 'input',
+            disabled: true
           }
         ],
         goodsInfo: {
-          prop: 'saleOutboundItemList',
+          prop: 'saleReturnItemList',
           column: [
             {
               label: '产品名称',
@@ -345,7 +261,7 @@ export default {
               optionList: this.javaCode['ProductBuilder'],
               click: (event, row) => {
                 getProductInfoById(event).then(res => {
-                  const {data} = res
+                  const { data } = res
                   row.productName = data.productName
                   row.productId = data.id
                   row.productCode = data.productCode
@@ -378,8 +294,7 @@ export default {
             {
               label: '单位',
               prop: 'unit',
-              type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
+              type: 'input',
               disabled: true
             },
             {
@@ -387,7 +302,7 @@ export default {
               prop: 'amount',
               type: 'number',
               input: (newNumber, currentRow) => {
-                if (currentRow.salePrice) {
+                if (currentRow.salePrice !== undefined) {
                   // 销售单价存在
                   if (currentRow.discountRate !== undefined) {
                     // 优惠率存在 计算优惠金额
@@ -409,19 +324,19 @@ export default {
               prop: 'salePrice',
               type: 'number',
               input: (newSalePrice, currentRow) => {
-                if (currentRow.taxRate) {
+                if (currentRow.taxRate !== undefined) {
                   // 存在税率，计算含税价格
                   currentRow.includeTaxPrice = this.computeIncludeTaxPrice(newSalePrice, currentRow.taxRate)
                 }
                 // 销售单价发生变化
-                if (currentRow.discountRate) {
+                if (currentRow.discountRate !== undefined) {
                   // 优惠率已经填写
                   // 计算优惠金额
                   currentRow.discountAmount = this.computeDiscountAmount(newSalePrice, currentRow.discountRate, currentRow.amount)
                   // 优惠价格变化 重新计算销售价格
                   currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(newSalePrice, currentRow.amount, currentRow.discountAmount)
                   // 销售价格发生变化 且税率已经填写 重新计算税额
-                  if (currentRow.taxRate) {
+                  if (currentRow.taxRate !== undefined) {
                     currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.amount)
                     // 重新计算含税价格合计
                     var temp = currentRow.totalTaxAmount
@@ -447,7 +362,7 @@ export default {
                 // 销售价格
                 currentRow.salePriceAfterTax = this.computeSalePriceAfterTax(currentRow.salePrice, currentRow.amount, currentRow.discountAmount)
                 // 如果税率存在，计算税额，计算含税价格
-                if (currentRow.taxRate) {
+                if (currentRow.taxRate !== undefined) {
                   // 税额
                   currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, currentRow.taxRate, currentRow.amount)
                   // 含税金额
@@ -475,11 +390,11 @@ export default {
               type: 'number',
               input: (newTaxRate, currentRow) => {
                 // 税率变化影响 含税价格，税额，税额合计价格
-                if (currentRow.salePrice) {
+                if (currentRow.salePrice !== undefined) {
                   // 销售单价已填写，改变含税价格
                   currentRow.includeTaxPrice = this.computeIncludeTaxPrice(currentRow.salePrice, newTaxRate)
                 }
-                if (currentRow.salePriceAfterTax) {
+                if (currentRow.salePriceAfterTax !== undefined  ) {
                   // 税额
                   currentRow.taxAmount = this.computeTaxAmount(currentRow.salePriceAfterTax, newTaxRate, currentRow.amount)
                   // 税额合计
@@ -514,78 +429,22 @@ export default {
             }
           ],
           totalColumns: ['discountAmount', 'salePriceAfterTax', 'taxAmount', 'totalTaxAmount'],
-          showSummary: true
-        },
-        otherAmount: {
-          prop: 'saleOutboundOtherAmounts',
-          column: [
-            {
-              prop: 'vendorName',
-              type: 'select',
-              label: '供应商',
-              optionList: this.javaCode['VendorBuilder'],
-              click: (event, row) => {
-                const obj = this.javaCode['VendorBuilder'].find(ele => {
-                  if (ele.value === event) {
-                    return ele
-                  }
-                })
-                row.vendorName = obj.label
-                row.vendorId = obj.value
-              }
-            },
-            {
-              prop: 'costType',
-              type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              label: '费用类型',
-              click: (event, row) => {
-                row.costType = event
-              }
-            },
-            {
-              prop: 'amount',
-              type: 'number',
-              label: '费用金额',
-              input: (newNumber, currentRow) => {
-                currentRow.clientPayAmount = newNumber
-              }
-            },
-            {
-              prop: 'clientPayAmount',
-              type: 'number',
-              label: '客户承担金额'
-            }
-          ],
-          totalColumns: ['amount', 'clientPayAmount'],
-          showSummary: true
+          showSummary: true,
         }
       }
       this.showForm = true
     },
     computeIncludeTaxPrice(salePrice, taxRate) {
-      return this.$math.format(this.$math.add(this.$math.multiply(salePrice, taxRate * 0.01), salePrice), {
-        precision: 2,
-        notation: 'fixed'
-      })
+      return this.$math.format(this.$math.add(this.$math.multiply(salePrice, taxRate * 0.01), salePrice), { precision: 2, notation: 'fixed' })
     },
     computeDiscountAmount(salePrice, discountRate, number) {
-      return this.$math.format(this.$math.multiply(this.$math.multiply(salePrice, discountRate * 0.01), number), {
-        precision: 2,
-        notation: 'fixed'
-      })
+      return this.$math.format(this.$math.multiply(this.$math.multiply(salePrice, discountRate * 0.01), number), { precision: 2, notation: 'fixed' })
     },
     computeSalePriceAfterTax(salePrice, number, discountAmount) {
-      return this.$math.format(this.$math.subtract(this.$math.multiply(salePrice, number), discountAmount), {
-        precision: 2,
-        notation: 'fixed'
-      })
+      return this.$math.format(this.$math.subtract(this.$math.multiply(salePrice, number), discountAmount), { precision: 2, notation: 'fixed' })
     },
     computeTaxAmount(salePriceAfterTax, taxRate, number) {
-      return this.$math.format(this.$math.multiply(salePriceAfterTax, taxRate * 0.01), {
-        precision: 2,
-        notation: 'fixed'
-      })
+      return this.$math.format(this.$math.multiply(salePriceAfterTax, taxRate * 0.01), { precision: 2, notation: 'fixed' })
     },
     computeTotalTaxAmount(salePriceAfterTax, taxAmount) {
       return this.$math.add(salePriceAfterTax, taxAmount)
@@ -594,43 +453,17 @@ export default {
       if (oldAmount === undefined) {
         oldAmount = 0
       }
-      this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.add(this.$math.subtract(this.form.afterDiscountReceiveAmount, oldAmount), newAmount), {
-        precision: 2,
-        notation: 'fixed'
-      })
+      this.form.afterDiscountReceiveAmount = this.$math.format(this.$math.add(this.$math.subtract(this.form.afterDiscountReceiveAmount, oldAmount), newAmount), { precision: 2, notation: 'fixed' })
       if (this.form.discountRate && this.form.discountRate > 0) {
-        this.form.discountAmount = this.$math.format(this.$math.multiply(this.form.discountRate * 0.01, this.form.afterDiscountReceiveAmount), {
-          precision: 2,
-          notation: 'fixed'
-        })
+        this.form.discountAmount = this.$math.format(this.$math.multiply(this.form.discountRate * 0.01, this.form.afterDiscountReceiveAmount), { precision: 2, notation: 'fixed' })
       }
     },
     saveFun() {
-      if (this.form.saleOutboundItemList.length === 0) {
+      if (this.form.saleReturnItemList.length === 0) {
         this.$modal.msgWarning('请至少选择一项产品')
         return false
       }
       return true
-    },
-    handleDataUpdate(updateData, prop) {
-      this.form.saleOutboundOtherAmounts = updateData
-    },
-    customAppendFun() {
-      this.dialogVisible = true
-    },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          this.form.otherAmount = 0
-          let _this = this
-          this.form.saleOutboundOtherAmounts.forEach((ele) => {
-            this.form.otherAmount = _this.$math.add(this.form.otherAmount, ele.clientPayAmount)
-          })
-          this.dialogVisible = false
-        })
-        .catch(_ => {
-          this.dialogVisible = false
-        });
     }
   }
 }

@@ -73,7 +73,7 @@ export default {
           prop: 'isSelfBuiltWarehouse',
           columnType: 'Constant',
           constant: {
-            optionList: this.constant['YesOrNo'],
+            constantList: this.constant['YesOrNo'],
             type: (row) => {
               if (row.isSelfBuiltWarehouse === 1) {
                 return 'success'

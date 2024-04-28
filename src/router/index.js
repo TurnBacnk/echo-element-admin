@@ -483,6 +483,70 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/return/sale-return-order-view.vue'),
         name: 'SaleReturnOrderView',
         meta: { activeMenu: '/save/return', title: '销售退货' }
+      },
+      {
+        path: 'sale-return-order-approval',
+        component: () => import('@/views/sale/return/sale-return-approval.vue'),
+        name: 'SaleReturnOrderApproval',
+        meta: { activeMenu: '/save/return', title: '销售退货审核' }
+      }
+    ]
+  },
+  {
+    path: '/repo/stocktaking/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-stocktaking-add',
+        component: () => import('@/views/repo/stocktaking/stocktaking-add.vue'),
+        name: 'RepoStocktakingAdd',
+        meta: { activeMenu: '/repo/stocktaking', title: '库存盘点' }
+      },
+      {
+        path: 'repo-stocktaking-edit',
+        component: () => import('@/views/repo/stocktaking/stocktaking-edit.vue'),
+        name: 'RepoStocktakingEdit',
+        meta: { activeMenu: '/repo/stocktaking', title: '库存盘点' }
+      },
+      {
+        path: 'repo-stocktaking-view',
+        component: () => import('@/views/repo/stocktaking/stocktaking-view.vue'),
+        name: 'RepoStocktakingView',
+        meta: { activeMenu: '/repo/stocktaking', title: '库存盘点' }
+      }
+    ]
+  },
+  {
+    path: '/repo/other-inbound/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-other-inbound-add',
+        component: () => import('@/views/repo/inbound/other-inbound-add.vue'),
+        name: 'RepoOtherInboundAdd',
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+      },
+      {
+        path: 'repo-other-inbound-edit',
+        component: () => import('@/views/repo/inbound/other-inbound-edit.vue'),
+        name: 'RepoOtherInboundEdit',
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+      },
+      {
+        path: 'repo-other-inbound-view',
+        component: () => import('@/views/repo/inbound/other-inbound-view.vue'),
+        name: 'RepoOtherInboundView',
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+      },
+      {
+        path: 'repo-other-inbound-approval',
+        component: () => import('@/views/repo/inbound/other-inbound-approval.vue'),
+        name: 'RepoOtherInboundApproval',
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
       }
     ]
   },

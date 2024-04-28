@@ -33,6 +33,7 @@
                         style="width: 90%"
                         :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label"
                         :disabled="itemConfig.disabled"
+                        clearable
                       />
                       <!--         inputNumber         -->
                       <el-input
@@ -43,6 +44,7 @@
                         :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请输入' + itemConfig.label"
                         maxlength="11"
                         :disabled="itemConfig.disabled"
+                        clearable
                       />
                       <!--         date         -->
                       <el-date-picker
@@ -52,6 +54,7 @@
                         :placeholder="itemConfig.placeholder ? itemConfig.placeholder : '请选择' + itemConfig.label"
                         style="width: 90%"
                         value-format="yyyy-MM-dd"
+                        clearable
                       />
                       <!--         number         -->
                       <el-input-number
@@ -71,6 +74,7 @@
                         :remote-method="itemConfig.remoteMethod ? itemConfig.remoteMethod : () => {}"
                         :disabled="itemConfig.disabled"
                         @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
+                        clearable
                       >
                         <el-option
                           v-for="option in itemConfig.options"
@@ -88,6 +92,7 @@
                         filterable
                         :disabled="itemConfig.disabled"
                         @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
+                        clearable
                       >
                         <el-option
                           v-for="option in itemConfig.options"
@@ -146,9 +151,9 @@
                 :data="form[collapseItemConfig[config.name].prop]"
                 :columns="collapseItemConfig[config.name].column"
                 :rules="rules[config.name]"
-                :total-columns="collapseItemConfig[config.name].totalColumns"
+                :total-columns="collapseItemConfig[config.name].totalColumns !== undefined ? collapseItemConfig[config.name].totalColumns : []"
                 :sum-text="config.sumText"
-                :show-summary="collapseItemConfig[config.name].showSummary ? collapseItemConfig[config.name].showSummary : false"
+                :show-summary="collapseItemConfig[config.name].showSummary !== undefined ? collapseItemConfig[config.name].showSummary : false"
                 :is-view="isView"
                 :show-button="collapseItemConfig[config.name].showButton ? collapseItemConfig[config.name].showButton : false"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"

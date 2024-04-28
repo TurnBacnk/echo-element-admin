@@ -1,11 +1,8 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
-      <el-form-item label="销售退货单编号" prop="saleReturnOrderCode">
-        <el-input v-model="queryForm.saleReturnOrderCode" clearable placeholder="请输入销售出库单编号" size="mini" />
-      </el-form-item>
-      <el-form-item label="退货日期">
-        <el-date-picker type="date" v-model="queryForm.saleReturnOrderTime" placeholder="请选择退货日期" clearable  />
+      <el-form-item label="其他出库单编号" prop="otherInboundCode">
+        <el-input size="mini" clearable placeholder="请输入其他出库单编号" />
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
@@ -21,23 +18,25 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {
-  delSaleReturnOrderById, delSaleReturnOrderByIds,
-  submitSaleReturnOrderById,
-  submitSaleReturnOrderByIds
-} from "@/api/business/sale-return";
+import {deleteOtherInboundByIds, submitOtherInboundById, submitOtherInboundByIds} from "@/api/business/other-inbound";
+import {submitInboundOrderByIds} from "@/api/business/inbound";
 
 export default {
-  name: 'SaleReturnOrder',
+  name: 'OtherInbound',
   components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
-      queryForm: {
-        saleReturnOrderCode: undefined,
-        saleReturnOrderTime: undefined
-      },
+      queryForm: {},
       buttonConfig: [
+        {
+          text: '新增',
+          click: () => {
+            this.handleAdd()
+          },
+          plain: true,
+          icon: 'el-icon-plus'
+        },
         {
           text: '提交',
           click: () => {
@@ -57,7 +56,7 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/sale-return/list',
+      dataSource: '/api/repo-other-inbound/list',
       tableColumnConfig: []
     }
   },
@@ -71,57 +70,31 @@ export default {
           columnType: 'Index'
         },
         {
-          prop: 'saleReturnOrderCode',
-          label: '销售退货单编号',
+          prop: 'otherInboundCode',
+          label: '入库单编号',
           columnType: 'Link',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'SaleReturnOrderView',
+                name: 'RepoOtherInboundView',
                 params: {
                   id: row.id
-                }
-              })
-            }
-          },
-          width: '300px'
-        },
-        {
-          prop: 'saleOutboundOrderCode',
-          label: '销售出库单',
-          columnType: 'Link',
-          width: '300px',
-          link: {
-            click: (index, row) => {
-              this.$router.push({
-                name: 'SaleOutboundView',
-                params: {
-                  id: row.saleOutboundOrderId
                 }
               })
             }
           }
         },
         {
-          prop: 'saleReturnOrderTime',
-          label: '退货日期'
+          prop: 'otherInboundDate',
+          label: '入库时间'
         },
         {
-          prop: 'clientName',
-          label: '客户名称'
+          prop: 'warehouseName',
+          label: '仓库'
         },
         {
-          prop: 'saleUserName',
-          label: '销售人员'
-        },
-        {
-          prop: 'discountAmount',
-          label: '优惠金额',
-          columnType: 'Money'
-        },
-        {
-          prop: 'afterDiscountReceiveAmount',
-          label: '优惠后应付款',
+          prop: 'totalAmount',
+          label: '总金额',
           columnType: 'Money'
         },
         {
@@ -144,53 +117,35 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                if (row.approvalStatus === 2) {
+                  return true
+                }
+                if (row.approvalStatus === 1) {
+                  return true
+                }
                 return false
-              }
-            },
-            {
-              text: '删除',
-              css: 'text',
-              click: (index, row) => {
-                delSaleReturnOrderById(row.id).then(res => {
-                  const { code, msg } = res
-                  if (code === '100') {
-                    this.$modal.msgSuccess(msg)
-                    this.handleQuery()
-                  }
-                })
-              },
-              isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
-                }
-                if (row.approvalStatus === 3) {
-                  return false
-                }
-                return true
               }
             },
             {
               text: '提交',
               css: 'text',
               click: (index, row) => {
-                submitSaleReturnOrderById(row.id).then(res => {
+                submitOtherInboundById(row.id).then(res => {
                   const { code, msg } = res
                   if (code === '100') {
-
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
                   }
                 })
               },
-              icon: 'el-icon-s-promotion',
               isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
+                if (row.approvalStatus === 2) {
+                  return true
                 }
-                if (row.approvalStatus === 3) {
-                  return false
+                if (row.approvalStatus === 1) {
+                  return true
                 }
-                return true
+                return false
               }
             }
           ]
@@ -199,12 +154,12 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: 'SaleReturnOrderAdd',
+        name: 'RepoOtherInboundAdd',
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'SaleReturnOrderEdit',
+        name: 'RepoOtherInboundEdit',
         params: {
           id: row.id
         }
@@ -224,34 +179,32 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        delSaleReturnOrderByIds(ids).then(res => {
-          const { code, msg } = res
+        deleteOtherInboundByIds(ids).then(res => {
+          const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
             this.handleQuery()
           }
         })
       }
-
     },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
-      this.$refs.queryForm.resetFields()
+
     },
     handleSubmit() {
-      var checkedRows = this.$refs.tableList.checkedRows()
-      var canSubmit = true
+      const checkedRows = this.$refs.tableList.checkedRows()
+      let canSubmit = true
       checkedRows.forEach(function(ele) {
         if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
           canSubmit = false
         }
       })
       if (canSubmit) {
-        // TODO submit
-        let ids = this.$refs.tableList.checkedRowIds();
-        submitSaleReturnOrderByIds(ids).then(res => {
+        const ids = this.$refs.tableList.checkedRowIds();
+        submitOtherInboundByIds(ids).then(res => {
           const { code, msg } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)

@@ -3,7 +3,7 @@
     <el-button v-if="showButton" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
     <el-button v-if="showButton" type="primary" size="mini" @click="handleImport">批量导入</el-button>
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
-      <el-table :data="formData.tableData" style="width: 100%"  max-height="500" row-key="id" :show-summary="true" :summary-method="handleSummary">
+      <el-table :data="formData.tableData" style="width: 100%"  max-height="500" row-key="id" :show-summary="showSummary" :summary-method="handleSummary">
         <el-table-column :type="tableConfig.indexType" fixed="left" />
         <el-table-column
           v-for="(column, index) in columns"
@@ -198,35 +198,37 @@ export default {
       return event.replace(/[^0-9.]/g, '')
     },
     handleSummary(param) {
-      const { columns, data } = param
-      const sums = []
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = this.sumText
-          return
-        }
-        if (this.totalColumns.includes(column.property)) {
-          const values = data.map(item => Number(item[column.property]))
-          if (!values.every(value => isNaN(value))) {
-            sums[index] = values.reduce((prev, curr) => {
-              const value = Number(curr)
-              if (!isNaN(value)) {
-                return this.$math.format(this.$math.add(prev, curr), { precision: 2, notation: 'fixed' })
-              } else {
-                return prev
-              }
-            }, 0)
-            sums[index] += ' 元'
-          } else {
-            sums[index] = 'N/A'
+      if (this.showSummary) {
+        const { columns, data } = param
+        const sums = []
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = this.sumText
+            return
           }
-        }
-      })
-      return sums
+          if (this.totalColumns.includes(column.property)) {
+            const values = data.map(item => Number(item[column.property]))
+            if (!values.every(value => isNaN(value))) {
+              sums[index] = values.reduce((prev, curr) => {
+                const value = Number(curr)
+                if (!isNaN(value)) {
+                  return this.$math.format(this.$math.add(prev, curr), { precision: 2, notation: 'fixed' })
+                } else {
+                  return prev
+                }
+              }, 0)
+              sums[index] += ' 元'
+            } else {
+              sums[index] = 'N/A'
+            }
+          }
+        })
+        return sums
+      }
     },
     convertConstant(value, optionList) {
       const obj = optionList.find(item => {
-        if (item.value === value) {
+        if (item.value == value) {
           return item
         }
       })

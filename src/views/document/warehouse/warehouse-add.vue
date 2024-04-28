@@ -37,6 +37,7 @@ export default {
         address: undefined,
         phone: undefined,
         enable: undefined,
+        isSelfBuiltWarehouse: undefined,
         warehouseResponsiblePersonId: undefined,
         warehouseResponsiblePersonName: undefined
       },
@@ -60,7 +61,7 @@ export default {
       collapseItemConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['Enable']
+        constantNameList: ['Enable', 'YesOrNo']
       },
       dictionary: [],
       dictionaryConfig: {
@@ -108,6 +109,12 @@ export default {
             label: '联系方式',
             prop: 'phone',
             type: 'input'
+          },
+          {
+            label: '是否自建',
+            prop: 'isSelfBuiltWarehouse',
+            type: 'select',
+            options: this.constant['YesOrNo']
           },
           {
             label: '状态',

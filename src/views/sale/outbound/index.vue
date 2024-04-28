@@ -25,7 +25,6 @@ import {
   submitSaleOutboundOrderByIds
 } from '@/api/business/sale-outbound'
 import {getConstant} from '@/api/common/dict'
-import {submitSingleById} from "@/api/business/sale-order";
 
 export default {
   name: 'Client',
@@ -210,6 +209,27 @@ export default {
                 return true
               }
             },
+            {
+              text: '销售退货',
+              css: 'text',
+              click: (index, row) => {
+                this.$router.push({
+                  name: 'SaleReturnOrderAdd',
+                  params: {
+                    saleOutboundId: row.id,
+                    saleOutboundCode: row.saleOutboundCode
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 2) {
+                  if (row.returnStatus !== 2) {
+                    return false
+                  }
+                }
+                return true
+              }
+            }
           ]
         }
       ]
@@ -291,6 +311,8 @@ export default {
       this.$refs.queryForm.resetFields()
     },
     changeSaleOutboundStatus(id, status) {
+
+
 
     }
   }

@@ -246,6 +246,7 @@ export default {
                 submitSingleById(row.id).then(res => {
                   const { code, msg } = res
                   if (code === '100') {
+
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
                   }
