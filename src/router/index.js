@@ -528,25 +528,57 @@ export const asyncRoutes = [
         path: 'repo-other-inbound-add',
         component: () => import('@/views/repo/inbound/other-inbound-add.vue'),
         name: 'RepoOtherInboundAdd',
-        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库登记' }
       },
       {
         path: 'repo-other-inbound-edit',
         component: () => import('@/views/repo/inbound/other-inbound-edit.vue'),
         name: 'RepoOtherInboundEdit',
-        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库修改' }
       },
       {
         path: 'repo-other-inbound-view',
         component: () => import('@/views/repo/inbound/other-inbound-view.vue'),
         name: 'RepoOtherInboundView',
-        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库查看' }
       },
       {
         path: 'repo-other-inbound-approval',
         component: () => import('@/views/repo/inbound/other-inbound-approval.vue'),
         name: 'RepoOtherInboundApproval',
-        meta: { activeMenu: '/repo/other-inbound', title: '其它入库' }
+        meta: { activeMenu: '/repo/other-inbound', title: '其它入库审核' }
+      }
+    ]
+  },
+  {
+    path: '/repo/other-outbound/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-other-outbound-add',
+        component: () => import('@/views/repo/outbound/other-outbound-add.vue'),
+        name: 'RepoOtherOutboundAdd',
+        meta: { activeMenu: '/repo/other-outbound', title: '其他出库登记' }
+      },
+      {
+        path: 'repo-other-outbound-edit',
+        component: () => import('@/views/repo/outbound/other-outbound-edit.vue'),
+        name: 'RepoOtherOutboundEdit',
+        meta: { activeMenu: '/repo/other-outbound', title: '其他出库修改' }
+      },
+      {
+        path: 'repo-other-outbound-view',
+        component: () => import('@/views/repo/outbound/other-outbound-view.vue'),
+        name: 'RepoOtherOutboundView',
+        meta: { activeMenu: '/repo/other-outbound', title: '其他出库查看' }
+      },
+      {
+        path: 'repo-other-outbound-approval',
+        component: () => import('@/views/repo/outbound/other-outbound-approval.vue'),
+        name: 'RepoOtherOutboundApproval',
+        meta: { activeMenu: '/repo/other-outbound', title: '其他出库审核' }
       }
     ]
   },
