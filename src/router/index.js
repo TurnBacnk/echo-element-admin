@@ -582,6 +582,38 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/repo/transfer/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-transfer-add',
+        component: () => import('@/views/repo/transfer/transfer-add.vue'),
+        name: 'RepoTransferOrderAdd',
+        meta: { activeMenu: '/repo/transfer/', title: '调拨单登记' }
+      },
+      {
+        path: 'repo-transfer-edit',
+        component: () => import('@/views/repo/transfer/transfer-edit.vue'),
+        name: 'RepoTransferOrderEdit',
+        meta: { activeMenu: '/repo/transfer/', title: '调拨单修改' }
+      },
+      {
+        path: 'repo-transfer-view',
+        component: () => import('@/views/repo/transfer/transfer-view.vue'),
+        name: 'RepoTransferOrderView',
+        meta: { activeMenu: '/repo/transfer/', title: '调拨单查看' }
+      },
+      {
+        path: 'repo-transfer-approval',
+        component: () => import('@/views/repo/transfer/transfer-approval.vue'),
+        name: 'RepoTransferOrderApproval',
+        meta: { activeMenu: '/repo/transfer/', title: '调拨单审核' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

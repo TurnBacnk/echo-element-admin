@@ -19,9 +19,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import {getProductInfoById} from "@/api/business/product-info";
-import {getJavaCode} from "@/api/common/dict";
-import {getOtherOutboundByCode} from "@/api/business/other-outbound";
+import { getProductInfoById } from '@/api/business/product-info'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
+import { getOtherOutboundByCode } from '@/api/business/other-outbound'
 
 export default {
   name: 'OtherOutboundApproval',
@@ -60,7 +60,7 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Unit']
       },
       javaCode: [],
       javaCodeConfig: {
@@ -75,6 +75,9 @@ export default {
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -147,7 +150,8 @@ export default {
             {
               label: '单位',
               prop: 'unit',
-              type: 'input',
+              type: 'selectConstant',
+              optionList: this.dictionary['Unit'],
               disabled: true
             },
             {

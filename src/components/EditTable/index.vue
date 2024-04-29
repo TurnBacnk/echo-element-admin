@@ -29,7 +29,7 @@
                   style="width: 100%"
                 />
                 <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
+                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="column.click($event, scope.row)">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"
@@ -37,7 +37,7 @@
                     :value="item.value"
                   />
                 </el-select>
-                <el-select v-if="column.type === 'selectConstant'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
+                <el-select v-if="column.type === 'selectConstant'" v-model="scope.row[column.prop]" filterable clearable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
                   <el-option
                     v-for="item in column.optionList"
                     :key="item.key"

@@ -19,7 +19,7 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import {getProductInfoById} from "@/api/business/product-info";
-import {getJavaCode} from "@/api/common/dict";
+import {getDictionary, getJavaCode} from "@/api/common/dict";
 import {getOtherOutboundById} from "@/api/business/other-outbound";
 
 export default {
@@ -59,7 +59,7 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Unit']
       },
       javaCode: [],
       javaCodeConfig: {
@@ -73,6 +73,9 @@ export default {
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -117,7 +120,7 @@ export default {
                   row.productId = data.id
                   row.productCode = data.productCode
                   row.barCode = data.barCode
-                  row.specification = data.specification
+                  row.productSpec = data.specification
                   row.unit = data.unit
                   row.productDescription = data.productDescription
                 })
@@ -138,14 +141,14 @@ export default {
             },
             {
               label: '产品规格',
-              prop: 'specification',
-              type: 'input',
-              disabled: true
+              prop: 'productSpec',
+              type: 'input'
             },
             {
               label: '单位',
               prop: 'unit',
-              type: 'input',
+              type: 'selectConstant',
+              optionList: this.dictionary['Unit'],
               disabled: true
             },
             {
