@@ -614,6 +614,32 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/repo/repo-materials',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-materials-add',
+        component: () => import('@/views/repo/materials/materials-add.vue'),
+        name:'RepoMaterialsAdd',
+        meta: { activeMenu: '/repo/materials', title: '物资清单登记' }
+      },
+      {
+        path: 'repo-materials-edit',
+        component: () => import('@/views/repo/materials/materials-edit.vue'),
+        name:'RepoMaterialsEdit',
+        meta: { activeMenu: '/repo/materials', title: '物资清单修改' }
+      },
+      {
+        path: 'repo-materials-view',
+        component: () => import('@/views/repo/materials/materials-view.vue'),
+        name:'RepoMaterialsView',
+        meta: { activeMenu: '/repo/materials', title: '物资清单修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

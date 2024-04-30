@@ -19,37 +19,37 @@
 import FormTable from '@/components/FormTable/index.vue'
 import {getDictionary, getJavaCode} from "@/api/common/dict";
 import {getProductInfoById} from "@/api/business/product-info";
-import {getTransferOrderById} from "@/api/business/repo-transfer";
+import {getMaterialsById} from "@/api/business/materials";
 
 export default {
-  name: 'RepoTransferOrderEdit',
+  name: 'MaterialsAdd',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '调拨单修改',
-      saveUrl: '/api/repo-transfer-order/update',
-      submitUrl: 'api/repo-transfer-order/update-and-submit-single',
-      canSubmit: true,
+      contentText: '物资清单登记',
+      saveUrl: '/api/repo-materials/update',
+      submitUrl: '',
+      canSubmit: false,
       collapseConfig: [
-        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '产品信息', name: 'goodsInfo', type: 'table' }
+        { active: true, title: '成品信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '零件信息', name: 'goodsInfo', type: 'table' }
       ],
       form: {
-        transferOrderCode: undefined,
-        transferOrderDate: new Date(),
-        transferOutWarehouseId: undefined,
-        transferOutWarehouseName: undefined,
-        transferInWarehouseId: undefined,
-        transferInWarehouseName: undefined,
-        totalAmount: undefined,
-        transferOrderItemList: []
+        materialsOrderCode: undefined,
+        productName: undefined,
+        productCode: undefined,
+        productSpec: undefined,
+        unit: undefined,
+        amount: undefined,
+        remark: undefined,
+        materialsPartsList: []
       },
       rules: {
         baseInfo: {
 
         },
-        goodsInfo : {
+        goodsInfo: {
 
         }
       },
@@ -64,19 +64,19 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['ProductBuilder', 'WarehouseBuilder']
+        javaCodeNameList: ['ProductBuilder']
       }
     }
   },
   async created() {
-    await getTransferOrderById(this.$route.params.id).then(res => {
+      await getMaterialsById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
-    })
-    await getJavaCode(this.javaCodeConfig).then(res => {
-      this.javaCode = res.data
     })
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
     })
     await this.init()
   },
@@ -85,39 +85,45 @@ export default {
       this.collapseItemConfig = {
         baseInfo: [
           {
-            label: '调拨单编号',
-            prop: 'transferOrderCode',
+            label: '物资清单编码',
+            prop: 'materialsOrderCode',
             type: 'input',
             disabled: true
           },
           {
-            label: '调拨时间',
-            prop: 'transferOrderDate',
-            type: 'date'
+            label: '产品名称',
+            prop: 'productName',
+            type: 'input'
           },
           {
-            label: '调出仓库',
-            prop: 'transferOutWarehouseId',
-            type: 'select',
-            options: this.javaCode['WarehouseBuilder'],
-            bundle: {
-              label: 'transferOutWarehouseName',
-              value: 'transferOutWarehouseId'
-            }
+            label: '产品编码',
+            prop: 'productCode',
+            type: 'input'
           },
           {
-            label: '调入仓库',
-            prop: 'transferInWarehouseId',
-            type: 'select',
-            options: this.javaCode['WarehouseBuilder'],
-            bundle: {
-              label: 'transferInWarehouseName',
-              value: 'transferInWarehouseId'
-            }
+            label: '产品规格',
+            prop: 'productSpec',
+            type: 'input'
           },
+          {
+            label: '单位',
+            prop: 'unit',
+            type: 'select',
+            options: this.dictionary['Unit'],
+          },
+          {
+            label: '数量',
+            prop: 'amount',
+            type: 'inputNumber',
+          },
+          {
+            label: '备注',
+            prop: 'remark',
+            type: 'textarea',
+          }
         ],
         goodsInfo: {
-          prop: 'transferOrderItemList',
+          prop: 'materialsPartsList',
           column: [
             {
               label: '产品名称',
@@ -145,16 +151,10 @@ export default {
               width: '200px'
             },
             {
-              label: '产品条码',
-              prop: 'barCode',
-              type: 'input',
-              disabled: true
-            },
-            {
-              label: '产品规格',
+              label: '规格',
               prop: 'productSpec',
               type: 'input',
-              disabled: true
+              disabled: true,
             },
             {
               label: '单位',
@@ -166,38 +166,16 @@ export default {
             {
               label: '数量',
               prop: 'amount',
-              type: 'number',
-              input: (newVal, currentRow) => {
-                if (currentRow.price !== undefined) {
-                  currentRow.transferTotalAmount = this.$math.format(this.$math.multiply(newVal, currentRow.price), { precision: 2, notation: 'fixed' })
-                }
-              }
-            },
-            {
-              label: '调拨单位成本',
-              prop: 'transferPrice',
-              type: 'number',
-              input: (newVal, currentRow) => {
-                if (currentRow.amount !== undefined) {
-                  currentRow.transferTotalAmount = this.$math.format(this.$math.multiply(newVal, currentRow.amount), { precision: 2, notation: 'fixed' })
-                }
-              }
-            },
-            {
-              label: '调拨成本',
-              prop: 'transferTotalAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '备注',
               prop: 'remark',
-              type: 'input'
+              type: 'input',
             }
           ],
           showButton: true,
-          showSummary: true,
-          totalColumns: ['transferTotalAmount'],
+          showSummary: false
         }
       }
       this.showForm = true
