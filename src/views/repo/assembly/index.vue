@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
-      <el-form-item label="调拨单编号" prop="transferOrderCode">
-        <el-input v-model="queryForm.transferOrderCode" clearable size="mini" placeholder="请输入调拨单编号" />
+      <el-form-item label="组装单单号" prop="assemblyOrderCode">
+        <el-input v-model="queryForm.assemblyOrderCode" clearable size="mini" placeholder="请输入组装单单号" />
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
@@ -19,30 +19,22 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import {
-  deleteTransferOrderById,
-  deleteTransferOrderByIds,
-  submitTransferOrderById,
-  submitTransferOrderByIds
-} from '@/api/business/repo-transfer'
+  deleteAssemblyById,
+  deleteAssemblyByIds,
+  submitAssemblyBatchByIds,
+  submitAssemblyById
+} from '@/api/business/assembly'
 
 export default {
-  name: 'RepoTransferOrder',
+  name: 'RepoAssembly',
   components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
       queryForm: {
-        transferOrderCode: undefined
+        assemblyOrderCode: undefined
       },
       buttonConfig: [
-        {
-          text: '新增',
-          click: () => {
-            this.handleAdd()
-          },
-          plain: true,
-          icon: 'el-icon-plus'
-        },
         {
           text: '提交',
           click: () => {
@@ -62,7 +54,7 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/repo-transfer-order/list',
+      dataSource: '/api/repo-assembly/list',
       tableColumnConfig: []
     }
   },
@@ -76,13 +68,14 @@ export default {
           columnType: 'Index'
         },
         {
-          prop: 'transferOrderCode',
-          label: '调拨单编号',
+          prop: 'assemblyOrderCode',
+          label: '组装单号',
+          width: '240px',
           columnType: 'Link',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'RepoTransferOrderView',
+                name: 'RepoAssemblyView',
                 params: {
                   id: row.id
                 }
@@ -91,25 +84,32 @@ export default {
           }
         },
         {
-          prop: 'transferOutWarehouseName',
-          label: '调出仓库'
+          prop: 'assemblyOrderDate',
+          label: '组装日期'
         },
         {
-          prop: 'transferInWarehouseName',
-          label: '调入仓库'
+          prop: 'assemblyOrderAmount',
+          label: '组装费用'
         },
         {
-          prop: 'transferOrderDate',
-          label: '调拨日期'
+          prop: 'productCode',
+          label: '成品编码'
         },
         {
-          prop: 'createByName',
-          label: '调拨人'
+          prop: 'productName',
+          label: '成品名称'
         },
         {
-          prop: 'totalAmount',
-          columnType: 'Money',
-          label: '调拨合计成本'
+          prop: 'productSpec',
+          label: '成品规格'
+        },
+        {
+          prop: 'unit',
+          label: '单位'
+        },
+        {
+          prop: 'warehouseName',
+          label: '仓库名称'
         },
         {
           prop: 'approvalStatus',
@@ -141,11 +141,11 @@ export default {
               }
             },
             {
-              text: '删除',
+              text: '提交',
               css: 'text',
               click: (index, row) => {
-                deleteTransferOrderById(row.id).then(response => {
-                  const { code, msg } = response
+                submitAssemblyById(row.id).then(res => {
+                  const { code, msg } = res
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
@@ -163,11 +163,11 @@ export default {
               }
             },
             {
-              text: '提交',
+              text: '删除',
               css: 'text',
               click: (index, row) => {
-                submitTransferOrderById(row.id).then(res => {
-                  const { code, msg } = res
+                deleteAssemblyById(row.id).then(response => {
+                  const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
@@ -188,14 +188,9 @@ export default {
         }
       ]
     },
-    handleAdd() {
-      this.$router.push({
-        name: 'RepoTransferOrderAdd'
-      })
-    },
     handleEdit(row) {
       this.$router.push({
-        name: 'RepoTransferOrderEdit',
+        name: 'RepoAssemblyEdit',
         params: {
           id: row.id
         }
@@ -215,7 +210,7 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        deleteTransferOrderByIds(ids).then(res => {
+        deleteAssemblyByIds(ids).then(res => {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
@@ -239,9 +234,9 @@ export default {
         }
       })
       if (canSubmit) {
-        const ids = this.$refs.tableList.checkedRowIds()
-        submitTransferOrderByIds(ids).then(res => {
-          const { msg, code } = res
+        var ids = this.$refs.tableList.checkedRowIds()
+        submitAssemblyBatchByIds(ids).then(res => {
+          const { code, msg } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
             this.handleQuery()

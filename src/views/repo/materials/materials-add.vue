@@ -17,9 +17,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import {generateCode} from "@/api/config/generate-code";
-import {getDictionary, getJavaCode} from "@/api/common/dict";
-import {getProductInfoById} from "@/api/business/product-info";
+import { generateCode } from '@/api/config/generate-code'
+import { getDictionary, getJavaCode } from '@/api/common/dict'
+import { getProductInfoById } from '@/api/business/product-info'
 
 export default {
   name: 'MaterialsAdd',
@@ -108,17 +108,17 @@ export default {
             label: '单位',
             prop: 'unit',
             type: 'select',
-            options: this.dictionary['Unit'],
+            options: this.dictionary['Unit']
           },
           {
             label: '数量',
             prop: 'amount',
-            type: 'inputNumber',
+            type: 'inputNumber'
           },
           {
             label: '备注',
             prop: 'remark',
-            type: 'textarea',
+            type: 'textarea'
           }
         ],
         goodsInfo: {
@@ -153,7 +153,7 @@ export default {
               label: '规格',
               prop: 'productSpec',
               type: 'input',
-              disabled: true,
+              disabled: true
             },
             {
               label: '单位',
@@ -170,7 +170,7 @@ export default {
             {
               label: '备注',
               prop: 'remark',
-              type: 'input',
+              type: 'input'
             }
           ],
           showButton: true,

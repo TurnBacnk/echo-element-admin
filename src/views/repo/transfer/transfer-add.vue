@@ -17,9 +17,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import {generateCode} from "@/api/config/generate-code";
-import {getDictionary, getJavaCode} from "@/api/common/dict";
-import {getProductInfoById} from "@/api/business/product-info";
+import { generateCode } from '@/api/config/generate-code'
+import { getDictionary, getJavaCode } from '@/api/common/dict'
+import { getProductInfoById } from '@/api/business/product-info'
 
 export default {
   name: 'RepoTransferOrderAdd',
@@ -49,7 +49,7 @@ export default {
         baseInfo: {
 
         },
-        goodsInfo : {
+        goodsInfo: {
 
         }
       },
@@ -114,7 +114,7 @@ export default {
               label: 'transferInWarehouseName',
               value: 'transferInWarehouseId'
             }
-          },
+          }
         ],
         goodsInfo: {
           prop: 'transferOrderItemList',
@@ -197,7 +197,7 @@ export default {
           ],
           showButton: true,
           showSummary: true,
-          totalColumns: ['transferTotalAmount'],
+          totalColumns: ['transferTotalAmount']
         }
       }
       this.showForm = true

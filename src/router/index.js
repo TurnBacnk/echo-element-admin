@@ -623,25 +623,57 @@ export const asyncRoutes = [
       {
         path: 'repo-materials-add',
         component: () => import('@/views/repo/materials/materials-add.vue'),
-        name:'RepoMaterialsAdd',
+        name: 'RepoMaterialsAdd',
         meta: { activeMenu: '/repo/materials', title: '物资清单登记' }
       },
       {
         path: 'repo-materials-edit',
         component: () => import('@/views/repo/materials/materials-edit.vue'),
-        name:'RepoMaterialsEdit',
+        name: 'RepoMaterialsEdit',
         meta: { activeMenu: '/repo/materials', title: '物资清单修改' }
       },
       {
         path: 'repo-materials-view',
         component: () => import('@/views/repo/materials/materials-view.vue'),
-        name:'RepoMaterialsView',
+        name: 'RepoMaterialsView',
         meta: { activeMenu: '/repo/materials', title: '物资清单修改' }
       }
     ]
   },
+  {
+    path: '/repo/assembly/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'repo-assembly-add',
+        component: () => import('@/views/repo/assembly/assembly-add.vue'),
+        name: 'RepoAssemblyAdd',
+        meta: { activeMenu: '/repo/assembly', title: '组装单' }
+      },
+      {
+        path: 'repo-assembly-edit',
+        component: () => import('@/views/repo/assembly/assembly-edit.vue'),
+        name: 'RepoAssemblyEdit',
+        meta: { activeMenu: '/repo/assembly', title: '组装单' }
+      },
+      {
+        path: 'repo-assembly-view',
+        component: () => import('@/views/repo/assembly/assembly-view.vue'),
+        name: 'RepoAssemblyView',
+        meta: { activeMenu: '/repo/assembly', title: '组装单' }
+      },
+      {
+        path: 'repo-assembly-approval',
+        component: () => import('@/views/repo/assembly/assembly-approval.vue'),
+        name: 'RepoAssemblyApproval',
+        meta: { activeMenu: '/repo/assembly', title: '组装单' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true }z
 ]
 
 const createRouter = () =>

@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="物资清单编码" prop="materialsOrderCode">
-        <el-input clearable size="mini" v-model="queryForm.materialsOrderCode" placeholder="请输入物资清单编码" />
+        <el-input v-model="queryForm.materialsOrderCode" clearable size="mini" placeholder="请输入物资清单编码" />
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>
@@ -18,7 +18,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {deleteMaterialsById, deleteMaterialsByIds} from "@/api/business/materials";
+import { deleteMaterialsById, deleteMaterialsByIds } from '@/api/business/materials'
 
 export default {
   name: 'Materials',
@@ -97,6 +97,21 @@ export default {
           label: '操作',
           button: [
             {
+              text: '组装入库',
+              css: 'text',
+              click: (index, row) => {
+                this.$router.push({
+                  name: 'RepoAssemblyAdd',
+                  params: {
+                    id: row.id
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                return false
+              }
+            },
+            {
               text: '修改',
               css: 'text',
               click: (index, row) => {
@@ -121,14 +136,14 @@ export default {
               isDisabled: (row) => {
                 return false
               }
-            },
+            }
           ]
         }
       ]
     },
     handleAdd() {
       this.$router.push({
-        name: 'RepoMaterialsAdd',
+        name: 'RepoMaterialsAdd'
       })
     },
     handleEdit(row) {
