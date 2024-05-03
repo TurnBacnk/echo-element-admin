@@ -19,7 +19,7 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { generateCode } from '@/api/config/generate-code'
 import { getMaterialsById } from '@/api/business/materials'
-import { getDictionary } from '@/api/common/dict'
+import { getDictionary, getJavaCode } from '@/api/common/dict'
 
 export default {
   name: 'RepoAssemblyAdd',
@@ -67,7 +67,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: []
+        javaCodeNameList: ['WarehouseBuilder']
       }
     }
   },
@@ -108,6 +108,9 @@ export default {
     })
     await generateCode('REPO_ASSEMBLY').then(res => {
       this.form.assemblyOrderCode = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
     })
     await getMaterialsById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
@@ -212,6 +215,19 @@ export default {
               prop: 'amount',
               type: 'number',
               disabled: true
+            },
+            {
+              label: '仓库',
+              prop: 'warehouseName',
+              type: 'select',
+              optionList: this.javaCode['WarehouseBuilder'],
+              click: (event, row) => {
+                const obj = this.javaCode['WarehouseBuilder'].find((item) => {
+                  return item.value === event
+                })
+                row.warehouseId = obj.value
+                row.warehouseName = obj.label
+              }
             },
             {
               label: '出库单价',
