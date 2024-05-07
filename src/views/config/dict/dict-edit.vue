@@ -128,7 +128,9 @@ export default {
               prop: 'remark',
               type: 'input'
             }
-          ]
+          ],
+          showButton: true,
+          showSummary: false
         }
       }
       this.showForm = true

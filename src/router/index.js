@@ -275,6 +275,32 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/document/capital/sub',
+    component: Layout,
+    roles: ['admin'],
+    hidden: true,
+    children: [
+      {
+        path: 'capital-account-add',
+        component: () => import('@/views/document/capital/capital-account-add.vue'),
+        name: 'CapitalAccountAdd',
+        meta: { activeMenu: '/document/capital', title: '资金账户登记' }
+      },
+      {
+        path: 'capital-account-edit',
+        component: () => import('@/views/document/capital/capital-account-edit.vue'),
+        name: 'CapitalAccountEdit',
+        meta: { activeMenu: '/document/category', title: '资金账户修改' }
+      },
+      {
+        path: 'capital-account-view',
+        component: () => import('@/views/document/capital/capital-account-view.vue'),
+        name: 'CapitalAccountView',
+        meta: { activeMenu: '/document/category', title: '资金账户查看' }
+      }
+    ]
+  },
+  {
     path: '/buy/order/sub',
     component: Layout,
     // permissions: ['order:user:list'],
