@@ -433,6 +433,15 @@ export default {
         if (bundleConfig === undefined) {
           return
         }
+        // 未选中任何值
+        if (changeValue === '') {
+          var keys = Object.keys(bundleConfig)
+          keys.forEach(key => {
+            var value = bundleConfig[key]
+            _this.form[value] = undefined
+          })
+          return
+        }
         // 需要绑定多个值
         const obj = options.find((item) => {
           if (optionValue === undefined) {

@@ -698,6 +698,26 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/financial/receive-order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'receive-order-add.vue',
+        component: () => import('@/views/financial/receive-order/receive-order-add.vue'),
+        name: 'FinancialReceiveOrderAdd',
+        meta: { activeMenu: '/financial/receiver-order-add', title: '收款单登记' }
+      },
+      {
+        path: 'receive-order-edit.vue',
+        component: () => import('@/views/financial/receive-order/receive-order-edit.vue'),
+        name: 'FinancialReceiveOrderEdit',
+        meta: { activeMenu: '/financial/receiver-order', title: '收款单修改' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

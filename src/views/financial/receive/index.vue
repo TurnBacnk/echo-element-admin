@@ -24,6 +24,16 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="单据类型" prop="orderType">
+        <el-select v-model="queryForm.orderType" placeholder="请选择单据类型">
+          <el-option
+            v-for="orderType in orderTypeList"
+            :key="orderType.value"
+            :label="orderType.label"
+            :value="orderType.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
@@ -41,7 +51,7 @@ import PageTable from '@/components/ListTable/index.vue'
 import {getConstant, getJavaCode} from '@/api/common/dict'
 
 export default {
-  name: 'SaleReturnOrder',
+  name: 'FinancialReceive',
   components: { PageTable, ButtonGroup },
   data() {
     return {
@@ -49,7 +59,8 @@ export default {
       queryForm: {
         outboundTime: undefined,
         clientId: undefined,
-        saleUserId: undefined
+        saleUserId: undefined,
+        orderType: 0
       },
       buttonConfig: [
         {
@@ -64,12 +75,17 @@ export default {
       tableColumnConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['ReceiveStatus']
+        constantNameList: ['ReceiveStatus' , 'OrderType']
       },
       javaCode: [],
       javaCodeConfig: {
         javaCodeNameList: ['CustomerBuilder', 'UserBuilder']
-      }
+      },
+      orderTypeList: [
+        { label: '销售出库', value: 0, key: 0 },
+        { label: '销售订单', value: 1, key: 1 },
+        { label: '预收', value: 2, key: 2 }
+      ]
     }
   },
   async created() {
@@ -88,12 +104,24 @@ export default {
           columnType: 'Index'
         },
         {
-          prop: 'saleOutboundCode',
-          label: '销售出库单号',
+          prop: 'orderCode',
+          label: '单据编号',
           width: '250px'
         },
         {
-          prop: 'outboundTime',
+          prop: 'orderType',
+          label: '单据类型',
+          columnType: 'Constant',
+          constant: {
+            constantList: this.constant['OrderType'],
+            type: (row) => {
+              return ''
+            },
+            effect: 'light'
+          }
+        },
+        {
+          prop: 'orderTime',
           label: '单据日期'
         },
         {
@@ -130,7 +158,7 @@ export default {
           constant: {
             constantList: this.constant['ReceiveStatus'],
             type: (row) => {
-              if (row.status === 0) {
+              if (row.receiveStatus === 0) {
                 return 'warning'
               }
               return 'success'
@@ -146,7 +174,18 @@ export default {
               text: '收款',
               css: 'text',
               click: (index, row) => {
-
+                const receiveType = this.getReceiveType(row)
+                const orderId = this.getOrderId(row)
+                this.$router.push({
+                  name: 'FinancialReceiveOrderAdd',
+                  params: {
+                    receiveType: receiveType,
+                    id: row.id,
+                    clientId: row.clientId,
+                    clientName: row.clientName,
+                    orderId: orderId
+                  }
+                })
               },
               isDisabled: (row) => {
                 return false
@@ -183,6 +222,30 @@ export default {
     },
     batchClosed() {
 
+    },
+    getReceiveType(row) {
+      // 应收
+      if (row.orderType === 0) {
+        return 0
+      }
+      // 订单收款
+      if (row.orderType === 1) {
+        return 1
+      }
+      // 预收退回
+      if (row.orderType === 2) {
+        return 3
+      }
+    },
+    getOrderId(row) {
+      // 应收
+      if (row.orderType === 0) {
+        return row.saleOutboundId
+      }
+      // 订单收款
+      if (row.orderType === 1) {
+        return row.saleOrderId
+      }
     }
   }
 }

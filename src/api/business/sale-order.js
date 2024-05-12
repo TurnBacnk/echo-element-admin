@@ -44,3 +44,17 @@ export function getSaleOrderInfoByCode(code) {
     method: 'get'
   })
 }
+
+export function getSaleOrderListByClientId(clientId) {
+  return request({
+    url: '/api/sale-order/get-sale-order-list-by-client-id/' + clientId,
+    method: 'get'
+  })
+}
+
+export function getSaleOrderInfoWithReceiveById(id) {
+  return request({
+    url: '/api/sale-order/get-sale-order-info-with-receive-by-id/' + id,
+    method: 'get'
+  })
+}

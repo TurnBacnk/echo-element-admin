@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
       <el-form-item label="收款时间" prop="receiveOrderTime">
-        <el-date-picker type="date" v-model="queryForm.receiveOrderTime" placeholder="请选择收款时间" clearable/>
+        <el-date-picker type="date" v-model="queryForm.receiveOrderTime" placeholder="请选择收款时间" value-format="yyyy-MM-dd" clearable/>
       </el-form-item>
       <el-form-item label="客户">
         <el-select v-model="queryForm.clientId" placeholder="请选择客户" clearable>
@@ -64,7 +64,7 @@ export default {
       },
       buttonConfig: [
         {
-          text: '新增',
+          text: '预收',
           click: () => {
             this.handleAdd()
           },
@@ -174,36 +174,6 @@ export default {
           columnType: 'Money'
         },
         {
-          prop: 'saleOrderCode',
-          label: '关联的销售单',
-          columnType: 'Link',
-          link: {
-            click: (index, row) => {
-              this.$router.push({
-                name: 'SaleOrderView',
-                params: {
-                  id: row.saleOrderId
-                }
-              })
-            }
-          }
-        },
-        {
-          prop: 'saleVerificationCode',
-          label: '核销单',
-          columnType: 'Link',
-          link: {
-            click: (index, row) => {
-              this.$router.push({
-                name: 'SaleOrderView',
-                params: {
-                  id: row.saleVerificationId
-                }
-              })
-            }
-          }
-        },
-        {
           prop: 'capitalAccount',
           label: '资金账户'
         },
@@ -231,6 +201,7 @@ export default {
             {
               text: '修改',
               css: 'text',
+              icon: 'el-icon-edit',
               click: (index, row) => {
                 this.handleEdit(row)
               },
@@ -239,8 +210,17 @@ export default {
               }
             },
             {
+              text: '提交',
+              css: 'text',
+              icon: 'el-icon-s-promotion',
+              click: (index, row) => {
+
+              }
+            },
+            {
               text: '删除',
               css: 'text',
+              icon: 'el-icon-delete',
               click: (index, row) => {
                 deleteOtherOutboundById(row.id).then(response => {
                   const { code, msg } = response
@@ -259,15 +239,22 @@ export default {
       ]
     },
     handleAdd() {
+      // 预收
       this.$router.push({
-        name: '',
+        name: 'FinancialReceiveOrderAdd',
+        params: {
+          receiveType: 2
+        }
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'FinancialReceiveOrderEdit',
         params: {
-          id: row.id
+          receiveType: row.receiveType,
+          id: row.id,
+          clientId: row.clientId,
+          clientName: row.clientName
         }
       })
     },
