@@ -48,7 +48,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {getConstant, getJavaCode} from '@/api/common/dict'
+import { getConstant, getJavaCode } from '@/api/common/dict'
 
 export default {
   name: 'FinancialReceive',
@@ -75,7 +75,7 @@ export default {
       tableColumnConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['ReceiveStatus' , 'OrderType']
+        constantNameList: ['ReceiveStatus', 'OrderType']
       },
       javaCode: [],
       javaCodeConfig: {

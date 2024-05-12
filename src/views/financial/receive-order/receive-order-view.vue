@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <form-table
-      ref="table"
       v-if="showForm"
+      ref="table"
       :content-text="contentText"
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
@@ -12,6 +12,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :save-fun="saveFun"
+      :is-view="true"
     />
   </div>
 </template>
@@ -21,11 +22,7 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import { getCapitalAccountById } from '@/api/business/capital-account'
-import { getSaleOutboundInfoWithReceive } from '@/api/business/sale-outbound'
-import { getSaleOrderInfoWithReceiveById } from '@/api/business/sale-order'
 import { transform } from '../../../../jest.config'
-import { generateCode } from '@/api/config/generate-code'
-import fa from 'element-ui/src/locale/lang/fa'
 import { getReceiveOrderById } from '@/api/business/receive-order'
 
 export default {
@@ -34,9 +31,9 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '收款单登记',
-      saveUrl: '/api/financial-receive-order/save',
-      submitUrl: '/api/financial-receive-order/save-and-submit-single',
+      contentText: '收款单',
+      saveUrl: '/api/financial-receive-order/update',
+      submitUrl: '/api/financial-receive-order/update-and-submit-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -47,9 +44,9 @@ export default {
         clientId: undefined,
         clientName: undefined,
         receiveType: 2,
-        receiveUserId: this.$store.state.user.id,
-        receiveUserName: this.$store.state.user.name,
-        receiveOrderTime: new Date(),
+        receiveUserId: undefined,
+        receiveUserName: undefined,
+        receiveOrderTime: undefined,
         amount: undefined,
         remark: undefined,
         orderReceiveInfoList: [],
@@ -86,9 +83,6 @@ export default {
     }
   },
   async created() {
-    await generateCode('RECEIVE').then(res => {
-      this.form.receiveOrderCode = res.data
-    })
     await getConstant(this.constantConfig).then(res => {
       this.constant = res.data
     })
@@ -103,6 +97,9 @@ export default {
     this.form.clientId = this.$route.params.clientId
     this.form.clientName = this.$route.params.clientName
     await this.buildTable(this.form.receiveType, this.form.clientId)
+    await getReceiveOrderById(this.$route.params.id, this.$route.params.receiveType).then(res => {
+      Object.assign(this.form, res.data)
+    })
   },
   methods: {
     init() {
@@ -181,12 +178,12 @@ export default {
             {
               prop: 'remark',
               label: '备注',
-              type: 'input'
+              type: 'textarea'
             }
           ],
           showSummary: true,
           totalColumns: ['receiveAmount'],
-          showButton: true
+          showButton: false
         },
         receivableInfo: {
           prop: 'receivableInfoList',
@@ -264,7 +261,7 @@ export default {
           ],
           showSummary: true,
           totalColumns: ['amount'],
-          showButton: true
+          showButton: false
         },
         preReceiveInfo: {
           prop: 'preReceiveReturnList',
@@ -323,7 +320,7 @@ export default {
           ],
           showSummary: true,
           totalColumns: ['receiveAmount'],
-          showButton: true
+          showButton: false
         }
       }
       this.showForm = true
@@ -400,40 +397,6 @@ export default {
             this.$refs.table.activeNames.push(value.name)
           }
         })
-        // 处理单据列表
-        if (this.$route.params.orderId instanceof Array) {
-          this.$route.params.orderId.forEach(id => {
-            getSaleOutboundInfoWithReceive(id).then(res => {
-              const { data } = res
-              const obj = {
-                saleOutboundCode: data.saleOutboundCode,
-                saleOutboundId: data.id,
-                receivableOrderType: 0,
-                receivableOrderTime: data.outboundTime,
-                receivableAmount: data.afterDiscountReceiveAmount,
-                alreadyReceiveAmount: data.alreadyReceiveAmount,
-                unReceiveAmount: data.unReceiveAmount
-              }
-              const tempArr = [obj]
-              this.form.receivableInfoList.push(obj)
-            })
-          })
-        } else {
-          await getSaleOutboundInfoWithReceive(this.$route.params.orderId).then(res => {
-            const { data } = res
-            const obj = {
-              saleOutboundCode: data.saleOutboundCode,
-              saleOutboundId: data.id,
-              receivableOrderType: 0,
-              receivableOrderTime: data.outboundTime,
-              receivableAmount: data.afterDiscountReceiveAmount,
-              alreadyReceiveAmount: data.alreadyReceiveAmount,
-              unReceiveAmount: data.unReceiveAmount
-            }
-            const tempArr = [obj]
-            this.form.receivableInfoList.push(obj)
-          })
-        }
         // 处理规则
         this.rules.receivableInfo = {
           amount: [
@@ -456,20 +419,6 @@ export default {
           if (value.active) {
             this.$refs.table.activeNames.push(value.name)
           }
-        })
-        await getSaleOrderInfoWithReceiveById(this.$route.params.orderId).then(res => {
-          const { data } = res
-          const obj = {
-            saleOrderId: data.id,
-            saleOrderCode: data.code,
-            orderReceiveInfoTime: data.saleOrderTime,
-            receivableOrderType: 1,
-            receivableAmount: data.afterDiscountReceiveAmount,
-            alreadyReceiveAmount: data.alreadyReceiveAmount,
-            unReceiveAmount: data.unReceiveAmount
-          }
-          const tempArr = [obj]
-          this.form.orderReceiveInfoList.push(obj)
         })
         this.rules.orderReceiveInfoList = {
           amount: [
@@ -505,22 +454,6 @@ export default {
             this.$refs.table.activeNames.push(value.name)
           }
         })
-        await getPreReceiveOrderById(this.$route.params.id, 2).then(res => {
-          const { data } = res
-          const obj = {
-            preReceiveOrderCode: data.receiveOrderCode,
-            preReceiveOrderId: data.id,
-            receiveType: 3,
-            preReceiveData: data.receiveOrderTime,
-            preReceiveAmount: data.amount,
-            alreadyReceiveAmount: data.alreadyReceiveAmount,
-            alreadyReceiveBalance: data.alreadyReceiveBalance,
-            unVerificationAmount: data.unVerificationAmount
-          }
-          const tempArr = [obj]
-          this.form.preReceiveReturnList.push(obj)
-        })
-
         this.rules.preReceiveInfo = {
           amount: [
             { required: true, message: '请输入本次退款金额', trigger: 'blur' },

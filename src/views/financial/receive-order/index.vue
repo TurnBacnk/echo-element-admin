@@ -49,6 +49,12 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import { getConstant, getJavaCode } from '@/api/common/dict'
+import {
+  deleteReceiveOrderById,
+  deleteReceiveOrderByIds,
+  submitReceiveOrderById,
+  submitReceiveOrderByIds
+} from "@/api/business/receive-order";
 
 export default {
   name: 'ReceiveOrder',
@@ -124,9 +130,12 @@ export default {
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'ReceiveOrderView',
+                name: 'FinancialReceiveOrderView',
                 params: {
-                  id: row.id
+                  id: row.id,
+                  receiveType: row.receiveType,
+                  clientId: row.clientId,
+                  clientName: row.clientName
                 }
               })
             }
@@ -214,7 +223,22 @@ export default {
               css: 'text',
               icon: 'el-icon-s-promotion',
               click: (index, row) => {
-
+                submitReceiveOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
               }
             },
             {
@@ -222,7 +246,7 @@ export default {
               css: 'text',
               icon: 'el-icon-delete',
               click: (index, row) => {
-                deleteOtherOutboundById(row.id).then(response => {
+                deleteReceiveOrderById(row.id).then(response => {
                   const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
@@ -272,7 +296,7 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        deleteOtherOutboundByIds(ids).then(res => {
+        deleteReceiveOrderByIds(ids).then(res => {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
@@ -288,15 +312,22 @@ export default {
       this.$refs.queryForm.resetFields()
     },
     handleSubmit() {
-      var checkedRows = this.$refs.tableList.checkedRows()
-      var canSubmit = true
+      const checkedRows = this.$refs.tableList.checkedRows()
+      let canSubmit = true
       checkedRows.forEach(function(ele) {
         if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
           canSubmit = false
         }
       })
       if (canSubmit) {
-        // TODO submit
+        const checkedRowIds = this.$refs.tableList.checkedRowIds();
+        submitReceiveOrderByIds(checkedRowIds).then(res => {
+          const { msg, code } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
       } else {
         this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }

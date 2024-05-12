@@ -26,7 +26,7 @@ export function submitReceiveOrderByIds(ids) {
 export function submitReceiveOrderById(id) {
   return request({
     url: '/api/financial-receive-order/submit-by-id/' + id,
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -44,4 +44,9 @@ export function getReceiveOrderByCode(code) {
   })
 }
 
-
+export function getPreReceiveOrderById(id) {
+  return request({
+    url: '/api/financial-receive-order/get-pre-receive-order-by-id/' + id,
+    method: 'get'
+  })
+}

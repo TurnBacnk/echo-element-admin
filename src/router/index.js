@@ -715,6 +715,12 @@ export const asyncRoutes = [
         component: () => import('@/views/financial/receive-order/receive-order-edit.vue'),
         name: 'FinancialReceiveOrderEdit',
         meta: { activeMenu: '/financial/receiver-order', title: '收款单修改' }
+      },
+      {
+        path: 'receive-order-view.vue',
+        component: () => import('@/views/financial/receive-order/receive-order-view.vue'),
+        name: 'FinancialReceiveOrderView',
+        meta: { activeMenu: '/financial/receiver-view', title: '收款单' }
       }
     ]
   },
