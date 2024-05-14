@@ -37,12 +37,20 @@ export function getReceiveOrderById(id, receiveType) {
   })
 }
 
-export function getReceiveOrderByCode(code) {
+export function getReceiveOrderByCode(code, receiveType) {
   return request({
-    url: '/api/financial-receive-order/get-receive-order-by-code/' + code,
+    url: '/api/financial-receive-order/get-receive-order-by-code/' + code + '/' + receiveType,
     method: 'get'
   })
 }
+
+export function getReceiveOrderReceiveTypeByCode(code){
+  return request({
+    url: '/api/financial-receive-order/get-receive-order-receive-type-by-code/' + code,
+    method: 'get'
+  })
+}
+
 
 export function getPreReceiveOrderById(id) {
   return request({
