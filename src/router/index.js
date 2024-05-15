@@ -705,22 +705,60 @@ export const asyncRoutes = [
     roles: ['user'],
     children: [
       {
-        path: 'receive-order-add.vue',
+        path: 'receive-order-add',
         component: () => import('@/views/financial/receive-order/receive-order-add.vue'),
         name: 'FinancialReceiveOrderAdd',
         meta: { activeMenu: '/financial/receiver-order-add', title: '收款单登记' }
       },
       {
-        path: 'receive-order-edit.vue',
+        path: 'receive-order-edit',
         component: () => import('@/views/financial/receive-order/receive-order-edit.vue'),
         name: 'FinancialReceiveOrderEdit',
         meta: { activeMenu: '/financial/receiver-order', title: '收款单修改' }
       },
       {
-        path: 'receive-order-view.vue',
+        path: 'receive-order-view',
         component: () => import('@/views/financial/receive-order/receive-order-view.vue'),
         name: 'FinancialReceiveOrderView',
-        meta: { activeMenu: '/financial/receiver-view', title: '收款单' }
+        meta: { activeMenu: '/financial/receiver-order', title: '收款单' }
+      },
+      {
+        path: 'receive-order-approval',
+        component: () => import('@/views/financial/receive-order/receive-order-approval.vue'),
+        name: 'FinancialReceiveOrderApproval',
+        meta: { activeMenu: '/financial/receiver-order', title: '收款单审核' }
+      }
+    ]
+  },
+  {
+    path: '/financial/payment-order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'payment-order-add',
+        component: () => import('@/views/financial/payment-order/payment-order-add.vue'),
+        name: 'FinancialPaymentOrderAdd',
+        meta: { activeMenu: '/financial/payment-order', title: '付款单登记' }
+      },
+      {
+        path: 'payment-order-edit',
+        component: () => import('@/views/financial/payment-order/payment-order-edit.vue'),
+        name: 'FinancialPaymentOrderEdit',
+        meta: { activeMenu: '/financial/payment-order', title: '付款单修改' }
+      },
+      {
+        path: 'payment-order-view',
+        component: () => import('@/views/financial/payment-order/payment-order-view.vue'),
+        name: 'FinancialPaymentOrderView',
+        meta: { activeMenu: '/financial/payment-order', title: '付款单' }
+      },
+      {
+        path: 'payment-order-approval',
+        component: () => import('@/views/financial/payment-order/payment-order-approval.vue'),
+        name: 'FinancialPaymentOrderApproval',
+        meta: { activeMenu: '/financial/payment-order', title: '付款单审核' }
       }
     ]
   },

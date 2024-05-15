@@ -19,7 +19,7 @@
                 <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
                 <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
                 <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
-                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
+                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" :disabled="column.disabled" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
                 <el-autocomplete
                   v-if="column.type === 'autoComplete'"
                   v-model="scope.row[column.prop]"

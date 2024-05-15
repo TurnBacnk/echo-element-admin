@@ -26,7 +26,7 @@ import { getSaleOrderInfoWithReceiveById } from '@/api/business/sale-order'
 import { transform } from '../../../../jest.config'
 import { generateCode } from '@/api/config/generate-code'
 import fa from 'element-ui/src/locale/lang/fa'
-import { getReceiveOrderById } from '@/api/business/receive-order'
+import {getPreReceiveOrderById, getReceiveOrderById} from '@/api/business/receive-order'
 
 export default {
   name: 'ReceiveOrderAdd',

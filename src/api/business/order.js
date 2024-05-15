@@ -44,3 +44,10 @@ export function getBuyOrderByCode(code) {
     method: 'get'
   })
 }
+
+export function getBuyOrderByIdForPayment(id) {
+  return request({
+    url: '/api/order/get-order-by-id-for-payment/' + id,
+    method: 'get'
+  })
+}

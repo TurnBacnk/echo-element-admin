@@ -50,6 +50,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
+import {getConstant, getJavaCode} from "@/api/common/dict";
+import {re} from "mathjs";
 
 export default {
   name: 'Payment',
@@ -60,7 +62,7 @@ export default {
       queryForm: {
         orderCode: undefined,
         orderTime: undefined,
-        orderType: 0,
+        orderType: 1,
         vendorId: undefined,
         procurementUserId: undefined,
       },
@@ -81,7 +83,7 @@ export default {
       },
       constant: [],
       constantConfig: {
-        constantNameList: ['PayableOrderType']
+        constantNameList: ['PayableOrderType', 'ReceiveStatus']
       },
       orderTypeList: [
         { label: '采购入库单', value: 0, key: 0 },
@@ -91,6 +93,12 @@ export default {
     }
   },
   async created() {
+    await getConstant(this.constantConfig).then(res => {
+      this.constant = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
     await this.init()
   },
   methods: {
@@ -107,6 +115,7 @@ export default {
         {
           prop: 'orderType',
           label: '单据类型',
+          columnType: 'Constant',
           constant: {
             constantList: this.constant['PayableOrderType'],
             type: (row) => {
@@ -139,6 +148,21 @@ export default {
           columnType: 'Money'
         },
         {
+          prop: 'paymentStatus',
+          label: '付款状态',
+          columnType: 'Constant',
+          constant: {
+            constantList: this.constant['ReceiveStatus'],
+            type: (row) => {
+              if (row.paymentStatus === 0) {
+                return 'warning'
+              }
+              return 'success'
+            },
+            effect: 'light'
+          }
+        },
+        {
           columnType: 'Operation',
           label: '操作',
           button: [
@@ -146,10 +170,15 @@ export default {
               text: '付款',
               css: 'text',
               click: (index, row) => {
+                const orderId = this.getOrderId(row)
+                const paymentType = this.getPaymentType(row)
                 this.$router.push({
-                  name: '',
+                  name: 'FinancialPaymentOrderAdd',
                   params: {
-
+                    orderId: orderId,
+                    paymentType: paymentType,
+                    vendorId: row.vendorId,
+                    vendorName: row.vendorName
                   }
                 })
               },
@@ -194,6 +223,20 @@ export default {
     },
     batchClosed() {
 
+    },
+    getOrderId(row) {
+      return row.orderId
+    },
+    getPaymentType(row) {
+      if (row.orderType === 0) {
+        return 0
+      }
+      if (row.orderType === 1) {
+        return 1
+      }
+      if (row.orderType === 2) {
+        return 3
+      }
     }
   }
 }
