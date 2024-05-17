@@ -52,6 +52,12 @@ export default {
         receiveOrderTime: new Date(),
         amount: undefined,
         remark: undefined,
+        saleOutboundId: undefined,
+        saleOutboundCode: undefined,
+        saleOrderId: undefined,
+        saleOrderCode: undefined,
+        preReceiveOrderId: undefined,
+        preReceiveOrderCode: undefined,
         orderReceiveInfoList: [],
         receivableInfoList: [],
         receiveAccountList: [],
@@ -405,6 +411,8 @@ export default {
           this.$route.params.orderId.forEach(id => {
             getSaleOutboundInfoWithReceive(id).then(res => {
               const { data } = res
+              this.form.saleOutboundCode = data.saleOutboundCode
+              this.form.saleOutboundId = data.id
               const obj = {
                 saleOutboundCode: data.saleOutboundCode,
                 saleOutboundId: data.id,
@@ -421,6 +429,8 @@ export default {
         } else {
           await getSaleOutboundInfoWithReceive(this.$route.params.orderId).then(res => {
             const { data } = res
+            this.form.saleOutboundCode = data.saleOutboundCode
+            this.form.saleOutboundId = data.id
             const obj = {
               saleOutboundCode: data.saleOutboundCode,
               saleOutboundId: data.id,
@@ -459,6 +469,8 @@ export default {
         })
         await getSaleOrderInfoWithReceiveById(this.$route.params.orderId).then(res => {
           const { data } = res
+          this.form.saleOrderId = data.id
+          this.form.saleOrderCode = data.saleOrderCode
           const obj = {
             saleOrderId: data.id,
             saleOrderCode: data.code,
@@ -507,6 +519,8 @@ export default {
         })
         await getPreReceiveOrderById(this.$route.params.id, 2).then(res => {
           const { data } = res
+          this.form.preReceiveOrderId = data.id
+          this.form.preReceiveOrderCode = data.receiveOrderCode
           const obj = {
             preReceiveOrderCode: data.receiveOrderCode,
             preReceiveOrderId: data.id,

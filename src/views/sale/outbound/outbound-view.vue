@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '销售出库修改',
+      contentText: '销售出库',
       saveUrl: '/api/sale-outbound/update',
       submitUrl: '/api/sale-outbound/update-and-single-submit',
       canSubmit: true,

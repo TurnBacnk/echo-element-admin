@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { re } from 'mathjs'
 
 export function getSaleOutboundInfoById(id) {
   return request({
@@ -70,6 +69,13 @@ export function getSaleOutboundListByClientId(clientId) {
 export function getSaleOutboundInfoWithReceive(id) {
   return request({
     url: '/api/sale-outbound/get-sale-outbound-info-with-receive-by-id/' + id,
+    method: 'get'
+  })
+}
+
+export function getSaleOutboundInfoWithInvoice(id) {
+  return request({
+    url: '/api/sale-outbound/get-sale-outbound-info-with-invoice-by-id/' + id,
     method: 'get'
   })
 }

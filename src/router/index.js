@@ -762,6 +762,32 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/financial/invoice-order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'invoice-order-add',
+        component: () => import('@/views/financial/invoice-order/invoice-order-add.vue'),
+        name: 'FinancialInvoiceOrderAdd',
+        meta: { activeMenu: '/financial/invoice', title: '销售开票登记' }
+      },
+      {
+        path: 'invoice-order-edit',
+        component: () => import('@/views/financial/invoice-order/invoice-order-edit.vue'),
+        name: 'FinancialInvoiceOrderEdit',
+        meta: { activeMenu: '/financial/invoice', title: '销售开票修改' }
+      },
+      {
+        path: 'invoice-order-view',
+        component: () => import('@/views/financial/invoice-order/invoice-order-view.vue'),
+        name: 'FinancialInvoiceOrderView',
+        meta: { activeMenu: '/financial/invoice', title: '销售开票' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
