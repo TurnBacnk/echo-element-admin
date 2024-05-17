@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <form-table
-      v-if="showForm"
       ref="table"
+      v-if="showForm"
       :content-text="contentText"
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
@@ -13,7 +13,6 @@
       :can-submit="canSubmit"
       :save-fun="saveFun"
       :is-view="true"
-      :is-approval="true"
     />
   </div>
 </template>
@@ -23,11 +22,19 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import { getCapitalAccountById } from '@/api/business/capital-account'
+import { getSaleOutboundInfoWithReceive } from '@/api/business/sale-outbound'
+import { getSaleOrderInfoWithReceiveById } from '@/api/business/sale-order'
 import { transform } from '../../../../jest.config'
-import { getReceiveOrderByCode, getReceiveOrderById } from '@/api/business/receive-order'
+import { generateCode } from '@/api/config/generate-code'
+import fa from 'element-ui/src/locale/lang/fa'
+import {
+  getReceiveOrderByCode,
+  getReceiveOrderById,
+  getReceiveOrderReceiveTypeByCode
+} from '@/api/business/receive-order'
 
 export default {
-  name: 'ReceiveOrderApproval',
+  name: 'ReceiveOrderAdd',
   components: { FormTable },
   data() {
     return {
@@ -56,9 +63,7 @@ export default {
         preReceiveReturnList: []
       },
       rules: {
-        baseInfo: {
-
-        },
+        baseInfo: {},
         orderReceiveInfoList: {},
         receivableInfo: {},
         preReceiveInfo: {},
@@ -80,8 +85,7 @@ export default {
       saleOutboundOrderList: [],
       saleOrderList: [],
       preReceiveInfoList: [],
-      clientDisabled: true,
-      receiveType: undefined
+      clientDisabled: true
     }
   },
   async created() {
@@ -102,8 +106,9 @@ export default {
     await this.getReceiveOrderReceiveTypeByCode(this.$route.params.code).then(res => {
       this.receiveType = res.data
     })
-    await getReceiveOrderByCode(this.$route.params.id, this.receiveType).then(res => {
+    await getReceiveOrderByCode(this.$route.params.code, this.receiveType).then(res => {
       Object.assign(this.form, res.data)
+      this.form.instanceId = this.$route.params.instantceId
     })
   },
   methods: {
@@ -160,7 +165,7 @@ export default {
               optionList: this.javaCode['CapitalAccountBuilder'],
               click: (event, row) => {
                 getCapitalAccountById(event).then(res => {
-                  const { data } = res
+                  const {data} = res
                   row.capialAccountId = data.id
                   row.capitalAccountName = data.capitalAccountName
                   row.capitalAccountCode = data.capitalAccountCode
@@ -194,27 +199,27 @@ export default {
           prop: 'receivableInfoList',
           column: [
             {
-              prop: 'saleOutboundCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -233,27 +238,27 @@ export default {
           prop: 'orderReceiveInfoList',
           column: [
             {
-              prop: 'orderReceiveInfoCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -266,13 +271,13 @@ export default {
           ],
           showSummary: true,
           totalColumns: ['amount'],
-          showButton: false
+          showButton: true
         },
         preReceiveInfo: {
           prop: 'preReceiveReturnList',
           column: [
             {
-              prop: 'preReceiveOrderCode',
+              prop: 'orderCode',
               label: '预收单据编号',
               type: 'select',
               optionsList: this.preReceiveInfoList,
@@ -281,26 +286,26 @@ export default {
               }
             },
             {
-              prop: 'receiveType',
+              prop: 'orderType',
               label: '收款类别',
               type: 'selectConstant',
               optionsList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'preReceiveDate',
+              prop: 'orderTime',
               type: 'date',
               label: '预收日期',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'expectedAmount',
               label: '预收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveBalance',
+              prop: 'alreadyAmount',
               label: '预收余额',
               type: 'input',
               disabled: true
@@ -324,8 +329,8 @@ export default {
             }
           ],
           showSummary: true,
-          totalColumns: ['receiveAmount'],
-          showButton: false
+          totalColumns: ['amount'],
+          showButton: true
         }
       }
       this.showForm = true
@@ -393,9 +398,9 @@ export default {
         // 处理表单
         this.$refs.table.activeNames = []
         this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '应收单据', name: 'receivableInfo', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+          {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
+          {active: true, title: '应收单据', name: 'receivableInfo', type: 'table'},
+          {active: true, title: '本次收款', name: 'capitalInfo', type: 'table'}
         ]
         this.collapseConfig.forEach((value) => {
           if (value.active) {
@@ -405,8 +410,8 @@ export default {
         // 处理规则
         this.rules.receivableInfo = {
           amount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+            {required: true, message: '请输入本次收款金额', trigger: 'blur'},
+            {type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value)}
           ]
         }
         this.rules.orderReceiveInfoList = {}
@@ -416,9 +421,9 @@ export default {
       // 1.订单收款 value === 1
       if (receiveType === 1) {
         this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '销售订单', name: 'orderReceiveInfoList', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+          {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
+          {active: true, title: '销售订单', name: 'orderReceiveInfoList', type: 'table'},
+          {active: true, title: '本次收款', name: 'capitalInfo', type: 'table'}
         ]
         this.collapseConfig.forEach((value) => {
           if (value.active) {
@@ -427,8 +432,8 @@ export default {
         })
         this.rules.orderReceiveInfoList = {
           amount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+            {required: true, message: '请输入本次收款金额', trigger: 'blur'},
+            {type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value)}
           ]
         }
         this.rules.receivableInfo = {}
@@ -438,8 +443,8 @@ export default {
       // 2.预收 value === 2
       if (receiveType === 2) {
         this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+          {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
+          {active: true, title: '本次收款', name: 'capitalInfo', type: 'table'}
         ]
         this.clientDisabled = false
         this.rules.orderReceiveInfoList = {}
@@ -450,9 +455,9 @@ export default {
       // 3.预售退回 === 3
       if (receiveType === 3) {
         this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '预收单据', name: 'preReceiveInfo', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+          {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
+          {active: true, title: '预收单据', name: 'preReceiveInfo', type: 'table'},
+          {active: true, title: '本次收款', name: 'capitalInfo', type: 'table'}
         ]
         this.collapseConfig.forEach((value) => {
           if (value.active) {
@@ -461,8 +466,8 @@ export default {
         })
         this.rules.preReceiveInfo = {
           amount: [
-            { required: true, message: '请输入本次退款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change' }
+            {required: true, message: '请输入本次退款金额', trigger: 'blur'},
+            {type: 'number', message: '请输入纯数字', trigger: 'change'}
           ]
         }
         this.rules.orderReceiveInfoList = {}

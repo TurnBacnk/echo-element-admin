@@ -25,6 +25,7 @@ import { getInboundOrderByIdForPayment } from '@/api/business/inbound'
 import { getBuyOrderByIdForPayment } from '@/api/business/order'
 import { getPrePaymentOrderById } from '@/api/business/payment-order'
 import { generateCode } from '@/api/config/generate-code'
+import {getOrderInfoById} from "@/api/business/order-info";
 
 export default {
   name: 'PaymentOrderAdd',
@@ -70,7 +71,7 @@ export default {
       collapseItemConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['PaymentType']
+        constantNameList: ['PaymentType', 'OrderType']
       },
       dictionary: [],
       dictionaryConfig: {
@@ -185,37 +186,32 @@ export default {
           prop: 'payableInfoList',
           column: [
             {
-              prop: 'procurementInboundCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'procurementInboundTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true
@@ -234,37 +230,32 @@ export default {
           prop: 'orderPaymentInfoList',
           column: [
             {
-              prop: 'procurementOrderCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'orderTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true
@@ -282,129 +273,110 @@ export default {
       }
       this.showForm = true
     },
-    async buildTable(paymentType) {
+    buildInbound() {
+      this.$refs.tableList.activeNames = []
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '应付单据', name: 'payableInfoList', type: 'table' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.tableList.activeNames.push(value.name)
+        }
+      })
+      this.rules.payableInfoList = {
+        paymentAmount: [
+          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+        ]
+      }
+      this.rules.orderPaymentInfoList = {}
+      this.rules.prePaymentReturnInfoList = {}
+    },
+    buildOrder() {
+      // 订单付款
+      this.form.buyOrderId = this.$route.params.orderId
+      this.$refs.tableList.activeNames = []
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '订单单据', name: 'orderPaymentInfoList', type: 'table' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.tableList.activeNames.push(value.name)
+        }
+      })
+      this.rules.orderPaymentInfoList = {
+        paymentAmount: [
+          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+        ]
+      }
+      this.rules.payableInfoList = {}
+      this.rules.prePaymentReturnInfoList = {}
+    },
+    buildPrePaymentReturn() {
+      this.form.prePaymentOrderId = this.$route.params.orderId
+      this.$refs.tableList.activeNames = []
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '预付单据', name: 'prePaymentReturnInfoList', type: 'form' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.tableList.activeNames.push(value.name)
+        }
+      })
+      this.rules.prePaymentReturnInfoList = {
+        paymentAmount: [
+          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+        ]
+      }
+      this.rules.orderPaymentInfoList = {}
+      this.rules.payableInfoList = {}
+    },
+    buildPrePayment() {
+      this.$refs.tableList.activeNames = []
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.tableList.activeNames.push(value.name)
+        }
+      })
+      this.vendorDisabled = false
+      this.rules.payableInfoList = {}
+      this.rules.prePaymentReturnInfoList = {}
+      this.rules.orderPaymentInfoList = {}
+    },
+    async buildTable() {
+      let obj
+      await getOrderInfoById(this.$route.params.id, this.$route.params.orderType).then(res => {
+        obj = res.data
+      })
+      const paymentType = this.$route.params.paymentType
+      Object.assign(this.form, this.$route.params)
       if (paymentType === 0) {
         // 应付
-        this.form.inboundOrderId = this.$route.params.orderId
-        this.$refs.tableList.activeNames = []
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '应付单据', name: 'payableInfoList', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.tableList.activeNames.push(value.name)
-          }
-        })
-        await getInboundOrderByIdForPayment(this.$route.params.orderId).then(res => {
-          const { data } = res
-          const obj = {
-            procurementInboundCode: data.inboundCode,
-            procurementInboundId: data.id,
-            payableOrderType: 0,
-            procurementInboundTime: data.inboundTime,
-            paymentAmount: data.afterDiscountPayAmount,
-            alreadyPayAmount: data.alreadyPayAmount,
-            unPayAmount: data.unPayAmount
-          }
-          this.form.payableInfoList.push(obj)
-        })
-        this.rules.payableInfoList = {
-          paymentAmount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
-          ]
-        }
-        this.rules.orderPaymentInfoList = {}
-        this.rules.prePaymentReturnInfoList = {}
+        this.form.payableInfoList.push(obj)
+        this.buildInbound()
       }
       if (paymentType === 1) {
-        // 订单付款
-        this.form.buyOrderId = this.$route.params.orderId
-        this.$refs.tableList.activeNames = []
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '订单单据', name: 'orderPaymentInfoList', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.tableList.activeNames.push(value.name)
-          }
-        })
-        await getBuyOrderByIdForPayment(this.$route.params.orderId).then(res => {
-          const { data } = res
-          const obj = {
-            procurementOrderId: data.id,
-            procurementOrderCode: data.orderCode,
-            orderTime: data.orderTime,
-            payableType: 1,
-            paymentAmount: data.afterDiscountPayAmount,
-            alreadyPayAmount: data.alreadyPayAmount,
-            unPayAmount: data.unPayAmount
-          }
-          this.form.orderPaymentInfoList.push(obj)
-        })
-        this.rules.orderPaymentInfoList = {
-          paymentAmount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
-          ]
-        }
-        this.rules.payableInfoList = {}
-        this.rules.prePaymentReturnInfoList = {}
+        this.form.orderPaymentInfoList.push(obj)
+        this.buildOrder()
       }
       if (paymentType === 2) {
-        this.$refs.tableList.activeNames = []
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.tableList.activeNames.push(value.name)
-          }
-        })
-        this.vendorDisabled = false
-        this.rules.payableInfoList = {}
-        this.rules.prePaymentReturnInfoList = {}
-        this.rules.orderPaymentInfoList = {}
+        this.buildPrePayment()
       }
       if (paymentType === 3) {
-        this.form.prePaymentOrderId = this.$route.params.orderId
-        this.$refs.tableList.activeNames = []
-        this.collapseItemConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '预付单据', name: 'prePaymentReturnInfoList', type: 'form' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.tableList.activeNames.push(value.name)
-          }
-        })
-        await getPrePaymentOrderById(this.$route.params.orderId).then(res => {
-          const { data } = res
-          const obj = {
-            prePaymentId: data.id,
-            prePaymentCode: data.paymentOrderCode,
-            payableType: 3,
-            prePaymentTime: data.payTime,
-            prePaymentAmount: data.amount,
-            alreadyVerificationAmount: data.alreadyVerificationAmount,
-            unVerificationAmount: data.unVerificationAmount
-          }
-          this.form.prePaymentReturnInfoList.push(obj)
-        })
-        this.rules.prePaymentReturnInfoList = {
-          paymentAmount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
-          ]
-        }
-        this.rules.orderPaymentInfoList = {}
-        this.rules.payableInfoList = {}
+        this.form.prePaymentReturnInfoList.push(obj)
+        this.buildPrePaymentReturn()
       }
     },
     saveFun() {

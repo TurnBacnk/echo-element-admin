@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <form-table
-      ref="table"
       v-if="showForm"
+      ref="table"
       :content-text="contentText"
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
@@ -21,12 +21,9 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import { getCapitalAccountById } from '@/api/business/capital-account'
-import { getSaleOutboundInfoWithReceive } from '@/api/business/sale-outbound'
-import { getSaleOrderInfoWithReceiveById } from '@/api/business/sale-order'
 import { transform } from '../../../../jest.config'
 import { generateCode } from '@/api/config/generate-code'
-import fa from 'element-ui/src/locale/lang/fa'
-import {getPreReceiveOrderById, getReceiveOrderById} from '@/api/business/receive-order'
+import { getOrderInfoById } from '@/api/business/order-info'
 
 export default {
   name: 'ReceiveOrderAdd',
@@ -64,13 +61,15 @@ export default {
         preReceiveReturnList: []
       },
       rules: {
-        baseInfo: {
-
-        },
+        baseInfo: {},
         orderReceiveInfoList: {},
         receivableInfo: {},
         preReceiveInfo: {},
-        capitalInfo: {}
+        capitalInfo: {
+          amount: [
+            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+          ]
+        }
       },
       collapseItemConfig: [],
       constant: [],
@@ -105,10 +104,7 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
-    this.form.receiveType = this.$route.params.receiveType
-    this.form.clientId = this.$route.params.clientId
-    this.form.clientName = this.$route.params.clientName
-    await this.buildTable(this.form.receiveType, this.form.clientId)
+    await this.buildTable()
   },
   methods: {
     init() {
@@ -198,27 +194,27 @@ export default {
           prop: 'receivableInfoList',
           column: [
             {
-              prop: 'saleOutboundCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -237,27 +233,27 @@ export default {
           prop: 'orderReceiveInfoList',
           column: [
             {
-              prop: 'orderReceiveInfoCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -276,7 +272,7 @@ export default {
           prop: 'preReceiveReturnList',
           column: [
             {
-              prop: 'preReceiveOrderCode',
+              prop: 'orderCode',
               label: '预收单据编号',
               type: 'select',
               optionsList: this.preReceiveInfoList,
@@ -285,26 +281,26 @@ export default {
               }
             },
             {
-              prop: 'receiveType',
+              prop: 'orderType',
               label: '收款类别',
               type: 'selectConstant',
               optionsList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'preReceiveDate',
+              prop: 'orderTime',
               type: 'date',
               label: '预收日期',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'expectedAmount',
               label: '预收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveBalance',
+              prop: 'alreadyAmount',
               label: '预收余额',
               type: 'input',
               disabled: true
@@ -328,7 +324,7 @@ export default {
             }
           ],
           showSummary: true,
-          totalColumns: ['receiveAmount'],
+          totalColumns: ['amount'],
           showButton: true
         }
       }
@@ -391,158 +387,109 @@ export default {
       this.form.amount = accountAmount
       return true
     },
-    async buildTable(receiveType, clientId) {
+    buildReceiveInfo() {
+      // 处理表单
+      this.$refs.table.activeNames = []
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '应收单据', name: 'receivableInfo', type: 'table' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.table.activeNames.push(value.name)
+        }
+      })
+      // 处理规则
+      this.rules.receivableInfo = {
+        amount: [
+          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+        ]
+      }
+      this.rules.orderReceiveInfoList = {}
+      this.rules.preReceiveInfo = {}
+    },
+    buildOrderReceive() {
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '销售订单', name: 'orderReceiveInfoList', type: 'table' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.table.activeNames.push(value.name)
+        }
+      })
+      this.rules.orderReceiveInfoList = {
+        amount: [
+          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
+        ]
+      }
+      this.rules.receivableInfo = {}
+      this.rules.preReceiveInfo = {}
+    },
+    buildPreReceiveReturn() {
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '预收单据', name: 'preReceiveInfo', type: 'table' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.collapseConfig.forEach((value) => {
+        if (value.active) {
+          this.$refs.table.activeNames.push(value.name)
+        }
+      })
+      this.rules.preReceiveInfo = {
+        amount: [
+          { required: true, message: '请输入本次退款金额', trigger: 'blur' },
+          { type: 'number', message: '请输入纯数字', trigger: 'change' }
+        ]
+      }
+      this.rules.orderReceiveInfoList = {}
+      this.rules.receivableInfo = {}
+    },
+    buildPreReceive() {
+      this.collapseConfig = [
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+      ]
+      this.clientDisabled = false
+      this.rules.orderReceiveInfoList = {}
+      this.rules.receivableInfo = {}
+      this.rules.preReceiveInfo = {}
+    },
+    async buildTable() {
+      let obj
+      await getOrderInfoById(this.$route.params.id, this.$route.params.orderType).then(res => {
+        obj = res.data
+      })
+      const receiveType = this.$route.params.receiveType
+      Object.assign(this.form, this.$route.params)
+      this.form.receiveType = this.$route.params.receiveType
       // 0.应收收款 value === 0
       if (receiveType === 0) {
-        // 处理表单
-        this.$refs.table.activeNames = []
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '应收单据', name: 'receivableInfo', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.table.activeNames.push(value.name)
-          }
-        })
+        this.buildReceiveInfo()
         // 处理单据列表
-        if (this.$route.params.orderId instanceof Array) {
-          this.$route.params.orderId.forEach(id => {
-            getSaleOutboundInfoWithReceive(id).then(res => {
-              const { data } = res
-              this.form.saleOutboundCode = data.saleOutboundCode
-              this.form.saleOutboundId = data.id
-              const obj = {
-                saleOutboundCode: data.saleOutboundCode,
-                saleOutboundId: data.id,
-                receivableOrderType: 0,
-                receivableOrderTime: data.outboundTime,
-                receivableAmount: data.afterDiscountReceiveAmount,
-                alreadyReceiveAmount: data.alreadyReceiveAmount,
-                unReceiveAmount: data.unReceiveAmount
-              }
-              const tempArr = [obj]
-              this.form.receivableInfoList.push(obj)
-            })
-          })
-        } else {
-          await getSaleOutboundInfoWithReceive(this.$route.params.orderId).then(res => {
-            const { data } = res
-            this.form.saleOutboundCode = data.saleOutboundCode
-            this.form.saleOutboundId = data.id
-            const obj = {
-              saleOutboundCode: data.saleOutboundCode,
-              saleOutboundId: data.id,
-              receivableOrderType: 0,
-              receivableOrderTime: data.outboundTime,
-              receivableAmount: data.afterDiscountReceiveAmount,
-              alreadyReceiveAmount: data.alreadyReceiveAmount,
-              unReceiveAmount: data.unReceiveAmount
-            }
-            const tempArr = [obj]
-            this.form.receivableInfoList.push(obj)
-          })
-        }
-        // 处理规则
-        this.rules.receivableInfo = {
-          amount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
-          ]
-        }
-        this.rules.orderReceiveInfoList = {}
-        this.rules.preReceiveInfo = {}
-        await this.init()
+        this.form.receivableInfoList.push(obj)
+        return
       }
       // 1.订单收款 value === 1
       if (receiveType === 1) {
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '销售订单', name: 'orderReceiveInfoList', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.table.activeNames.push(value.name)
-          }
-        })
-        await getSaleOrderInfoWithReceiveById(this.$route.params.orderId).then(res => {
-          const { data } = res
-          this.form.saleOrderId = data.id
-          this.form.saleOrderCode = data.saleOrderCode
-          const obj = {
-            saleOrderId: data.id,
-            saleOrderCode: data.code,
-            orderReceiveInfoTime: data.saleOrderTime,
-            receivableOrderType: 1,
-            receivableAmount: data.afterDiscountReceiveAmount,
-            alreadyReceiveAmount: data.alreadyReceiveAmount,
-            unReceiveAmount: data.unReceiveAmount
-          }
-          const tempArr = [obj]
-          this.form.orderReceiveInfoList.push(obj)
-        })
-        this.rules.orderReceiveInfoList = {
-          amount: [
-            { required: true, message: '请输入本次收款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
-          ]
-        }
-        this.rules.receivableInfo = {}
-        this.rules.preReceiveInfo = {}
-        await this.init()
+        this.buildOrderReceive()
+        this.form.orderReceiveInfoList.push(obj)
+        return
       }
       // 2.预收 value === 2
       if (receiveType === 2) {
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.clientDisabled = false
-        this.rules.orderReceiveInfoList = {}
-        this.rules.receivableInfo = {}
-        this.rules.preReceiveInfo = {}
-        this.init()
+        this.buildPreReceive()
+        return
       }
       // 3.预售退回 === 3
       if (receiveType === 3) {
-        this.collapseConfig = [
-          { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-          { active: true, title: '预收单据', name: 'preReceiveInfo', type: 'table' },
-          { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
-        ]
-        this.collapseConfig.forEach((value) => {
-          if (value.active) {
-            this.$refs.table.activeNames.push(value.name)
-          }
-        })
-        await getPreReceiveOrderById(this.$route.params.id, 2).then(res => {
-          const { data } = res
-          this.form.preReceiveOrderId = data.id
-          this.form.preReceiveOrderCode = data.receiveOrderCode
-          const obj = {
-            preReceiveOrderCode: data.receiveOrderCode,
-            preReceiveOrderId: data.id,
-            receiveType: 3,
-            preReceiveData: data.receiveOrderTime,
-            preReceiveAmount: data.amount,
-            alreadyReceiveAmount: data.alreadyReceiveAmount,
-            alreadyReceiveBalance: data.alreadyReceiveBalance,
-            unVerificationAmount: data.unVerificationAmount
-          }
-          const tempArr = [obj]
-          this.form.preReceiveReturnList.push(obj)
-        })
-
-        this.rules.preReceiveInfo = {
-          amount: [
-            { required: true, message: '请输入本次退款金额', trigger: 'blur' },
-            { type: 'number', message: '请输入纯数字', trigger: 'change' }
-          ]
-        }
-        this.rules.orderReceiveInfoList = {}
-        this.rules.receivableInfo = {}
+        this.buildPreReceiveReturn()
+        this.form.preReceiveReturnList.push(obj)
       }
     }
   }

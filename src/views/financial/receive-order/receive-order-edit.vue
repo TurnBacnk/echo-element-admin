@@ -192,27 +192,27 @@ export default {
           prop: 'receivableInfoList',
           column: [
             {
-              prop: 'saleOutboundCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -231,27 +231,27 @@ export default {
           prop: 'orderReceiveInfoList',
           column: [
             {
-              prop: 'orderReceiveInfoCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -270,7 +270,7 @@ export default {
           prop: 'preReceiveReturnList',
           column: [
             {
-              prop: 'preReceiveOrderCode',
+              prop: 'orderCode',
               label: '预收单据编号',
               type: 'select',
               optionsList: this.preReceiveInfoList,
@@ -279,26 +279,26 @@ export default {
               }
             },
             {
-              prop: 'receiveType',
+              prop: 'orderType',
               label: '收款类别',
               type: 'selectConstant',
               optionsList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'preReceiveDate',
+              prop: 'orderTime',
               type: 'date',
               label: '预收日期',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'expectedAmount',
               label: '预收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveBalance',
+              prop: 'alreadyAmount',
               label: '预收余额',
               type: 'input',
               disabled: true
@@ -322,7 +322,7 @@ export default {
             }
           ],
           showSummary: true,
-          totalColumns: ['receiveAmount'],
+          totalColumns: ['amount'],
           showButton: true
         }
       }

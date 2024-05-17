@@ -133,32 +133,32 @@ export default {
           label: '销售人员'
         },
         {
-          prop: 'afterDiscountReceiveAmount',
+          prop: 'expectedAmount',
           label: '应收金额',
           columnType: 'Money'
         },
         {
-          prop: 'receivedAmount',
+          prop: 'alreadyAmount',
           label: '已收金额',
           columnType: 'Money'
         },
         {
-          prop: 'unReceivedAmount',
+          prop: 'unAmount',
           label: '未收金额',
           columnType: 'Money'
         },
         {
-          prop: 'lastReceivedTime',
+          prop: 'updateTime',
           label: '最后收款日期'
         },
         {
-          prop: 'receiveStatus',
+          prop: 'receivePayStatus',
           label: '收款状态',
           columnType: 'Constant',
           constant: {
             constantList: this.constant['ReceiveStatus'],
             type: (row) => {
-              if (row.receiveStatus === 0) {
+              if (row.receivePayStatus === 0) {
                 return 'warning'
               }
               return 'success'
@@ -174,16 +174,14 @@ export default {
               text: '收款',
               css: 'text',
               click: (index, row) => {
-                const receiveType = this.getReceiveType(row)
-                const orderId = this.getOrderId(row)
                 this.$router.push({
                   name: 'FinancialReceiveOrderAdd',
                   params: {
-                    receiveType: receiveType,
                     id: row.id,
+                    orderType: row.orderType,
                     clientId: row.clientId,
                     clientName: row.clientName,
-                    orderId: orderId
+                    receiveType: this.getReceiveType(row)
                   }
                 })
               },

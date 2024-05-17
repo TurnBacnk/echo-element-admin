@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="单据日期" prop="orderTime">
         <el-date-picker v-model="queryForm.orderTime" placeholder="请选择单据日期" type="date" />
       </el-form-item>
@@ -27,7 +27,7 @@
       <el-form-item label="单据类型" prop="orderType">
         <el-select v-model="queryForm.orderType" placeholder="请选择单据类型">
           <el-option
-            v-for="orderType in orderTypeList"
+            v-for="orderType in orderType"
             :key="orderType.value"
             :label="orderType.label"
             :value="orderType.value"
@@ -39,9 +39,12 @@
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch"/>
-    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource"
-                :table-column-config="tableColumnConfig"
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
+    <page-table
+      ref="tableList"
+      :query-form="queryForm"
+      :data-source="dataSource"
+      :table-column-config="tableColumnConfig"
     />
   </div>
 </template>
@@ -50,8 +53,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {getConstant, getJavaCode} from "@/api/common/dict";
-import {re} from "mathjs";
+import { getConstant, getJavaCode } from '@/api/common/dict'
 
 export default {
   name: 'Payment',
@@ -62,9 +64,9 @@ export default {
       queryForm: {
         orderCode: undefined,
         orderTime: undefined,
-        orderType: 1,
+        orderType: 4,
         vendorId: undefined,
-        procurementUserId: undefined,
+        procurementUserId: undefined
       },
       buttonConfig: [
         {
@@ -83,12 +85,12 @@ export default {
       },
       constant: [],
       constantConfig: {
-        constantNameList: ['PayableOrderType', 'ReceiveStatus']
+        constantNameList: ['OrderType', 'ReceiveStatus']
       },
-      orderTypeList: [
-        { label: '采购入库单', value: 0, key: 0 },
-        { label: '采购订单', value: 1, key: 1 },
-        { label: '预付', value: 2, key: 2 }
+      orderType: [
+        { label: '采购订单', value: 4, key: 4 },
+        { label: '采购入库单', value: 3, key: 3 },
+        { label: '预付单', value: 5, key: 5 }
       ]
     }
   },
@@ -117,7 +119,7 @@ export default {
           label: '单据类型',
           columnType: 'Constant',
           constant: {
-            constantList: this.constant['PayableOrderType'],
+            constantList: this.constant['OrderType'],
             type: (row) => {
               return ''
             },
@@ -133,28 +135,28 @@ export default {
           label: '供应商'
         },
         {
-          prop: 'paymentAmount',
+          prop: 'expectedAmount',
           label: '应付金额',
           columnType: 'Money'
         },
         {
-          prop: 'alreadyPayAmount',
+          prop: 'alreadyAmount',
           label: '已付金额',
           columnType: 'Money'
         },
         {
           label: '未付金额',
-          prop: 'unPayAmount',
+          prop: 'unAmount',
           columnType: 'Money'
         },
         {
-          prop: 'paymentStatus',
+          prop: 'receivePayStatus',
           label: '付款状态',
           columnType: 'Constant',
           constant: {
             constantList: this.constant['ReceiveStatus'],
             type: (row) => {
-              if (row.paymentStatus === 0) {
+              if (row.receivePayStatus === 0) {
                 return 'warning'
               }
               return 'success'
@@ -170,13 +172,12 @@ export default {
               text: '付款',
               css: 'text',
               click: (index, row) => {
-                const orderId = this.getOrderId(row)
-                const paymentType = this.getPaymentType(row)
                 this.$router.push({
                   name: 'FinancialPaymentOrderAdd',
                   params: {
-                    orderId: orderId,
-                    paymentType: paymentType,
+                    id: row.id,
+                    orderType: row.orderType,
+                    paymentType: this.getPaymentType(row),
                     vendorId: row.vendorId,
                     vendorName: row.vendorName
                   }
@@ -207,7 +208,7 @@ export default {
               click: (index, row) => {
 
               },
-              isDisabled:(row) => {
+              isDisabled: (row) => {
 
               }
             }
@@ -228,13 +229,13 @@ export default {
       return row.orderId
     },
     getPaymentType(row) {
-      if (row.orderType === 0) {
+      if (row.orderType === 3) {
         return 0
       }
-      if (row.orderType === 1) {
+      if (row.orderType === 4) {
         return 1
       }
-      if (row.orderType === 2) {
+      if (row.orderType === 5) {
         return 3
       }
     }

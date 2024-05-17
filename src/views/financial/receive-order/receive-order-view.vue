@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <form-table
-      v-if="showForm"
       ref="table"
+      v-if="showForm"
       :content-text="contentText"
       :collapse-config="collapseConfig"
       :collapse-item-config="collapseItemConfig"
@@ -22,7 +22,11 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
 import { getCapitalAccountById } from '@/api/business/capital-account'
+import { getSaleOutboundInfoWithReceive } from '@/api/business/sale-outbound'
+import { getSaleOrderInfoWithReceiveById } from '@/api/business/sale-order'
 import { transform } from '../../../../jest.config'
+import { generateCode } from '@/api/config/generate-code'
+import fa from 'element-ui/src/locale/lang/fa'
 import { getReceiveOrderById } from '@/api/business/receive-order'
 
 export default {
@@ -189,27 +193,27 @@ export default {
           prop: 'receivableInfoList',
           column: [
             {
-              prop: 'saleOutboundCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -228,27 +232,27 @@ export default {
           prop: 'orderReceiveInfoList',
           column: [
             {
-              prop: 'orderReceiveInfoCode',
+              prop: 'orderCode',
               type: 'input',
               label: '单据编号',
               width: '300px',
               disabled: true
             },
             {
-              prop: 'receivableOrderType',
+              prop: 'orderType',
               label: '单据类型',
               type: 'selectConstant',
               disabled: true,
               optionList: this.constant['OrderType']
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'alreadyAmount',
               label: '已收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unReceiveAmount',
+              prop: 'unAmount',
               label: '未收金额',
               type: 'input',
               disabled: true
@@ -261,13 +265,13 @@ export default {
           ],
           showSummary: true,
           totalColumns: ['amount'],
-          showButton: false
+          showButton: true
         },
         preReceiveInfo: {
           prop: 'preReceiveReturnList',
           column: [
             {
-              prop: 'preReceiveOrderCode',
+              prop: 'orderCode',
               label: '预收单据编号',
               type: 'select',
               optionsList: this.preReceiveInfoList,
@@ -276,26 +280,26 @@ export default {
               }
             },
             {
-              prop: 'receiveType',
+              prop: 'orderType',
               label: '收款类别',
               type: 'selectConstant',
               optionsList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'preReceiveDate',
+              prop: 'orderTime',
               type: 'date',
               label: '预收日期',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveAmount',
+              prop: 'expectedAmount',
               label: '预收金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyReceiveBalance',
+              prop: 'alreadyAmount',
               label: '预收余额',
               type: 'input',
               disabled: true
@@ -319,8 +323,8 @@ export default {
             }
           ],
           showSummary: true,
-          totalColumns: ['receiveAmount'],
-          showButton: false
+          totalColumns: ['amount'],
+          showButton: true
         }
       }
       this.showForm = true

@@ -67,7 +67,7 @@ export default {
       collapseItemConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['PaymentType']
+        constantNameList: ['PaymentType', 'OrderType']
       },
       dictionary: [],
       dictionaryConfig: {
@@ -81,9 +81,6 @@ export default {
     }
   },
   async created() {
-    await getPaymentOrderById(this.$route.params.id, this.$route.params.paymentType).then(res => {
-      Object.assign(this.form, res.data)
-    })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
@@ -97,6 +94,9 @@ export default {
     this.form.vendorId = this.$route.params.vendorId
     this.form.vendorName = this.$route.params.vendorName
     this.form.paymentType = this.$route.params.paymentType
+    await getPaymentOrderById(this.$route.params.id, this.$route.params.paymentType).then(res => {
+      Object.assign(this.form, res.data)
+    })
     await this.buildTable(this.$route.params.paymentType)
   },
   methods: {
@@ -182,37 +182,32 @@ export default {
           prop: 'payableInfoList',
           column: [
             {
-              prop: 'procurementInboundCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'procurementInboundTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true
@@ -231,37 +226,32 @@ export default {
           prop: 'orderPaymentInfoList',
           column: [
             {
-              prop: 'procurementOrderCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'orderTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true

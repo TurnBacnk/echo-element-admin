@@ -22,15 +22,15 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getCapitalAccountById } from '@/api/business/capital-account'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
-import { getPaymentOrderByCode } from '@/api/business/payment-order'
+import {getPaymentOrderByCode} from '@/api/business/payment-order'
 
 export default {
-  name: 'PaymentOrderView',
+  name: 'PaymentOrderEdit',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '付款单登记',
+      contentText: '付款单审核',
       saveUrl: '/api/financial-payment-order/update',
       submitUrl: '/api/financial-payment-order/update-and-submit-single',
       canSubmit: true,
@@ -65,7 +65,7 @@ export default {
       collapseItemConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['PaymentType']
+        constantNameList: ['PaymentType', 'OrderType']
       },
       dictionary: [],
       dictionaryConfig: {
@@ -79,10 +79,6 @@ export default {
     }
   },
   async created() {
-    await getPaymentOrderByCode(this.$route.params.code).then(res => {
-      Object.assign(this.form, res.data)
-      this.form.instanceId = this.$route.params.instanceId
-    })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
@@ -95,7 +91,12 @@ export default {
     await this.init()
     this.form.vendorId = this.$route.params.vendorId
     this.form.vendorName = this.$route.params.vendorName
-    await this.buildTable(this.form.paymentType)
+    this.form.paymentType = this.$route.params.paymentType
+    await getPaymentOrderByCode(this.$route.params.code).then(res => {
+      Object.assign(this.form, res.data)
+      this.form.instanceId = this.$route.params.instanceId
+    })
+    await this.buildTable(this.$route.params.paymentType)
   },
   methods: {
     init() {
@@ -180,37 +181,32 @@ export default {
           prop: 'payableInfoList',
           column: [
             {
-              prop: 'procurementInboundCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'procurementInboundTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true
@@ -229,37 +225,32 @@ export default {
           prop: 'orderPaymentInfoList',
           column: [
             {
-              prop: 'procurementOrderCode',
+              prop: 'orderCode',
               label: '采购入库单号',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'payableOrderType',
+              prop: 'orderType',
               label: '单据类型',
-              type: 'select',
+              type: 'selectConstant',
+              optionList: this.constant['OrderType'],
               disabled: true
             },
             {
-              prop: 'orderTime',
-              label: '入库时间',
-              type: 'date',
-              disabled: true
-            },
-            {
-              prop: 'paymentAmount',
+              prop: 'expectedAmount',
               label: '应付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'alreadyPayAmount',
+              prop: 'alreadyAmount',
               label: '已付金额',
               type: 'input',
               disabled: true
             },
             {
-              prop: 'unPayAmount',
+              prop: 'unAmount',
               label: '未付金额',
               type: 'input',
               disabled: true
