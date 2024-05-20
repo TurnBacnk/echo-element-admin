@@ -202,7 +202,14 @@ export default {
               text: '核销',
               css: 'text',
               click: (index, row) => {
-
+                this.$router.push({
+                  name: 'FinancialWriteOffAdd',
+                  params: {
+                    clientId: row.clientId,
+                    clientName: row.clientName,
+                    orderId: row.orderId
+                  }
+                })
               },
               isDisabled: (row) => {
                 return false

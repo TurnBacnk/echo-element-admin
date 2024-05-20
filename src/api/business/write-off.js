@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request'
 
 export function getWriteOffById(id) {
   return request({
@@ -8,3 +8,10 @@ export function getWriteOffById(id) {
 }
 
 export function getWriteOffByCode() {}
+
+export function getPreOrderByOrderId(id) {
+  return request({
+    url: '/api/financial-write-off/get-pre-order-by-order-id/' + id,
+    method: 'get'
+  })
+}

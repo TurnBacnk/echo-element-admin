@@ -1,12 +1,12 @@
-  <template>
+<template>
   <div>
     <el-page-header :content="contentText" @back="goBack" />
-<!--    <template v-if="!isView">-->
-<!--      <blockquote style="font-size: 14px;color: gray">-->
-<!--        <br> 制单日期： {{ new Date() }}-->
-<!--        <br> 制单人： {{ $store.state.user.name }}-->
-<!--      </blockquote>-->
-<!--    </template>-->
+    <!--    <template v-if="!isView">-->
+    <!--      <blockquote style="font-size: 14px;color: gray">-->
+    <!--        <br> 制单日期： {{ new Date() }}-->
+    <!--        <br> 制单人： {{ $store.state.user.name }}-->
+    <!--      </blockquote>-->
+    <!--    </template>-->
     <el-collapse v-model="activeNames">
       <el-card v-for="config in collapseConfig" :key="config.name" style="margin: 10px;">
         <div slot="header" class="clearfix">
@@ -73,8 +73,8 @@
                         :remote="itemConfig.remote ? itemConfig.remote : false"
                         :remote-method="itemConfig.remoteMethod ? itemConfig.remoteMethod : () => {}"
                         :disabled="itemConfig.disabled"
-                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
                         clearable
+                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
                       >
                         <el-option
                           v-for="option in itemConfig.options"
@@ -91,8 +91,8 @@
                         style="width: 90%"
                         filterable
                         :disabled="itemConfig.disabled"
-                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
                         clearable
+                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
                       >
                         <el-option
                           v-for="option in itemConfig.options"
@@ -104,6 +104,18 @@
                           <span style="float: right; color: #8492a6; font-size: 13px">{{ option.rightLabel }}</span>
                         </el-option>
                       </el-select>
+                      <el-select
+                        v-if="itemConfig.type === 'selectRemote'"
+                        v-model="form[itemConfig.prop]"
+                        :multiple="itemConfig.multiple === undefined ? false : itemConfig.multiple"
+                        style="width: 90%"
+                        filterable
+                        :disabled="itemConfig.disabled"
+                        remote
+                        reserve-keyword
+                        :remote-method="remoteSelectMethod(itemConfig.remoteUrl, itemConfig.remoteParam, itemConfig.options)"
+                        @change="handleSelectChange($event, itemConfig.bundle, itemConfig.options, itemConfig.clickConfig, itemConfig.optionValue)"
+                      />
                       <!--         treeSelect         -->
                       <tree-select
                         v-if="itemConfig.type === 'treeSelect'"
@@ -162,7 +174,7 @@
           </div>
         </el-collapse-item>
       </el-card>
-      <el-card style="margin: 10px;" v-if="false" >
+      <el-card v-if="false" style="margin: 10px;">
         <div slot="header" class="clearfix">
           <span>备注信息<i class="header-icon el-icon-info" /></span>
         </div>
@@ -174,8 +186,7 @@
               <el-form-item label="备注">
                 <el-input type="textarea" :autosize="{ minRows: 3 }" />
               </el-form-item>
-              <el-form-item label="附件">
-              </el-form-item>
+              <el-form-item label="附件" />
             </el-form>
           </div>
         </el-collapse-item>
@@ -340,7 +351,7 @@ export default {
       approvalForm: {
         opinion: undefined
       },
-      dialogVisible: false
+      dialogVisible: false,
     }
   },
   computed: {
@@ -523,6 +534,18 @@ export default {
       console.log(showButton instanceof Boolean)
       console.log(showButton instanceof String)
       return !!showButton
+    },
+    remoteSelectMethod(remoteUrl, remoteParam, options) {
+      request({
+        url: remoteUrl,
+        method: 'post',
+        data: remoteParam
+      }).then(res => {
+        options = res.data.map(item => ({
+          value: item.id,
+          label: item.name
+        }))
+      })
     }
   }
 }

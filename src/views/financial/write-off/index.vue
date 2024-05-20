@@ -1,17 +1,62 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
-      <el-form-item label="" prop="">
-
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
+      <el-form-item label="核销日期" prop="writeOffTime">
+        <el-date-picker
+          v-model="queryForm.writeOffTime"
+          value-format="yyyy-MM-dd"
+          placeholder="请选择核销日期"
+          clearable
+          size="mini"
+        />
+      </el-form-item>
+      <el-form-item label="客户" prop="clientId">
+        <el-select
+          v-model="queryForm.clientId"
+          clearable
+          placeholder="请选择客户"
+        >
+          <el-option
+            v-for="client in javaCode['CustomerBuilder']"
+            :key="client.key"
+            :value="client.value"
+            :label="client.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="核销人员" prop="writeOffUserId">
+        <el-select
+          v-model="queryForm.writeOffUserId"
+          clearable
+          placeholder="请选择客户"
+        >
+          <el-option
+            v-for="user in javaCode['UserBuilder']"
+            :key="user.key"
+            :value="user.value"
+            :label="user.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="核销编码" prop="writeOffCode">
+        <el-input
+          v-model="queryForm.writeOffCode"
+          placeholder="请输入核销编码"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch"/>
-    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource"
-                :table-column-config="tableColumnConfig"/>
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
+    <page-table
+      ref="tableList"
+      :query-form="queryForm"
+      :data-source="dataSource"
+      :table-column-config="tableColumnConfig"
+    />
   </div>
 </template>
 
@@ -19,14 +64,20 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
+import { getJavaCode } from '@/api/common/dict'
 
 export default {
   name: 'WriteOff',
-  components: {PageTable, ButtonGroup},
+  components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
-      queryForm: {},
+      queryForm: {
+        writeOffTime: undefined,
+        clientId: undefined,
+        writeOffUserId: undefined,
+        writeOffCode: undefined
+      },
       buttonConfig: [
         {
           text: '提交',
@@ -47,16 +98,70 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/sale-return/list',
-      tableColumnConfig: []
+      dataSource: 'api/financial-write-off/list',
+      tableColumnConfig: [],
+      javaCode: [],
+      javaCodeConfig: {
+        javaCodeNameList: ['CustomerBuilder', 'UserBuilder']
+      }
     }
   },
   async created() {
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
     await this.init()
   },
   methods: {
     init() {
       this.tableColumnConfig = [
+        {
+          columnType: 'Index'
+        },
+        {
+          prop: 'writeOffCode',
+          label: '核销单编号',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+              this.$router.push({
+                name: 'FinancialWriteOffView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          }
+        },
+        {
+          prop: 'writeOffTime',
+          label: '核销日期'
+        },
+        {
+          prop: 'writeOffType',
+          label: '核销日期'
+        },
+        {
+          prop: 'clientName',
+          label: '客户'
+        },
+        {
+          prop: 'vendorName',
+          label: '供应商'
+        },
+        {
+          prop: 'writeUserName',
+          label: '核销人'
+        },
+        {
+          prop: 'amount',
+          label: '本次核销金额',
+          columnType: 'Money'
+        },
+        {
+          prop: 'remark',
+          label: '备注'
+        },
         {
           prop: 'approvalStatus',
           label: '审批状态',
@@ -85,7 +190,7 @@ export default {
               css: 'text',
               click: (index, row) => {
                 deleteOtherOutboundById(row.id).then(response => {
-                  const {code, msg} = response
+                  const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
@@ -95,14 +200,14 @@ export default {
               isDisabled: (row) => {
                 return false
               }
-            },
+            }
           ]
         }
       ]
     },
     handleAdd() {
       this.$router.push({
-        name: '',
+        name: ''
       })
     },
     handleEdit(row) {
@@ -128,7 +233,7 @@ export default {
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
         deleteOtherOutboundByIds(ids).then(res => {
-          const {msg, code} = res
+          const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
             this.handleQuery()
@@ -145,7 +250,7 @@ export default {
     handleSubmit() {
       var checkedRows = this.$refs.tableList.checkedRows()
       var canSubmit = true
-      checkedRows.forEach(function (ele) {
+      checkedRows.forEach(function(ele) {
         if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
           canSubmit = false
         }
