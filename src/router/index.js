@@ -788,6 +788,20 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/financial-write-off/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'write-off-add',
+        component: () => import('@/views/financial/write-off/write-off-add.vue'),
+        name: 'FinancialWriteOffAdd',
+        meta: { activeMenu: '/financial/write-off', title: '核销单登记' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

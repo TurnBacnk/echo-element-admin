@@ -13,6 +13,7 @@
       :can-submit="canSubmit"
       :save-fun="saveFun"
       :is-view="true"
+      :is-approval="true"
     />
   </div>
 </template>
@@ -103,12 +104,12 @@ export default {
     this.form.clientId = this.$route.params.clientId
     this.form.clientName = this.$route.params.clientName
     await this.buildTable(this.form.receiveType, this.form.clientId)
-    await this.getReceiveOrderReceiveTypeByCode(this.$route.params.code).then(res => {
+    await getReceiveOrderReceiveTypeByCode(this.$route.params.code).then(res => {
       this.receiveType = res.data
     })
     await getReceiveOrderByCode(this.$route.params.code, this.receiveType).then(res => {
       Object.assign(this.form, res.data)
-      this.form.instanceId = this.$route.params.instantceId
+      this.form.instanceId = this.$route.params.instanceId
     })
   },
   methods: {

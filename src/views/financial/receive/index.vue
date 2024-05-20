@@ -207,7 +207,9 @@ export default {
                   params: {
                     clientId: row.clientId,
                     clientName: row.clientName,
-                    orderId: row.orderId
+                    orderId: row.orderId,
+                    writeOffType: 0,
+                    orderCode: row.orderCode
                   }
                 })
               },

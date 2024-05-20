@@ -192,9 +192,12 @@ export default {
               css: 'text',
               click: (index, row) => {
                 this.$router.push({
-                  name: '',
+                  name: 'FinancialWriteOffAdd',
                   params: {
-
+                    clientId: row.clientId,
+                    clientName: row.clientName,
+                    orderId: row.orderId,
+                    writeOffType: 1
                   }
                 })
               },

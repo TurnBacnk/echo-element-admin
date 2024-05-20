@@ -484,6 +484,7 @@ export default {
       // 2.预收 value === 2
       if (receiveType === 2) {
         this.buildPreReceive()
+        this.init()
         return
       }
       // 3.预售退回 === 3

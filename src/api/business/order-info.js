@@ -6,3 +6,10 @@ export function getOrderInfoById(id) {
     method: 'get'
   })
 }
+
+export function getOrderInfoByOrderId(orderId) {
+  return request({
+    url: '/api/financial-order-info/get-by-order-id/' + orderId,
+    method: 'get'
+  })
+}

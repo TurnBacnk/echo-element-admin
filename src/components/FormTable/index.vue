@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin-bottom: 100px">
     <el-page-header :content="contentText" @back="goBack" />
     <!--    <template v-if="!isView">-->
     <!--      <blockquote style="font-size: 14px;color: gray">-->
@@ -631,6 +631,7 @@ table td {
   right: 0;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2); /* 上边框阴影 */
   width: 100%;
+  margin-top: 0px;
 }
 
 </style>
