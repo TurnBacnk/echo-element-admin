@@ -64,7 +64,14 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getConstant, getJavaCode} from '@/api/common/dict'
+import {
+  deleteWriteOffById,
+  deleteWriteOffByIds,
+  submitWriteOffOrderById,
+  submitWriteOffOrderByIds
+} from "@/api/business/write-off";
+import {submitPaymentOrderById} from "@/api/business/payment-order";
 
 export default {
   name: 'WriteOff',
@@ -103,12 +110,19 @@ export default {
       javaCode: [],
       javaCodeConfig: {
         javaCodeNameList: ['CustomerBuilder', 'UserBuilder']
+      },
+      constant: [],
+      constantConfig: {
+        constantNameList: ['WriteOffType']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getConstant(this.constantConfig).then(res => {
+      this.constant = res.data
     })
     await this.init()
   },
@@ -139,7 +153,15 @@ export default {
         },
         {
           prop: 'writeOffType',
-          label: '核销日期'
+          label: '核销类型',
+          columnType: 'Constant',
+          constant: {
+            constantList: this.constant['WriteOffType'],
+            type: (row) => {
+              return ''
+            },
+            effect: 'light'
+          }
         },
         {
           prop: 'clientName',
@@ -186,10 +208,33 @@ export default {
               }
             },
             {
+              text: '提交',
+              css: 'text',
+              icon: 'el-icon-s-promotion',
+              click: (index, row) => {
+                submitWriteOffOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
+              }
+            },
+            {
               text: '删除',
               css: 'text',
               click: (index, row) => {
-                deleteOtherOutboundById(row.id).then(response => {
+                deleteWriteOffById(row.id).then(response => {
                   const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
@@ -212,7 +257,7 @@ export default {
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'FinancialWriteOffEdit',
         params: {
           id: row.id
         }
@@ -232,7 +277,7 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        deleteOtherOutboundByIds(ids).then(res => {
+        deleteWriteOffByIds(ids).then(res => {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
@@ -256,7 +301,14 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
+        var checkedRowIds = this.$refs.tableList.checkedRowIds();
+        submitWriteOffOrderByIds(checkedRowIds).then(res => {
+          const { msg, code } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
       } else {
         this.$modal.msgWarning('存在重复提交数据，请重新选择！')
       }

@@ -29,8 +29,8 @@ export default {
     return {
       showForm: false,
       contentText: '核销单登记',
-      saveUrl: '/financial-write-off/add',
-      submitUrl: '/financial-write-off/save-and-update-single',
+      saveUrl: '/api/financial-write-off/update ',
+      submitUrl: '/api/financial-write-off/update-and-update-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -108,6 +108,10 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
+    this.collapseConfig =  [
+      { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+      { active: true, title: this.writeOffType === 0 ? '预收单据' : '预付单据', name: 'preReceiveInfo', type: 'table' }
+    ]
   },
   methods: {
     init() {
@@ -138,7 +142,7 @@ export default {
           },
           {
             label: '核销人',
-            prop: 'writeOffUserId',
+            prop: 'writeUserId',
             type: 'select',
             options: this.javaCode['UserBuilder']
           },

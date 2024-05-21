@@ -799,6 +799,24 @@ export const asyncRoutes = [
         component: () => import('@/views/financial/write-off/write-off-add.vue'),
         name: 'FinancialWriteOffAdd',
         meta: { activeMenu: '/financial/write-off', title: '核销单登记' }
+      },
+      {
+        path: 'write-off-edit',
+        component: () => import('@/views/financial/write-off/write-off-edit.vue'),
+        name: 'FinancialWriteOffEdit',
+        meta: { activeMenu: '/financial/write-off', title: '核销单修改' }
+      },
+      {
+        path: 'write-off-view',
+        component: () => import('@/views/financial/write-off/write-off-edit.vue'),
+        name: 'FinancialWriteOffView',
+        meta: { activeMenu: '/financial/write-off', title: '核销单' }
+      },
+      {
+        path:'write-off-approval',
+        component: () => import('@/views/financial/write-off/write-off-approval.vue'),
+        name: 'FinancialWriteOffApproval',
+        meta: { activeMenu: '/financial-write-off', title: '核销单审核' }
       }
     ]
   },

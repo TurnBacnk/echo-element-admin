@@ -10,6 +10,7 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
+      :is-view="true"
     />
   </div>
 </template>
@@ -18,7 +19,7 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import {getConstant, getJavaCode} from "@/api/common/dict";
-import { getPreOrderByOrderId, getPreOrderListByClientIdAndOrderType } from '@/api/business/write-off'
+import { getPreOrderByOrderId, getPreOrderListByClientIdAndOrderType, getWriteOffById } from '@/api/business/write-off'
 import { generateCode } from '@/api/config/generate-code'
 import { getOrderInfoByOrderId } from '@/api/business/order-info'
 
@@ -29,12 +30,12 @@ export default {
     return {
       showForm: false,
       contentText: '核销单登记',
-      saveUrl: '/api/financial-write-off/save',
-      submitUrl: '/api/financial-write-off/save-and-update-single',
+      saveUrl: '/api/financial-write-off/update ',
+      submitUrl: '/api/financial-write-off/update-and-update-single',
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: this.$route.params.writeOffType === 0 ? '预收单据' : '预付单据', name: 'preReceiveInfo', type: 'table' }
+        { active: true, title: this.writeOffType === 0 ? '预收单据' : '预付单据', name: 'preReceiveInfo', type: 'table' }
       ],
       form: {
         writeOffCode: undefined,
@@ -44,8 +45,8 @@ export default {
         clientName: undefined,
         vendorName: undefined,
         writeOffTime: undefined,
-        writeUserId: this.$store.state.user.id,
-        writeUserName: this.$store.state.user.name,
+        writeUserId: undefined,
+        writeUserName: undefined,
         amount: undefined,
         orderId: undefined,
         orderCode: undefined,
@@ -82,23 +83,21 @@ export default {
     }
   },
   async created() {
-    this.form.writeOffType = this.$route.params.writeOffType
-    this.form.clientId = this.$route.params.clientId
-    this.form.vendorId = this.$route.params.vendorId
-    this.form.clientName = this.$route.params.clientName
-    this.form.vendorName = this.$route.params.vendorName
-    this.form.orderId = this.$route.params.orderId
-    this.form.orderCode = this.$route.params.orderCode
-    await getPreOrderListByClientIdAndOrderType(this.writeOffType === 0 ? this.$route.params.clientId : this.$route.params.vendorId, this.writeOffType === 0 ? 2 : 5).then(res => {
-      this.orderList = res.data
+    await getWriteOffById(this.$route.params.id).then(res => {
+      const { data } = res
+      Object.assign(this.form, data)
+      this.writeOffType = this.form.writeOffType
     })
-    await getOrderInfoByOrderId(this.$route.params.orderId).then(res => {
+    await getOrderInfoByOrderId(this.form.orderId).then(res => {
       const { data } = res
       this.form.orderId = data.orderId
       this.form.orderCode = data.orderCode
       this.form.expectedAmount = data.expectedAmount
       this.form.alreadyAmount = data.alreadyAmount
       this.form.unAmount = data.unAmount
+    })
+    await getPreOrderListByClientIdAndOrderType(this.writeOffType === 0 ? this.form.clientId : this.form.vendorId, this.writeOffType === 0 ? 2 : 5).then(res => {
+      this.orderList = res.data
     })
     await generateCode('VERIFICATION').then(res => {
       this.form.writeOffCode = res.data
@@ -110,6 +109,10 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
+    this.collapseConfig =  [
+      { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
+      { active: true, title: this.writeOffType === 0 ? '预收单据' : '预付单据', name: 'preReceiveInfo', type: 'table' }
+    ]
   },
   methods: {
     init() {
@@ -188,7 +191,7 @@ export default {
                   row.orderCode = data.orderCode
                   row.orderType = this.$route.params.writeOffType === 0 ? 2 : 5
                   row.orderTime =
-                  row.preReceiveAmount = data.expectedAmount
+                    row.preReceiveAmount = data.expectedAmount
                   row.alreadyVerificationAmount = data.alreadyVerificationAmount
                   row.unVerificationAmount = data.unVerificationAmount
                   row.orderId = data.orderId
@@ -227,7 +230,7 @@ export default {
               type: 'input'
             }
           ],
-          showButton: true,
+          showButton: false,
           showSummary: true,
           totalColumns: ['amount']
         }
