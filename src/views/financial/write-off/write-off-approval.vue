@@ -116,7 +116,7 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
-    this.collapseConfig =  [
+    this.collapseConfig = [
       { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
       { active: true, title: this.writeOffType === 0 ? '预收单据' : '预付单据', name: 'preReceiveInfo', type: 'table' }
     ]

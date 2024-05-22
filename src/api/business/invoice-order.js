@@ -36,3 +36,10 @@ export function getInvoiceOrderById(id) {
     method: 'get'
   })
 }
+
+export function getInvoiceOrderByCode(code) {
+  return request({
+    url: '/api/financial-invoice-order/get-by-code/' + code,
+    method: 'get'
+  })
+}

@@ -179,7 +179,8 @@ export default {
                     orderType: row.orderType,
                     paymentType: this.getPaymentType(row),
                     vendorId: row.vendorId,
-                    vendorName: row.vendorName
+                    vendorName: row.vendorName,
+                    orderId: row.orderId
                   }
                 })
               },

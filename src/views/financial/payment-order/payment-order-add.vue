@@ -101,6 +101,7 @@ export default {
     this.form.vendorId = this.$route.params.vendorId
     this.form.vendorName = this.$route.params.vendorName
     this.form.paymentType = this.$route.params.paymentType
+    this.form.inboundOrderId = this.$route.params.orderId
     await this.buildTable(this.$route.params.paymentType)
   },
   methods: {

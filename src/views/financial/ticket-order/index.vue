@@ -1,6 +1,23 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+      <el-form-item label="发票号" prop="invoiceNo">
+        <el-input v-model="queryForm.invoiceNo" size="mini" clearable placeholder="请输入发票号" />
+      </el-form-item>
+      <el-form-item label="供应商" prop="vendorId">
+        <el-select v-model="queryForm.vendorId" placeholder="请选择供应商">
+          <el-option
+            v-for="vendor in javaCode['VendorBuilder']"
+            :key="vendor.value"
+            :value="vendor.value"
+            :label="vendor.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
+      </el-form-item>
     </el-form>
     <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
@@ -12,19 +29,23 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import {
-  deleteInvoiceOrderById,
-  deleteInvoiceOrderByIds,
-  submitInvoiceOrderById,
-  submitInvoiceOrderByIds
-} from "@/api/business/invoice-order";
+  deleteTicketOrderById,
+  deleteTicketOrderByIds,
+  submitTicketOrderById,
+  submitTicketOrderByIds
+} from "@/api/business/ticket-order";
+import {getJavaCode} from "@/api/common/dict";
 
 export default {
-  name: 'SaleReturnOrder',
+  name: 'TicketOrder',
   components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
-      queryForm: {},
+      queryForm: {
+        invoiceNo: undefined,
+        vendorId: undefined
+      },
       buttonConfig: [
         {
           text: '提交',
@@ -45,11 +66,18 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/financial-invoice-order/list',
-      tableColumnConfig: []
+      dataSource: '/api/financial-ticket-order/list',
+      tableColumnConfig: [],
+      javaCode: [],
+      javaCodeConfig: {
+        javaCodeNameList: ['VendorBuilder']
+      }
     }
   },
   async created() {
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
     await this.init()
   },
   methods: {
@@ -65,7 +93,7 @@ export default {
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'FinancialInvoiceOrderView',
+                name: 'FinancialTicketOrderView',
                 params: {
                   id: row.id
                 }
@@ -75,35 +103,35 @@ export default {
         },
         {
           prop: 'invoiceDate',
-          label: '开票日期'
+          label: '收票日期'
         },
         {
           prop: 'invoiceTitle',
-          label: '开票抬头'
+          label: '发票抬头'
         },
         {
           prop: 'invoiceUserName',
-          label: '开票人'
-        },
-        {
-          prop: 'amount',
-          label: '开票金额',
-          columnType: 'Money'
+          label: '收票人'
         },
         {
           prop: 'orderCode',
-          label: '开票单据号',
+          label: '收票单据号',
           columnType: 'Link',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'SaleOutboundView',
+                name: 'BuyInboundView',
                 params: {
                   id: row.orderId
                 }
               })
             }
           }
+        },
+        {
+          prop: 'amount',
+          label: '收票金额',
+          columnType: 'Money'
         },
         {
           prop: 'approvalStatus',
@@ -125,17 +153,14 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  return true
-                }
-                return row.approvalStatus === 1;
+                return false
               }
             },
             {
               text: '提交',
               css: 'text',
               click: (index, row) => {
-                submitInvoiceOrderById(row.id).then(res => {
+                submitTicketOrderById(row.id).then(res => {
                   const { code, msg } = res
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
@@ -154,7 +179,7 @@ export default {
               text: '删除',
               css: 'text',
               click: (index, row) => {
-                deleteInvoiceOrderById(row.id).then(response => {
+                deleteTicketOrderById(row.id).then(response => {
                   const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
@@ -163,19 +188,21 @@ export default {
                 })
               },
               isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  return true
-                }
-                return row.approvalStatus === 1;
+                return false
               }
             },
           ]
         }
       ]
     },
+    handleAdd() {
+      this.$router.push({
+        name: '',
+      })
+    },
     handleEdit(row) {
       this.$router.push({
-        name: 'FinancialInvoiceOrderEdit',
+        name: 'FinancialTicketOrderEdit',
         params: {
           id: row.id
         }
@@ -195,7 +222,7 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        deleteInvoiceOrderByIds(ids).then(res => {
+        deleteTicketOrderByIds(ids).then(res => {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
@@ -219,9 +246,8 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
-        const ids = this.$refs.tableList.checkedRowIds()
-        submitInvoiceOrderByIds(ids).then(res => {
+        var checkedRowIds = this.$refs.tableList.checkedRowIds();
+        submitTicketOrderByIds(checkedRowIds).then(res =>{
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)

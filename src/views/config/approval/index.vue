@@ -2,9 +2,9 @@
   <div class="app-container">
     <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="业务模块" prop="moduleName">
-        <el-select v-model="queryForm.moduleName" placeholder="请输入业务模块" clearable>
+        <el-select v-model="queryForm.moduleKey" placeholder="请输入业务模块" clearable>
           <el-option
-            v-for="module in javaCode['ModuleBuilder']"
+            v-for="module in constant['BusinessModel']"
             :key="module.key"
             :value="module.value"
             :label="module.label"
@@ -50,7 +50,7 @@ export default {
       queryForm: {
         approvalName: undefined,
         status: undefined,
-        moduleName: undefined
+        moduleKey: undefined
       },
       buttonConfig: [
         {

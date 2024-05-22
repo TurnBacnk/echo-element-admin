@@ -210,51 +210,11 @@ export default {
         }
       })
     },
-    handleDel() {
-      const rows = this.$refs.tableList.checkedRows()
-      let canDel = true
-      rows.forEach((ele) => {
-        if (ele.approvalStatus === 1) {
-          canDel = false
-          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
-        } else if (ele.approvalStatus === 2) {
-          canDel = false
-          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
-        }
-      })
-      if (canDel) {
-        const ids = this.$refs.tableList.checkedRowIds()
-        deleteOtherOutboundByIds(ids).then(res => {
-          const {msg, code} = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-            this.handleQuery()
-          }
-        })
-      }
-    },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
       this.$refs.queryForm.resetFields()
-    },
-    handleSubmit() {
-      var checkedRows = this.$refs.tableList.checkedRows()
-      var canSubmit = true
-      checkedRows.forEach(function (ele) {
-        if (ele.approvalStatus === 1 || ele.approvalStatus === 2) {
-          canSubmit = false
-        }
-      })
-      if (canSubmit) {
-        // TODO submit
-      } else {
-        this.$modal.msgWarning('存在重复提交数据，请重新选择！')
-      }
-    },
-    batchClose() {
-
     }
   }
 }

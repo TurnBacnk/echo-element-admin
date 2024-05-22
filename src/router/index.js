@@ -785,6 +785,12 @@ export const asyncRoutes = [
         component: () => import('@/views/financial/invoice-order/invoice-order-view.vue'),
         name: 'FinancialInvoiceOrderView',
         meta: { activeMenu: '/financial/invoice', title: '销售开票' }
+      },
+      {
+        path: 'invoice-order-approval',
+        component: () => import('@/views/financial/invoice-order/invoice-order-approval.vue'),
+        name: 'FinancialInvoiceOrderApproval',
+        meta: { activeMenu: '/financial/invoice', title: '销售开票' }
       }
     ]
   },
@@ -817,6 +823,38 @@ export const asyncRoutes = [
         component: () => import('@/views/financial/write-off/write-off-approval.vue'),
         name: 'FinancialWriteOffApproval',
         meta: { activeMenu: '/financial-write-off', title: '核销单审核' }
+      }
+    ]
+  },
+  {
+    path: '/financial-ticket-order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'ticket-order-add',
+        component: () => import('@/views/financial/ticket-order/ticket-order-add.vue'),
+        name:'FinancialTicketOrderAdd',
+        meta: { activeMenu: '/financial/ticket-order', title: '采购收票登记' }
+      },
+      {
+        path: 'ticket-order-edit',
+        component: () => import('@/views/financial/ticket-order/ticket-order-edit.vue'),
+        name:'FinancialTicketOrderEdit',
+        meta: { activeMenu: '/financial/ticket-order', title: '采购收票修改' }
+      },
+      {
+        path: 'ticket-order-view',
+        component: () => import('@/views/financial/ticket-order/ticket-order-view.vue'),
+        name:'FinancialTicketOrderView',
+        meta: { activeMenu: '/financial/ticket-order', title: '采购收票' }
+      },
+      {
+        path: 'ticket-order-approval',
+        component: () => import('@/views/financial/ticket-order/ticket-order-approval.vue'),
+        name:'FinancialTicketOrderApproval',
+        meta: { activeMenu: '/financial/ticket-order', title: '采购收票审核' }
       }
     ]
   },

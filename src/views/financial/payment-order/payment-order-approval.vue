@@ -47,6 +47,7 @@ export default {
         payUserName: this.$store.state.user.name,
         payTime: new Date(),
         amount: undefined,
+        inboundOrderId: undefined,
         orderPaymentInfoList: [],
         payableInfoList: [],
         paymentAccountList: [],
@@ -89,14 +90,11 @@ export default {
       this.constant = res.data
     })
     await this.init()
-    this.form.vendorId = this.$route.params.vendorId
-    this.form.vendorName = this.$route.params.vendorName
-    this.form.paymentType = this.$route.params.paymentType
     await getPaymentOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
       this.form.instanceId = this.$route.params.instanceId
     })
-    await this.buildTable(this.$route.params.paymentType)
+    await this.buildTable(this.form.paymentType)
   },
   methods: {
     init() {

@@ -51,3 +51,10 @@ export function getInboundOrderByIdForPayment(id) {
     post: 'get'
   })
 }
+
+export function getBuyInboundInfoWithInvoice(id) {
+  return request({
+    url: '/api/inbound-order/get-inbound-info-with-invoice-by-id/' + id,
+    post: 'get'
+  })
+}

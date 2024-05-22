@@ -18,13 +18,9 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getCapitalAccountById } from '@/api/business/capital-account'
-import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
-import { getInboundOrderByIdForPayment } from '@/api/business/inbound'
-import { getBuyOrderByIdForPayment } from '@/api/business/order'
-import {getPaymentOrderById, getPrePaymentOrderById} from '@/api/business/payment-order'
-import uploadFile from '@/components/UploadFile/index.vue'
-import { generateCode } from '@/api/config/generate-code'
+import {getCapitalAccountById} from '@/api/business/capital-account'
+import {getConstant, getDictionary, getJavaCode} from '@/api/common/dict'
+import {getPaymentOrderById} from '@/api/business/payment-order'
 
 export default {
   name: 'PaymentOrderEdit',

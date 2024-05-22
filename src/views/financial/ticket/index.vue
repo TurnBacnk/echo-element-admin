@@ -1,8 +1,15 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
-      <el-form-item label="" prop="">
-
+      <el-form-item label="供应商" prop="vendorId">
+        <el-select v-model="queryForm.vendorId" placeholder="请选择供应商">
+          <el-option
+            v-for="vendor in javaCode['CustomerBuilder']"
+            :key="vendor.value"
+            :label="vendor.label"
+            :value="vendor.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
@@ -18,7 +25,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getConstant } from '@/api/common/dict'
+import {getConstant, getJavaCode} from '@/api/common/dict'
 
 export default {
   name: 'Ticket',
@@ -26,20 +33,29 @@ export default {
   data() {
     return {
       showSearch: true,
-      queryForm: {},
+      queryForm: {
+        vendorId: undefined
+      },
       buttonConfig: [
       ],
       dataSource: '/api/financial-ticket/list',
       tableColumnConfig: [],
       constant: [],
       constantConfig: {
-        constantNameList: ['OrderType']
+        constantNameList: ['OrderType', 'ReceiveStatus']
+      },
+      javaCode: [],
+      javaCodeConfig: {
+        javaCodeNameList: ['CustomerBuilder']
       }
     }
   },
   async created() {
     await getConstant(this.constantConfig).then(res => {
       this.constant = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res =>{
+      this.javaCode = res.data
     })
     await this.init()
   },
@@ -82,7 +98,7 @@ export default {
         },
         {
           prop: 'vendorName',
-          label: '供应商d'
+          label: '供应商'
         },
         {
           label: '应开票金额',
@@ -100,8 +116,8 @@ export default {
           columnType: 'Money'
         },
         {
-          label: '销售人员',
-          prop: 'saleUserName'
+          label: '采购人员',
+          prop: 'procurementUserName'
         },
         {
           label: '开票状态',
@@ -119,44 +135,33 @@ export default {
           }
         },
         {
-          prop: 'approvalStatus',
-          label: '审批状态',
-          columnType: 'ApprovalStatus'
-        },
-        {
-          prop: 'approvalUserName',
-          label: '审核人'
-        },
-        {
           columnType: 'Operation',
           label: '操作',
           button: [
             {
-              text: '修改',
+              text: '收票',
               css: 'text',
               click: (index, row) => {
-                this.handleEdit(row)
-              },
-              isDisabled: (row) => {
-                return false
-              }
-            },
-            {
-              text: '删除',
-              css: 'text',
-              click: (index, row) => {
-                deleteOtherOutboundById(row.id).then(response => {
-                  const { code, msg } = response
-                  if (code === '100') {
-                    this.$modal.msgSuccess(msg)
-                    this.handleQuery()
+                this.$router.push({
+                  name: 'FinancialTicketOrderAdd',
+                  params: {
+                    vendorId: row.vendorId,
+                    vendorName: row.vendorName,
+                    alreadyInvoiceAmount: row.alreadyInvoiceAmount,
+                    unInvoiceAmount: row.unInvoiceAmount,
+                    orderCode: row.orderCode,
+                    orderId: row.orderId,
+                    orderTime: row.orderTime
                   }
                 })
               },
               isDisabled: (row) => {
+                if (row.invoiceStatus === 1) {
+                  return true
+                }
                 return false
               }
-            },
+            }
           ]
         }
       ]
