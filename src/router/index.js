@@ -819,7 +819,7 @@ export const asyncRoutes = [
         meta: { activeMenu: '/financial/write-off', title: '核销单' }
       },
       {
-        path:'write-off-approval',
+        path: 'write-off-approval',
         component: () => import('@/views/financial/write-off/write-off-approval.vue'),
         name: 'FinancialWriteOffApproval',
         meta: { activeMenu: '/financial-write-off', title: '核销单审核' }
@@ -835,26 +835,58 @@ export const asyncRoutes = [
       {
         path: 'ticket-order-add',
         component: () => import('@/views/financial/ticket-order/ticket-order-add.vue'),
-        name:'FinancialTicketOrderAdd',
+        name: 'FinancialTicketOrderAdd',
         meta: { activeMenu: '/financial/ticket-order', title: '采购收票登记' }
       },
       {
         path: 'ticket-order-edit',
         component: () => import('@/views/financial/ticket-order/ticket-order-edit.vue'),
-        name:'FinancialTicketOrderEdit',
+        name: 'FinancialTicketOrderEdit',
         meta: { activeMenu: '/financial/ticket-order', title: '采购收票修改' }
       },
       {
         path: 'ticket-order-view',
         component: () => import('@/views/financial/ticket-order/ticket-order-view.vue'),
-        name:'FinancialTicketOrderView',
+        name: 'FinancialTicketOrderView',
         meta: { activeMenu: '/financial/ticket-order', title: '采购收票' }
       },
       {
         path: 'ticket-order-approval',
         component: () => import('@/views/financial/ticket-order/ticket-order-approval.vue'),
-        name:'FinancialTicketOrderApproval',
+        name: 'FinancialTicketOrderApproval',
         meta: { activeMenu: '/financial/ticket-order', title: '采购收票审核' }
+      }
+    ]
+  },
+  {
+    path: '/financial-other-receive/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'other-receive-add',
+        component: () => import('@/views/financial/other-receive/other-receive-add.vue'),
+        name: 'FinancialOtherReceiveAdd',
+        meta: { activeMenu: '/financial/other-receive', title: '其他收入登记' }
+      },
+      {
+        path: 'other-receive-edit',
+        component: () => import('@/views/financial/other-receive/other-receive-edit.vue'),
+        name: 'FinancialOtherReceiveEdit',
+        meta: { activeMenu: '/financial/other-receive', title: '其他收入修改' }
+      },
+      {
+        path: 'other-receive-view',
+        component: () => import('@/views/financial/other-receive/other-receive-view.vue'),
+        name: 'FinancialOtherReceiveView',
+        meta: { activeMenu: '/financial/other-receive', title: '其他收入' }
+      },
+      {
+        path: 'other-receive-approval',
+        component: () => import('@/views/financial/other-receive/other-receive-approval.vue'),
+        name: 'FinancialOtherReceiveApproval',
+        meta: { activeMenu: '/financial/other-receive', title: '其他收入审核' }
       }
     ]
   },
