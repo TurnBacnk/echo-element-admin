@@ -922,6 +922,38 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/financial-fund-transfer/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['User'],
+    children: [
+      {
+        path: 'fund-transfer-add',
+        component: () => import('@/views/financial/fund-transfer/fund-transfer-add.vue'),
+        name: 'FinancialFundTransferAdd',
+        meta: { activeMenu: '/financial/fund-transfer', title: '资金转账登记' }
+      },
+      {
+        path: 'fund-transfer-edit',
+        component: () => import('@/views/financial/fund-transfer/fund-transfer-edit.vue'),
+        name: 'FinancialFundTransferEdit',
+        meta: { activeMenu: '/financial/fund-transfer', title: '资金转账修改' }
+      },
+      {
+        path: 'fund-transfer-view',
+        component: () => import('@/views/financial/fund-transfer/fund-transfer-view.vue'),
+        name: 'FinancialFundTransferView',
+        meta: { activeMenu: '/financial/fund-transfer', title: '资金转账查看' }
+      },
+      {
+        path: 'fund-transfer-approval',
+        component: () => import('@/views/financial/fund-transfer/fund-transfer-approval.vue'),
+        name: 'FinancialFundTransferApproval',
+        meta: { activeMenu: '/financial/fund-transfer', title: '资金转账审核' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
