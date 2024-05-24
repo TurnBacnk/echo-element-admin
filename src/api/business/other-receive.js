@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request'
 
 export function getOtherReceiveById(id) {
   return request({
@@ -9,7 +9,7 @@ export function getOtherReceiveById(id) {
 
 export function getOtherReceiveByCode(code) {
   return request({
-    url:'/api/financial-other-receive/get-by-code/' + code,
+    url: '/api/financial-other-receive/get-by-code/' + code,
     method: 'get'
   })
 }

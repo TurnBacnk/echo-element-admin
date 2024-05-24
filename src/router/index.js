@@ -890,6 +890,38 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/financial-other-payment/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'other-payment-add',
+        component: () => import('@/views/financial/other-payment/other-payment-add.vue'),
+        name: 'FinancialOtherPaymentAdd',
+        meta: { activeMenu: '/financial/other-payment', title: '其他支出登记' }
+      },
+      {
+        path: 'other-payment-edit',
+        component: () => import('@/views/financial/other-payment/other-payment-edit.vue'),
+        name: 'FinancialOtherPaymentEdit',
+        meta: { activeMenu: '/financial/other-payment', title: '其他支出修改' }
+      },
+      {
+        path: 'other-payment-view',
+        component: () => import('@/views/financial/other-payment/other-payment-view.vue'),
+        name: 'FinancialOtherPaymentView',
+        meta: { activeMenu: '/financial/other-payment', title: '其他支出' }
+      },
+      {
+        path: 'other-payment-approval',
+        component: () => import('@/views/financial/other-payment/other-payment-approval.vue'),
+        name: 'FinancialOtherPaymentApproval',
+        meta: { activeMenu: '/financial/other-payment', title: '其他支出审核' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
