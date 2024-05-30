@@ -5,7 +5,7 @@
     <el-tabs v-model="activeName" type="border-card">
       <el-tab-pane v-for="item in tabMapOptions" :key="item.key" :label="item.label" :name="item.key">
 <!--        <keep-alive>-->
-          <tab-pane v-if="activeName===item.key" :data-source="item.dataSource" />
+          <tab-pane v-if="activeName===item.key" :data-source="item.dataSource" :type="item.key" />
 <!--        </keep-alive>-->
       </el-tab-pane>
     </el-tabs>

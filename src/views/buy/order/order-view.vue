@@ -157,6 +157,7 @@ export default {
   async created() {
     await getOrderById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
+      this.form.saleOrderId = res.data.saleOrderId.split(',')
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
@@ -187,7 +188,8 @@ export default {
               value: 'saleOrderCode'
             },
             options: this.javaCode['SaleOrderBuilder'],
-            disabled: this.saleOrderDisabled
+            disabled: this.saleOrderDisabled,
+            multiple: true
           },
           {
             label: '订单编码',
@@ -251,41 +253,6 @@ export default {
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
             disabled: true
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              id: 'vendorContactId',
-              contactName: 'vendorContactName',
-              phone: 'vendorContactPhone',
-              landLine: 'vendorContactLandLine',
-              address: 'vendorContactAddress'
-            },
-            optionLabel: 'contactName',
-            optionValue: 'id',
-            options: this.vendorContactList
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input'
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input'
           }
         ],
         goodsInfo: {

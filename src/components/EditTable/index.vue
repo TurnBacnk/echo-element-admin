@@ -2,67 +2,79 @@
   <div>
     <el-button v-if="showButton" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
     <el-button v-if="showButton" type="primary" size="mini" @click="handleImport">批量导入</el-button>
+    <el-button v-if="showProduct" type="primary" size="mini" @click="showProductDialog = true">批量选择</el-button>
+
+    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="showProductDialog" @update:selected="updateTableData" />
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
-      <el-table :data="formData.tableData" style="width: 100%"  max-height="500" row-key="id" :show-summary="showSummary" :summary-method="handleSummary">
+      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="showSummary" :summary-method="handleSummary" border>
         <el-table-column :type="tableConfig.indexType" fixed="left" />
         <el-table-column
           v-for="(column, index) in columns"
           :key="index"
           :prop="column.prop"
           :label="column.label"
-          :width="column.width"
+          :width="column.width === undefined ? 300 : column.width"
           :fixed="column.fixed ? column.fixed : undefined"
         >
+          <template v-slot:header="scope">
+            <span>{{ column.label }}</span>
+            <el-button v-if="column.showButton" type="text" size="mini" @click="column.buttonClick">{{ column.buttonText }}</el-button>
+          </template>
           <template slot-scope="scope">
             <el-form-item :prop="'tableData.' + scope.$index + '.' + column.prop" :rules="rules[column.prop]">
-              <div v-if="scope.row._isEditing">
-                <el-input v-if="column.type === 'input'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
-                <el-input v-if="column.type === 'number'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
-                <el-input v-if="column.type === 'phone'" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" />
-                <el-date-picker v-if="column.type === 'date'" v-model="scope.row[column.prop]" type="date" :disabled="column.disabled" value-format="yyyy-MM-dd" size="small" style="width: 100%" />
-                <el-autocomplete
-                  v-if="column.type === 'autoComplete'"
-                  v-model="scope.row[column.prop]"
-                  class="inline-input"
-                  :fetch-suggestions="column.completeFun"
-                  :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
-                  style="width: 100%"
-                />
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" />
-                <el-select v-if="column.type === 'select'" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="column.click($event, scope.row)">
-                  <el-option
-                    v-for="item in column.optionList"
-                    :key="item.key"
-                    :label="item.label"
-                    :value="item.value"
+              <div @dblclick="editCell(scope.row, column.prop, scope.$index)">
+                <div v-if="scope.row._editingColumn === column.prop">
+                  <el-input v-if="column.type === 'input'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" @blur="saveCell(scope.row, column.prop)" />
+                  <el-input v-if="column.type === 'number'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" @blur="saveCell(scope.row, column.prop)" />
+                  <el-input v-if="column.type === 'phone'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" size="small" :disabled="column.disabled" @input="handleInputChange($event, scope.row, column)" @blur="saveCell(scope.row, column.prop)" />
+                  <el-date-picker v-if="column.type === 'date'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" type="date" :disabled="column.disabled" value-format="yyyy-MM-dd" size="small" style="width: 100%" @change="saveCell(scope.row, column.prop)" />
+                  <el-autocomplete
+                    v-if="column.type === 'autoComplete'"
+                    :ref="'input-' + scope.$index + '-' + column.prop"
+                    v-model="scope.row[column.prop]"
+                    class="inline-input"
+                    :fetch-suggestions="column.completeFun"
+                    :placeholder="column.placeholder ? column.placeholder : '请输入内容'"
+                    style="width: 100%"
+                    @blur="saveCell(scope.row, column.prop)"
                   />
-                </el-select>
-                <el-select v-if="column.type === 'selectConstant'" v-model="scope.row[column.prop]" filterable clearable :disabled="column.disabled" style="width: 100%" @change="column.click($event, scope.row)">
-                  <el-option
-                    v-for="item in column.optionList"
-                    :key="item.key"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </div>
-              <div v-else>
-                <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" :disabled="true" />
-                <template v-else-if="column.type === 'selectConstant'">
-                  {{ convertConstant(scope.row[column.prop], column.optionList) }}
-                </template>
-                <template v-if="column.type !== 'switch' && column.type !== 'selectConstant'">
-                  {{ scope.row[column.prop] }}
-                </template>
+                  <el-switch v-if="column.type === 'switch'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" @blur="saveCell(scope.row, column.prop)" />
+                  <el-select v-if="column.type === 'select'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="column.click($event, scope.row);saveCell(scope.row, column.prop)">
+                    <el-option
+                      v-for="item in column.optionList"
+                      :key="item.key"
+                      :label="item.label"
+                      :value="item.value"
+                      @blur="saveCell(scope.row, column.prop)"
+                    />
+                  </el-select>
+                  <el-select v-if="column.type === 'selectConstant'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable clearable :disabled="column.disabled" style="width: 100%" @change="saveCell(scope.row, column.prop)">
+                    <el-option
+                      v-for="item in column.optionList"
+                      :key="item.key"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </div>
+                <div v-else>
+                  <el-switch v-if="column.type === 'switch'" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" :disabled="true" />
+                  <template v-else-if="column.type === 'selectConstant'">
+                    {{ convertConstant(scope.row[column.prop], column.optionList) }}
+                  </template>
+                  <template v-if="column.type !== 'switch' && column.type !== 'selectConstant'">
+                    {{ displayItem(scope.row, column.prop) }}
+                  </template>
+                </div>
               </div>
             </el-form-item>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template v-slot="scope">
-            <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">
-              {{ scope.row._isEditing ? '保存' : '编辑' }}
-            </el-button>
+<!--            <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">-->
+<!--              {{ scope.row._isEditing ? '保存' : '编辑' }}-->
+<!--            </el-button>-->
             <el-button size="mini" type="danger" @click="deleteRow(scope.$index)">删除</el-button>
           </template>
         </el-table-column>
@@ -72,8 +84,11 @@
 </template>
 
 <script>
+import ProductInfoSelect from '@/components/FormTable/components/product-info-select.vue'
+
 export default {
   name: 'EditTable',
+  components: { ProductInfoSelect },
   props: {
     data: {
       type: Array,
@@ -95,6 +110,7 @@ export default {
       type: Object,
       default: () => {}
     },
+    // eslint-disable-next-line vue/require-default-prop
     totalColumns: {
       type: Array,
       required: false
@@ -104,9 +120,18 @@ export default {
       required: false,
       default: () => '合计'
     },
+    // eslint-disable-next-line vue/require-default-prop
+    buttons: {
+      type: Array,
+      required: false
+    },
     showSummary: Boolean,
     isView: Boolean,
-    showButton: Boolean
+    showButton: Boolean,
+    showProduct: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     const initData = this.data.map(item => ({
@@ -117,7 +142,8 @@ export default {
       editingIndex: null,
       formData: {
         tableData: initData
-      }
+      },
+      showProductDialog: false
     }
   },
   watch: {
@@ -133,6 +159,23 @@ export default {
   created() {
   },
   methods: {
+    editCell(row, prop, index) {
+      this.$set(row, '_editingColumn', prop)
+      row._isEditing = true
+      this.$nextTick(() => {
+        const input = this.$refs['input-' + index + '-' + prop]
+        if (input && input[0]) {
+          input[0].focus()
+        } else if (input) {
+          input.focus()
+        }
+      })
+    },
+    saveCell(row, prop) {
+      this.$set(row, '_editingColumn', null)
+      row._isEditing = false
+      this.$emit('update:data', this.formData.tableData)
+    },
     handleImport() {
     },
     addRow() {
@@ -144,7 +187,7 @@ export default {
         // 添加默认值
         acc[column.prop] = column.defaultValue !== undefined ? column.defaultValue : undefined
         return acc
-      }, { _isEditing: true })
+      }, { _editingColumn: null ,_isEditing: true })
       this.formData.tableData.push(newRow)
       this.editingIndex = this.formData.tableData.length - 1
     },
@@ -180,6 +223,10 @@ export default {
     deleteRow(index) {
       this.formData.tableData.splice(index, 1)
       this.editingIndex = null
+      this.$emit('update:data', this.formData.tableData)
+    },
+    updateTableData(selectedItems) {
+      this.formData.tableData = selectedItems
       this.$emit('update:data', this.formData.tableData)
     },
     handleSelectChange(event) {
@@ -232,7 +279,17 @@ export default {
           return item
         }
       })
-      return obj.label
+      return obj === undefined ? undefined : obj.label
+    },
+    displayItem(row, prop) {
+      if (row[prop] === 0) {
+        return row[prop]
+      }
+      if (row[prop]) {
+        return row[prop]
+      } else {
+        return 'N/A'
+      }
     }
   }
 }

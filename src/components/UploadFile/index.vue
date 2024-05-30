@@ -97,7 +97,7 @@ export default {
         },
       })
         .then((response) => {
-          this.handleSuccess(response.data, null, this.fileList);
+          this.handleSuccess(response.data, null, this.fileList)
         })
         .catch((error) => {
           console.error('Upload Error:', error);

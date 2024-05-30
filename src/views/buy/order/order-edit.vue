@@ -12,6 +12,28 @@
       :can-submit="canSubmit"
       :save-fun="saveFun"
     />
+    <el-dialog
+      title="请选择仓库"
+      :visible.sync="warehouseDialogVisible"
+      width="30%"
+    >
+      <el-form>
+        <el-form-item prop="warehouseId" label="仓库">
+          <el-select v-model="warehouseId" placeholder="请选择仓库">
+            <el-option
+              v-for="warehouse in javaCode['WarehouseBuilder']"
+              :key="warehouse.value"
+              :label="warehouse.label"
+              :value="warehouse.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="warehouseDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleWarehouseDialog">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -29,6 +51,7 @@ export default {
   data() {
     return {
       showForm: false,
+      warehouseId: undefined,
       contentText: '采购订单修改',
       saveUrl: '/api/order/update',
       submitUrl: '/api/order/update-and-submit-single',
@@ -90,20 +113,11 @@ export default {
         javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'WarehouseBuilder', 'SaleOrderBuilder']
       },
       vendorContactList: [],
-      saleOrderDisabled: false
+      saleOrderDisabled: false,
+      warehouseDialogVisible: false
     }
   },
   watch: {
-    'form.vendorId': {
-      handler(newVal, oldVal) {
-        getVendorContactUserList(newVal).then(res => {
-          this.vendorContactList.length = 0
-          res.data.forEach(item => {
-            this.vendorContactList.push(item)
-          })
-        })
-      }
-    },
     'form.discountRate': {
       handler(newVal, oldVal) {
         let temp = 0
@@ -129,7 +143,7 @@ export default {
     },
     'form.orderItemList.length': {
       handler(newVal, oldVal) {
-        if (newVal === 0) {
+        if (newVal === 0 || newVal === undefined) {
           // 数组为空
           this.form.afterDiscountPayAmount = 0
           this.form.discountAmount = 0
@@ -156,6 +170,7 @@ export default {
   async created() {
     await getOrderById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
+      this.form.saleOrderId = res.data.saleOrderId.split(',')
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
@@ -167,6 +182,21 @@ export default {
     await this.init()
   },
   methods: {
+    handleWarehouseDialog() {
+      const obj = this.javaCode['WarehouseBuilder'].find(item => {
+        if (item.value == this.warehouseId) {
+          return item
+        }
+      })
+      const tempArr = []
+      this.form.orderItemList.forEach((ele, index) => {
+        ele.warehouseId = this.warehouseId
+        ele.warehouseName = obj.label
+        tempArr.push(ele)
+      })
+      this.form.orderItemList = tempArr
+      this.warehouseDialogVisible = false
+    },
     initParams() {
       if (this.$route.params.saleOrderId) {
         this.form.saleOrderId = this.$route.params.saleOrderId
@@ -186,7 +216,8 @@ export default {
               value: 'saleOrderCode'
             },
             options: this.javaCode['SaleOrderBuilder'],
-            disabled: this.saleOrderDisabled
+            disabled: this.saleOrderDisabled,
+            multiple: true
           },
           {
             label: '订单编码',
@@ -250,41 +281,6 @@ export default {
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
             disabled: true
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              id: 'vendorContactId',
-              contactName: 'vendorContactName',
-              phone: 'vendorContactPhone',
-              landLine: 'vendorContactLandLine',
-              address: 'vendorContactAddress'
-            },
-            optionLabel: 'contactName',
-            optionValue: 'id',
-            options: this.vendorContactList
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input'
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input'
           }
         ],
         goodsInfo: {
@@ -294,43 +290,45 @@ export default {
               label: '产品名称',
               prop: 'productName',
               type: 'select',
+              fixed: 'left',
               optionList: this.javaCode['ProductBuilder'],
               click: (event, row) => {
-                getProductInfoById(event).then(res => {
-                  const { data } = res
-                  row.productName = data.productName
-                  row.productId = data.productId
-                  row.productCode = data.productCode
-                  row.barCode = data.barCode
-                  row.productSpec = data.specification
-                  row.productDescription = data.productDescription
-                  row.unit = data.unit
-                })
+                if (event === undefined || event === '') {
+
+                } else {
+                  getProductInfoById(event).then(res => {
+                    const { data } = res
+                    row.productName = data.productName
+                    row.productId = data.productId
+                    row.productCode = data.productCode
+                    row.barCode = data.barCode
+                    row.specification = data.specification
+                    row.productDescription = data.productDescription
+                    row.unit = data.unit
+                  })
+                }
               }
             },
             {
               label: '产品编码',
               prop: 'productCode',
               type: 'input',
-              disabled: true
+              fixed: 'left'
             },
             {
               label: '产品条码',
               prop: 'barCode',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '规格',
-              prop: 'productSpec',
-              type: 'input',
-              disabled: true
+              prop: 'specification',
+              type: 'input'
             },
             {
               label: '产品描述',
               prop: 'productDescription',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '数量',
@@ -353,8 +351,7 @@ export default {
               label: '单位',
               prop: 'unit',
               type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
+              optionList: this.dictionary['Unit']
             },
             {
               label: '采购单价(元)',
@@ -378,8 +375,7 @@ export default {
             {
               label: '含税价(元)',
               prop: 'taxIncludedPrice',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '折扣率(%)',
@@ -405,8 +401,7 @@ export default {
             {
               label: '折扣额(元)',
               prop: 'discountAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '采购金额(元)',
@@ -438,14 +433,12 @@ export default {
             {
               label: '税额(元)',
               prop: 'taxAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税价合计(元)',
               prop: 'taxTotalAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '仓库',
@@ -458,7 +451,12 @@ export default {
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
-              }
+              },
+              showButton: true,
+              buttonClick: () => {
+                this.warehouseDialogVisible = true
+              },
+              buttonText: '批量设置'
             }
           ],
           totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
@@ -500,6 +498,7 @@ export default {
         this.$modal.msgWarning('请至少选择一项产品')
         return false
       }
+      this.form.saleOrderId = this.form.saleOrderId.join(',')
       return true
     }
   }

@@ -24,13 +24,13 @@ import { generateCode } from '@/api/config/generate-code'
 import { getOrderInfoByOrderId } from '@/api/business/order-info'
 
 export default {
-  name: 'WriteOffAdd',
+  name: 'WriteOffView',
   components: { FormTable },
   data() {
     return {
       showForm: false,
-      contentText: '核销单登记',
-      saveUrl: '/api/financial-write-off/update ',
+      contentText: '核销单',
+      saveUrl: '/api/financial-write-off/update',
       submitUrl: '/api/financial-write-off/update-and-update-single',
       canSubmit: true,
       collapseConfig: [

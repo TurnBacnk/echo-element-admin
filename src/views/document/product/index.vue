@@ -171,7 +171,12 @@ export default {
         }, {
           label: '产品编码',
           prop: 'productCode',
-          fixed: 'left'
+          fixed: 'left',
+          width: 250
+        }, {
+          label: '税收编码',
+          prop: 'taxCode',
+          fixed: 'left',
         }, {
           label: '产品名称',
           prop: 'productName',
@@ -199,9 +204,6 @@ export default {
         }, {
           label: '期初数量',
           prop: 'num'
-        }, {
-          label: '图片',
-          prop: 'pictureId'
         }, {
           label: '状态',
           prop: 'status',

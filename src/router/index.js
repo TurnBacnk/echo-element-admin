@@ -814,7 +814,7 @@ export const asyncRoutes = [
       },
       {
         path: 'write-off-view',
-        component: () => import('@/views/financial/write-off/write-off-edit.vue'),
+        component: () => import('@/views/financial/write-off/write-off-view.vue'),
         name: 'FinancialWriteOffView',
         meta: { activeMenu: '/financial/write-off', title: '核销单' }
       },

@@ -41,6 +41,7 @@ export default {
         category: undefined,
         barCode: undefined,
         unit: undefined,
+        taxCode: undefined,
         historyPriceList: [],
         warehouseInfoList: [],
         pictureId: undefined,
@@ -50,6 +51,7 @@ export default {
       rules: {
         baseInfo: {
           productCode: [{ required: true, message: '请输入', trigger: 'blur' }],
+          taxCode: [{ required: true, message: '请输入', trigger: 'blur' }],
           productName: [{ required: true, message: '请输入', trigger: 'blur' }],
           specification: [{ required: true, message: '请输入', trigger: 'blur' }],
           category: [{ required: true, message: '请选择', trigger: 'blur' }],
@@ -111,6 +113,11 @@ export default {
             label: '产品编码',
             prop: 'productCode',
             disabled: true,
+            type: 'input'
+          },
+          {
+            label: '税收编码',
+            prop: 'taxCode',
             type: 'input'
           },
           {

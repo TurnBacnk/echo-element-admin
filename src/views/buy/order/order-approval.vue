@@ -96,16 +96,6 @@ export default {
     }
   },
   watch: {
-    'form.vendorId': {
-      handler(newVal, oldVal) {
-        getVendorContactUserList(newVal).then(res => {
-          this.vendorContactList.length = 0
-          res.data.forEach(item => {
-            this.vendorContactList.push(item)
-          })
-        })
-      }
-    },
     'form.discountRate': {
       handler(newVal, oldVal) {
         let temp = 0
@@ -189,7 +179,8 @@ export default {
               value: 'saleOrderCode'
             },
             options: this.javaCode['SaleOrderBuilder'],
-            disabled: this.saleOrderDisabled
+            disabled: this.saleOrderDisabled,
+            multiple: true
           },
           {
             label: '订单编码',

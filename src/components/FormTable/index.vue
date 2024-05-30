@@ -1,12 +1,6 @@
 <template>
   <div style="margin-bottom: 100px">
     <el-page-header :content="contentText" @back="goBack" />
-    <!--    <template v-if="!isView">-->
-    <!--      <blockquote style="font-size: 14px;color: gray">-->
-    <!--        <br> 制单日期： {{ new Date() }}-->
-    <!--        <br> 制单人： {{ $store.state.user.name }}-->
-    <!--      </blockquote>-->
-    <!--    </template>-->
     <el-collapse v-model="activeNames">
       <el-card v-for="config in collapseConfig" :key="config.name" style="margin: 10px;">
         <div slot="header" class="clearfix">
@@ -168,6 +162,7 @@
                 :show-summary="collapseItemConfig[config.name].showSummary !== undefined ? collapseItemConfig[config.name].showSummary : false"
                 :is-view="isView"
                 :show-button="collapseItemConfig[config.name].showButton ? collapseItemConfig[config.name].showButton : false"
+                :show-product="collapseItemConfig[config.name].showProduct"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>

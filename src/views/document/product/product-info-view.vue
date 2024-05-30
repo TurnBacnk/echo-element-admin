@@ -9,6 +9,7 @@
       :content-text="contextText"
       :form="form"
       :rules="rules"
+      :is-view="true"
     />
   </div>
 </template>
@@ -17,24 +18,23 @@
 
 import FormTable from '@/components/FormTable/index.vue'
 import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
-import { generateCode } from '@/api/config/generate-code'
+import { getProductInfoById } from '@/api/business/product-info'
 import { getCategoryTree } from '@/api/business/category'
 
 export default {
-  name: 'ProductInfoAdd',
+  name: 'ProductEditEdit',
   components: { FormTable },
   data() {
     return {
-      showForm: false,
-      saveUrl: '/api/product-info/save',
+      saveUrl: '/api/product-info/update',
       submitUrl: '/api/product-info/submit',
       collapseItemConfig: {},
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '历史采购价格', name: 'historyInfo', type: 'table' },
+        { active: true, title: '历史价格', name: 'historyInfo', type: 'table' },
         { active: true, title: '库存状况', name: 'warehouseInfo', type: 'table' }
       ],
-      contextText: '产品登记',
+      contextText: '产品修改',
       form: {
         productName: undefined,
         productCode: undefined,
@@ -42,13 +42,12 @@ export default {
         category: undefined,
         barCode: undefined,
         unit: undefined,
+        taxCode: undefined,
         historyPriceList: [],
         warehouseInfoList: [],
         pictureId: undefined,
         status: undefined,
-        remark: undefined,
-        taxCode: undefined,
-        productDescription: undefined
+        remark: undefined
       },
       rules: {
         baseInfo: {
@@ -72,20 +71,22 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: ['Unit']
+        dictionaryNameList: ['Unit', 'Category']
       },
       constant: [],
       constantConfig: {
-        constantNameList: ['Enable', 'YesOrNo']
+        constantNameList: ['Enable']
       },
       javaCode: [],
       javaCodeConfig: {
         javaCodeNameList: ['WarehouseBuilder']
       },
-      categoryTree: []
+      categoryTree: [],
+      showForm: false
     }
   },
   async created() {
+    await this.initData()
     await getConstant(this.constantConfig).then(res => {
       this.constant = res.data
     })
@@ -98,10 +99,14 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await this.generateCode()
     await this.init()
   },
   methods: {
+    async initData() {
+      await getProductInfoById(this.$route.params.id).then(res => {
+        Object.assign(this.form, res.data)
+      })
+    },
     init() {
       this.collapseItemConfig = {
         baseInfo: [
@@ -121,10 +126,6 @@ export default {
             prop: 'productName',
             type: 'input',
             placeholder: '请输入产品名称'
-          },
-          {
-            label: '是否组装件',
-            prop: 'is'
           },
           {
             label: '规格型号',
@@ -159,12 +160,7 @@ export default {
           {
             label: '备注',
             prop: 'remark',
-            type: 'input'
-          },
-          {
-            label: '产品描述',
-            prop: 'productDescription',
-            type: 'input'
+            type: 'textarea'
           }
         ],
         historyInfo: {
@@ -188,7 +184,7 @@ export default {
               type: 'date'
             }
           ],
-          showButton: true
+          showForm: true
         },
         warehouseInfo: {
           prop: 'warehouseInfoList',
@@ -200,21 +196,11 @@ export default {
               optionList: this.javaCode['WarehouseBuilder'],
               click: (event, row) => {
                 const obj = this.javaCode['WarehouseBuilder'].find((item) => {
-                  if (item.value === event) {
-                    return item
-                  }
+                  return item.value === event
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
-                row.isSelfBuiltWarehouse = obj.data
               }
-            },
-            {
-              label: '是否自建仓库',
-              prop: 'isSelfBuiltWarehouse',
-              optionList: this.constant['YesOrNo'],
-              type: 'select',
-              disabled: true
             },
             {
               label: '数量',
@@ -222,15 +208,10 @@ export default {
               type: 'input'
             }
           ],
-          showButton: true
+          showForm: true
         }
       }
       this.showForm = true
-    },
-    generateCode() {
-      generateCode('PRODUCT').then(res => {
-        this.form.productCode = res.data
-      })
     }
   }
 }

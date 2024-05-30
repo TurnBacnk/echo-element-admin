@@ -107,14 +107,27 @@ export default {
     goToApprovalPage(row) {
       const match = row.businessName.match(/\[(.*?)\]/)
       if (match) {
+        console.log('123')
         const code = match[1]
-        this.$router.push({
-          name: row.viewPage,
-          params: {
-            code: code,
-            instanceId: row.id
-          }
-        })
+        if (this.type === 'mySubmit') {
+          const index = row.viewPage.indexOf('Approval')
+          const page = row.viewPage.substring(0, index) + 'View'
+          this.$router.push({
+            name: page,
+            params: {
+              id: row.businessId,
+              instanceId: row.id
+            }
+          })
+        } else {
+          this.$router.push({
+            name: row.viewPage,
+            params: {
+              code: code,
+              instanceId: row.id
+            }
+          })
+        }
       }
     }
   }
