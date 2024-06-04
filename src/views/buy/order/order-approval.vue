@@ -160,6 +160,21 @@ export default {
     await this.init()
   },
   methods: {
+    handleWarehouseDialog() {
+      const obj = this.javaCode['WarehouseBuilder'].find(item => {
+        if (item.value == this.warehouseId) {
+          return item
+        }
+      })
+      const tempArr = []
+      this.form.orderItemList.forEach((ele, index) => {
+        ele.warehouseId = this.warehouseId
+        ele.warehouseName = obj.label
+        tempArr.push(ele)
+      })
+      this.form.orderItemList = tempArr
+      this.warehouseDialogVisible = false
+    },
     initParams() {
       if (this.$route.params.saleOrderId) {
         this.form.saleOrderId = this.$route.params.saleOrderId
@@ -244,41 +259,6 @@ export default {
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
             disabled: true
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              id: 'vendorContactId',
-              contactName: 'vendorContactName',
-              phone: 'vendorContactPhone',
-              landLine: 'vendorContactLandLine',
-              address: 'vendorContactAddress'
-            },
-            optionLabel: 'contactName',
-            optionValue: 'id',
-            options: this.vendorContactList
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input'
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input'
           }
         ],
         goodsInfo: {
@@ -288,58 +268,60 @@ export default {
               label: '产品名称',
               prop: 'productName',
               type: 'select',
+              fixed: 'left',
+              width: 200,
               optionList: this.javaCode['ProductBuilder'],
               click: (event, row) => {
-                getProductInfoById(event).then(res => {
-                  const { data } = res
-                  row.productName = data.productName
-                  row.productId = data.productId
-                  row.productCode = data.productCode
-                  row.barCode = data.barCode
-                  row.productSpec = data.specification
-                  row.productDescription = data.productDescription
-                  row.unit = data.unit
-                })
+                // eslint-disable-next-line no-empty
+                if (event === undefined || event === '') {
+
+                } else {
+                  return getProductInfoById(event).then(res => {
+                    const { data } = res
+                    row.productName = data.productName
+                    row.productId = data.productId
+                    row.productCode = data.productCode
+                    row.barCode = data.barCode
+                    row.specification = data.specification
+                    row.productDescription = data.productDescription
+                    row.unit = data.unit
+                  })
+                }
               }
             },
             {
               label: '产品编码',
               prop: 'productCode',
               type: 'input',
-              disabled: true
+              fixed: 'left'
             },
             {
               label: '产品条码',
               prop: 'barCode',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '规格',
-              prop: 'productSpec',
-              type: 'input',
-              disabled: true
+              prop: 'specification',
+              type: 'input'
             },
             {
               label: '产品描述',
               prop: 'productDescription',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '数量',
               prop: 'amount',
               type: 'number',
               input: (newNumber, currentRow) => {
-                if (currentRow.procurementPrice) {
-                  // 设置折扣额
-                  currentRow.discountAmount = this.computeDiscountAmount(currentRow.procurementPrice, currentRow.discountRate, newNumber)
-                  // 折扣额设置完成后，设置采购金额
-                  currentRow.procurementAmount = this.computeProcurementAmount(currentRow.procurementPrice, newNumber, currentRow.discountAmount)
-                  // 设置税额
-                  currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, currentRow.taxRate)
-                  // 设置税价合计
-                  currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
+                // 根据采购单价，计算采购总价
+                // 根据含税单价，计算含税总价
+                try {
+                  currentRow.procurementAmount = this.$math.format(this.$math.multiply(newNumber, currentRow.procurementPrice), { precision: 2, notation: 'fixed' })
+                  currentRow.taxTotalAmount = this.$math.format(this.$math.multiply(newNumber, currentRow.taxIncludedPrice), { precision: 2, notation: 'fixed' })
+                } catch (err) {
+
                 }
               }
             },
@@ -347,65 +329,40 @@ export default {
               label: '单位',
               prop: 'unit',
               type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
+              optionList: this.dictionary['Unit']
             },
             {
               label: '采购单价(元)',
               prop: 'procurementPrice',
               type: 'number',
               input: (newNumber, currentRow) => {
-                currentRow.taxIncludedPrice = this.computeTaxIncludePrice(newNumber, currentRow.taxRate)
-                // 有数量
-                if (currentRow.amount) {
-                  // 设置折扣额
-                  currentRow.discountAmount = this.computeDiscountAmount(newNumber, currentRow.discountRate, currentRow.amount)
-                  // 折扣额设置完成后，设置采购金额
-                  currentRow.procurementAmount = this.computeProcurementAmount(newNumber, currentRow.amount, currentRow.discountAmount)
-                  // 设置税额
-                  currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, currentRow.taxRate)
-                  // 设置税价合计
-                  currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                }
+                currentRow.procurementAmount = this.$math.format(this.$math.multiply(newNumber, currentRow.amount), { precision: 2, notation: 'fixed' })
+                currentRow.taxAmount = this.$math.format(this.$math.subtract(currentRow.taxTotalAmount, currentRow.procurementAmount), { precision: 2, notation: 'fixed' })
               }
             },
             {
               label: '含税价(元)',
               prop: 'taxIncludedPrice',
               type: 'number',
-              disabled: true
-            },
-            {
-              label: '折扣率(%)',
-              prop: 'discountRate',
-              type: 'number',
-              defaultValue: 0,
               input: (newNumber, currentRow) => {
                 if (currentRow.amount) {
-                  if (currentRow.procurementPrice) {
-                    // 有数量 有折扣率
-                    // 设置折扣额
-                    currentRow.discountAmount = this.computeDiscountAmount(currentRow.procurementPrice, newNumber, currentRow.amount)
-                    // 折扣额设置完成后，设置采购金额
-                    currentRow.procurementAmount = this.computeProcurementAmount(currentRow.procurementPrice, currentRow.amount, currentRow.discountAmount)
-                    // 设置税额
-                    currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, currentRow.taxRate)
-                    // 设置税价合计
-                    currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                  }
+                  currentRow.taxTotalAmount = this.$math.format(this.$math.multiply(newNumber, currentRow.amount), { precision: 2, notation: 'fixed' })
                 }
+                if (currentRow.procurementAmount) {
+                  currentRow.taxAmount = this.$math.format(this.$math.subtract(currentRow.taxTotalAmount, currentRow.procurementAmount), { precision: 2, notation: 'fixed' })
+                }
+                currentRow.procurementPrice = this.$math.format(this.$math.divide(newNumber, currentRow.taxRate * 0.01 + 1), { precision: 2, notation: 'fixed' })
+                currentRow.procurementAmount = this.$math.format(this.$math.multiply(currentRow.procurementPrice, currentRow.amount), { precision: 2, notation: 'fixed' })
               }
-            },
-            {
-              label: '折扣额(元)',
-              prop: 'discountAmount',
-              type: 'number',
-              disabled: true
             },
             {
               label: '采购金额(元)',
               prop: 'procurementAmount',
-              type: 'number'
+              type: 'number',
+              input: (newNumber, current) => {
+                current.procurementPrice = this.$math.format(this.$math.divide(newNumber, current.amount), { precision: 2, notation: 'fixed' })
+                current.taxAmount = this.$math.format(this.$math.subtract(current.taxTotalAmount, newNumber), { precision: 2, notation: 'fixed' })
+              }
             },
             {
               label: '税率(%)',
@@ -413,33 +370,29 @@ export default {
               type: 'number',
               defaultValue: this.$store.state.businessParam.taxRate,
               input: (newNumber, currentRow) => {
-                if (currentRow.amount) {
-                  if (currentRow.procurementPrice) {
-                    // 设置含税价
-                    currentRow.taxIncludedPrice = this.computeTaxIncludePrice(currentRow.procurementPrice, newNumber)
-                    // 设置折扣额
-                    currentRow.discountAmount = this.computeDiscountAmount(currentRow.procurementPrice, currentRow.discountRate, currentRow.amount)
-                    // 折扣额设置完成后，设置采购金额
-                    currentRow.procurementAmount = this.computeProcurementAmount(currentRow.procurementPrice, currentRow.amount, currentRow.discountAmount)
-                    // 设置税额
-                    currentRow.taxAmount = this.computeTaxAmount(currentRow.procurementAmount, newNumber)
-                    // 设置税价合计
-                    currentRow.taxTotalAmount = this.computeTaxTotalAmount(currentRow.procurementAmount, currentRow.taxAmount)
-                  }
-                }
+                // 税率 影响未税
+                currentRow.procurementPrice = this.$math.format(this.$math.divide(currentRow.taxIncludedPrice, (newNumber * 0.01 + 1)), { precision: 2, notation: 'fixed' })
+                currentRow.procurementAmount = this.$math.format(this.$math.multiply(currentRow.procurementPrice, currentRow.amount), { precision: 2, notation: 'fixed' })
+                currentRow.taxAmount = this.$math.format(this.$math.subtract(currentRow.taxTotalAmount, currentRow.procurementAmount), { precision: 2, notation: 'fixed' })
               }
             },
             {
               label: '税额(元)',
               prop: 'taxAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税价合计(元)',
               prop: 'taxTotalAmount',
               type: 'number',
-              disabled: true
+              input: (newNumber, currentRow) => {
+                if (currentRow.amount) {
+                  currentRow.taxIncludedPrice = this.$math.format( this.$math.divide(newNumber, currentRow.amount), { precision: 2, notation: 'fixed' })
+                  currentRow.procurementPrice = this.$math.format(this.$math.divide(currentRow.taxIncludedPrice, currentRow.taxRate * 0.01 + 1), { precision: 2, notation: 'fixed' })
+                  currentRow.procurementAmount = this.$math.format(this.$math.multiply(currentRow.procurementPrice, currentRow.amount), { precision: 2, notation: 'fixed' })
+                  currentRow.taxAmount = this.$math.format(this.$math.subtract(newNumber, currentRow.procurementAmount), { precision: 2, notation: 'fixed' })
+                }
+              }
             },
             {
               label: '仓库',
@@ -452,48 +405,43 @@ export default {
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
+              },
+              showButton: true,
+              buttonClick: () => {
+                this.warehouseDialogVisible = true
+              },
+              buttonText: '批量设置'
+            },
+            {
+              label: '销售订单',
+              prop: 'saleOrderCode',
+              type: 'select',
+              optionList: this.javaCode['SaleOrderBuilder'],
+              click: (event, row) => {
+                const obj = this.javaCode['SaleOrderBuilder'].find((item) => {
+                  return item.value === event
+                })
+                row.saleOrderId = obj.value
+                row.saleOrderCode = obj.label
+                return new Promise(resolve => {
+                  resolve()
+                })
               }
             }
           ],
           totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
           showSummary: true,
-          showButton: false
+          showButton: true
         }
       }
       this.showForm = true
-    },
-    computeDiscountAmount(procurementPrice, discountRate, number) {
-      return this.$math.format(this.$math.multiply(this.$math.multiply(procurementPrice, discountRate * 0.01), number), {
-        precision: 2,
-        notation: 'fixed'
-      })
-    },
-    computeProcurementAmount(procurementPrice, number, discountAmount) {
-      return this.$math.format(this.$math.subtract(this.$math.multiply(procurementPrice, number), discountAmount), {
-        precision: 2,
-        notation: 'fixed'
-      })
-    },
-    computeTaxAmount(procurementAmount, taxRate) {
-      return this.$math.format(this.$math.multiply(procurementAmount, taxRate * 0.01), {
-        precision: 2,
-        notation: 'fixed'
-      })
-    },
-    computeTaxTotalAmount(procurementAmount, taxAmount) {
-      return this.$math.format(this.$math.add(procurementAmount, taxAmount), { precision: 2, notation: 'fixed' })
-    },
-    computeTaxIncludePrice(procurementPrice, taxRate) {
-      return this.$math.format(this.$math.multiply(procurementPrice, this.$math.add(1, taxRate * 0.01)), {
-        precision: 2,
-        notation: 'fixed'
-      })
     },
     saveFun() {
       if (this.form.orderItemList.length === 0) {
         this.$modal.msgWarning('请至少选择一项产品')
         return false
       }
+      this.form.saleOrderId = this.form.saleOrderId.join(',')
       return true
     }
   }

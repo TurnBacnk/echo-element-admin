@@ -154,6 +154,7 @@
             </template>
             <template v-if="config.type === 'table'">
               <edit-table
+                ref="editTable"
                 :data="form[collapseItemConfig[config.name].prop]"
                 :columns="collapseItemConfig[config.name].column"
                 :rules="rules[config.name]"
@@ -181,7 +182,10 @@
               <el-form-item label="备注">
                 <el-input type="textarea" :autosize="{ minRows: 3 }" />
               </el-form-item>
-              <el-form-item label="附件" />
+              <el-form-item label="附件">
+                <el-button @click="uploadFile">上传附件</el-button>
+                <upload-file ref="uploadFile" action-url="/api/upload-file/save" />
+              </el-form-item>
             </el-form>
           </div>
         </el-collapse-item>
@@ -225,10 +229,11 @@ import TreeSelect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import item from '@/layout/components/Sidebar/Item.vue'
 import { approvalPassOrRefuse } from '@/api/config/approval-instance'
+import UploadFile from "@/components/UploadFile/index.vue";
 
 export default {
   name: 'FormTable',
-  components: { EditTable, TreeSelect },
+  components: {UploadFile, EditTable, TreeSelect },
   props: {
     canSubmit: {
       type: Boolean,
@@ -374,6 +379,15 @@ export default {
             }
           })
         })
+        if (canSave) {
+          this.$refs.editTable.forEach(function(ele) {
+            ele.$refs.editTableForm.validate(valid => {
+              if (!valid) {
+                canSave = false
+              }
+            })
+          })
+        }
         if (canSave) {
           request({
             url: this.saveUrl,
@@ -529,6 +543,9 @@ export default {
       console.log(showButton instanceof Boolean)
       console.log(showButton instanceof String)
       return !!showButton
+    },
+    uploadFile() {
+      this.$refs.uploadFile.dialogVisible = true
     },
     remoteSelectMethod(remoteUrl, remoteParam, options) {
       request({

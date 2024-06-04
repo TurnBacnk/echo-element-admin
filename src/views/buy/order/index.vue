@@ -22,7 +22,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" :upload-url="" />
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" :upload-url="uploadUrl" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>

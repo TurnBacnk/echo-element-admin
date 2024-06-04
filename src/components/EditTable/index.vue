@@ -6,15 +6,16 @@
 
     <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="showProductDialog" @update:selected="updateTableData" />
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
-      <el-table :data="formData.tableData" style="width: 100%" max-height="500" row-key="id" :show-summary="showSummary" :summary-method="handleSummary" border>
+      <el-table :data="formData.tableData" style="width: 100%" row-key="id" :show-summary="showSummary" :summary-method="handleSummary" border :row-style="{ height: '10px'}" :cell-style="{ padding: '0px' }">
         <el-table-column :type="tableConfig.indexType" fixed="left" />
         <el-table-column
           v-for="(column, index) in columns"
           :key="index"
           :prop="column.prop"
           :label="column.label"
-          :width="column.width === undefined ? 300 : column.width"
+          :width="column.width"
           :fixed="column.fixed ? column.fixed : undefined"
+          show-overflow-tooltip
         >
           <template v-slot:header="scope">
             <span>{{ column.label }}</span>
@@ -39,7 +40,7 @@
                     @blur="saveCell(scope.row, column.prop)"
                   />
                   <el-switch v-if="column.type === 'switch'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" size="small" :active-value="1" :inactive-value="0" @blur="saveCell(scope.row, column.prop)" />
-                  <el-select v-if="column.type === 'select'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="column.click($event, scope.row);saveCell(scope.row, column.prop)">
+                  <el-select v-if="column.type === 'select'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="handleSelectChange($event, scope.row, column, column.prop)">
                     <el-option
                       v-for="item in column.optionList"
                       :key="item.key"
@@ -47,6 +48,18 @@
                       :value="item.value"
                       @blur="saveCell(scope.row, column.prop)"
                     />
+                  </el-select>
+                  <el-select v-if="column.type === 'selectTemplate'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable :disabled="column.disabled" clearable style="width: 100%" @change="handleSelectChange($event, scope.row, column, column.prop)">
+                    <el-option
+                      v-for="item in column.optionList"
+                      :key="item.key"
+                      :label="item.rightLabel"
+                      :value="item.value"
+                      @blur="saveCell(scope.row, column.prop)"
+                    >
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.rightLabel }}</span>
+                    </el-option>
                   </el-select>
                   <el-select v-if="column.type === 'selectConstant'" :ref="'input-' + scope.$index + '-' + column.prop" v-model="scope.row[column.prop]" filterable clearable :disabled="column.disabled" style="width: 100%" @change="saveCell(scope.row, column.prop)">
                     <el-option
@@ -70,7 +83,7 @@
             </el-form-item>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="70" fixed="right">
           <template v-slot="scope">
 <!--            <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">-->
 <!--              {{ scope.row._isEditing ? '保存' : '编辑' }}-->
@@ -179,10 +192,6 @@ export default {
     handleImport() {
     },
     addRow() {
-      if (this.editingIndex !== null) {
-        this.$modal.msgWarning('请先保存当前编辑项')
-        return
-      }
       const newRow = this.columns.reduce((acc, column) => {
         // 添加默认值
         acc[column.prop] = column.defaultValue !== undefined ? column.defaultValue : undefined
@@ -197,10 +206,6 @@ export default {
         // 变为非编辑状态
         this.$refs.editTableForm.validate((valid) => {
           if (valid) {
-            // 通过
-            row._isEditing = !row._isEditing
-            // 删除editingIndex
-            this.editingIndex = null
             this.$emit('update:data', this.formData.tableData)
           } else {
             this.$modal.msgWarning('请检查输入是否正确')
@@ -228,9 +233,6 @@ export default {
     updateTableData(selectedItems) {
       this.formData.tableData = selectedItems
       this.$emit('update:data', this.formData.tableData)
-    },
-    handleSelectChange(event) {
-
     },
     handleInputChange(event, row, column) {
       if (column.input) {
@@ -290,6 +292,24 @@ export default {
       } else {
         return 'N/A'
       }
+    },
+    handleSelectChange(event, row, column, prop) {
+      column.click(event, row).then(res => {
+        this.saveCell(row, prop)
+      })
+    },
+    selectTemplateFilterMethod(query, item) {
+      return item.rightLabel.toLowerCase().includes(query.toLowerCase())
+    },
+    validateTableData(canSave) {
+      this.$refs.editTableForm.validate((valid) => {
+        if (valid) {
+
+        } else {
+          this.$modal.msgWarning('请检查输入是否正确')
+          canSave = false
+        }
+      })
     }
   }
 }
