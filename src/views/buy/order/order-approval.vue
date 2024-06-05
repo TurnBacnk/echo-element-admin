@@ -149,6 +149,9 @@ export default {
     await getBuyOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
       this.form.instanceId = this.$route.params.instanceId
+      if (this.form.saleOrderId !== "") {
+        this.form.saleOrderId = res.data.saleOrderId.split(',')
+      }
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data

@@ -38,6 +38,7 @@ export default {
         { active: true, title: '审核节点设置', name: 'approvalInfo', type: 'table' }
       ],
       form: {
+        id: undefined,
         approvalName: undefined,
         moduleKey: undefined,
         isCopy: undefined,
@@ -198,9 +199,13 @@ export default {
                 console.log(row)
                 row.userId = obj.value
                 row.userName = obj.label
+                return new Promise(resolve => {
+                  resolve()
+                })
               }
             }
-          ]
+          ],
+          showButton: true
         }
       }
       this.showForm = true
