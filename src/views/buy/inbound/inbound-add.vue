@@ -11,6 +11,28 @@
       :rules="rules"
       :can-submit="canSubmit"
     />
+    <el-dialog
+      title="请选择仓库"
+      :visible.sync="warehouseDialogVisible"
+      width="30%"
+    >
+      <el-form>
+        <el-form-item prop="warehouseId" label="仓库">
+          <el-select v-model="warehouseId" placeholder="请选择仓库">
+            <el-option
+              v-for="warehouse in javaCode['WarehouseBuilder']"
+              :key="warehouse.value"
+              :label="warehouse.label"
+              :value="warehouse.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="warehouseDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleWarehouseDialog">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -32,6 +54,8 @@ export default {
       contentText: '采购入库单登记',
       saveUrl: '/api/inbound-order/save',
       submitUrl: '/api/inbound-order/save-and-submit-single',
+      warehouseDialogVisible: false,
+      warehouseId: undefined,
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
@@ -43,7 +67,7 @@ export default {
         vendorId: undefined,
         vendorName: undefined,
         procurementUserId: undefined,
-        procurementUserName: undefined,
+        procurementUsername: undefined,
         otherAmount: undefined,
         discountRate: undefined,
         discountAmount: undefined,
@@ -172,14 +196,8 @@ export default {
           },
           {
             label: '采购人员',
-            prop: 'procurementUserName',
+            prop: 'procurementUsername',
             type: 'input',
-            disabled: true
-          },
-          {
-            label: '其他费用',
-            prop: 'otherAmount',
-            type: 'inputNumber',
             disabled: true
           },
           {
@@ -198,46 +216,6 @@ export default {
             label: '折扣后应付金额',
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
-            disabled: true
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              id: 'vendorContactId',
-              contactName: 'vendorContactName',
-              phone: 'vendorContactPhone',
-              landLine: 'vendorContactLandLine',
-              address: 'vendorContactAddress'
-            },
-            optionLabel: 'contactName',
-            optionValue: 'id',
-            options: this.vendorContactList,
-            disabled: true
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input',
             disabled: true
           }
         ],
@@ -267,26 +245,22 @@ export default {
             {
               label: '产品编码',
               prop: 'productCode',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '产品条码',
               prop: 'barCode',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '规格',
               prop: 'productSpec',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '产品描述',
               prop: 'productDescription',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '数量',
@@ -309,56 +283,37 @@ export default {
               label: '单位',
               prop: 'unit',
               type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
+              optionList: this.dictionary['Unit']
             },
             {
               label: '采购单价(元)',
               prop: 'procurementPrice',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '含税价(元)',
               prop: 'taxIncludedPrice',
-              type: 'number',
-              disabled: true
-            },
-            {
-              label: '折扣率(%)',
-              prop: 'discountRate',
-              type: 'number',
-              disabled: true
-            },
-            {
-              label: '折扣额(元)',
-              prop: 'discountAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '采购金额(元)',
               prop: 'procurementAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税额(元)',
               prop: 'taxAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税率(%)',
               prop: 'taxRate',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税价合计(元)',
               prop: 'taxTotalAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '仓库',
@@ -371,11 +326,21 @@ export default {
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
-              }
+              },
+              showButton: true,
+              buttonClick: () => {
+                this.warehouseDialogVisible = true
+              },
+              buttonText: '批量设置'
             }
           ],
+          showButton: true,
           showSummary: true,
-          totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount']
+          totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
+          showProcurementProduct: true,
+          procurementQueryForm: {
+            orderId: this.form.orderId
+          }
         }
       }
       this.showForm = true
@@ -394,6 +359,22 @@ export default {
     },
     computeTaxIncludePrice(procurementPrice, taxRate) {
       return this.$math.format(this.$math.multiply(procurementPrice, this.$math.add(1, taxRate * 0.01)), { precision: 2, notation: 'fixed' })
+    },
+    handleWarehouseDialog() {
+      const obj = this.javaCode['WarehouseBuilder'].find(item => {
+        if (item.value == this.warehouseId) {
+          return item
+        }
+      })
+      const tempArr = []
+      this.form.inboundOrderItemList.forEach((ele, index) => {
+        ele.warehouseId = this.warehouseId
+        ele.warehouseName = obj.label
+        tempArr.push(ele)
+      })
+      this.form.inboundOrderItemList = tempArr
+      this.warehouseDialogVisible = false
+      this.warehouseId = undefined
     },
     saveFun() {
       if (this.form.inboundOrderItemList.length === 0) {

@@ -164,12 +164,6 @@ export default {
             disabled: true
           },
           {
-            label: '其他费用',
-            prop: 'otherAmount',
-            type: 'inputNumber',
-            disabled: true
-          },
-          {
             label: '折扣率',
             prop: 'discountRate',
             type: 'inputNumber',
@@ -185,46 +179,6 @@ export default {
             label: '折扣后应付金额',
             prop: 'afterDiscountPayAmount',
             type: 'inputNumber',
-            disabled: true
-          },
-          {
-            label: '供应商联系人',
-            prop: 'vendorContactId',
-            type: 'select',
-            bundle: {
-              id: 'vendorContactId',
-              contactName: 'vendorContactName',
-              phone: 'vendorContactPhone',
-              landLine: 'vendorContactLandLine',
-              address: 'vendorContactAddress'
-            },
-            optionLabel: 'contactName',
-            optionValue: 'id',
-            options: this.vendorContactList,
-            disabled: true
-          },
-          {
-            label: '联系人手机',
-            prop: 'vendorContactPhone',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '联系人座机',
-            prop: 'vendorContactLandLine',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '联系人地址',
-            prop: 'vendorContactAddress',
-            type: 'input',
-            disabled: true
-          },
-          {
-            label: '供应商地址',
-            prop: 'vendorAddress',
-            type: 'input',
             disabled: true
           }
         ],
@@ -308,18 +262,6 @@ export default {
             {
               label: '含税价(元)',
               prop: 'taxIncludedPrice',
-              type: 'number',
-              disabled: true
-            },
-            {
-              label: '折扣率(%)',
-              prop: 'discountRate',
-              type: 'number',
-              disabled: true
-            },
-            {
-              label: '折扣额(元)',
-              prop: 'discountAmount',
               type: 'number',
               disabled: true
             },

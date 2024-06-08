@@ -216,58 +216,6 @@ export default {
             label: '合同号',
             prop: 'contractNo',
             type: 'input'
-          },
-          {
-            label: '优惠率(%)',
-            prop: 'discountRate',
-            type: 'inputNumber'
-          },
-          {
-            label: '优惠金额',
-            prop: 'discountAmount',
-            type: 'inputNumber',
-            disabled: true
-          },
-          {
-            label: '优惠后应收款',
-            prop: 'afterDiscountReceiveAmount',
-            type: 'inputNumber',
-            disabled: true
-          },
-          {
-            label: '客户联系人',
-            prop: 'clientContactId',
-            type: 'select',
-            bundle: {
-              id: 'clientContactId',
-              contactName: 'clientContactName',
-              phone: 'contactPhone',
-              landLine: 'contactLandLine',
-              address: 'contactAddress'
-            },
-            options: this.clientContactUserList,
-            optionLabel: 'contactName',
-            optionValue: 'id'
-          },
-          {
-            label: '联系人手机',
-            prop: 'contactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人电话',
-            prop: 'contactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'contactAddress',
-            type: 'input'
-          },
-          {
-            label: '客户地址',
-            prop: 'clientAddress',
-            type: 'input'
           }
         ],
         goodsInfo: {

@@ -14,6 +14,43 @@
       :is-approval="false"
       :save-fun="saveFun"
     />
+    <el-dialog
+      title="请选择仓库"
+      :visible.sync="warehouseDialogVisible"
+      width="30%"
+    >
+      <el-form>
+        <el-form-item prop="warehouseId" label="仓库">
+          <el-select v-model="warehouseId" placeholder="请选择仓库">
+            <el-option
+              v-for="warehouse in javaCode['WarehouseBuilder']"
+              :key="warehouse.value"
+              :label="warehouse.label"
+              :value="warehouse.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="warehouseDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleWarehouseDialog">确认</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="请设置税率"
+      :visible.sync="taxRateDialogVisible"
+      width="30%"
+    >
+      <el-form>
+        <el-form-item prop="taxRate" label="税率">
+          <el-input v-model="taxRate" clearable placeholder="请输入税率" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="taxRateDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleTaxRateDialog">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -31,6 +68,10 @@ export default {
   data() {
     return {
       showForm: false,
+      warehouseId: undefined,
+      taxRate: undefined,
+      taxRateDialogVisible: false,
+      warehouseDialogVisible: false,
       contentText: '销售订单登记',
       saveUrl: '/api/sale-order/save',
       submitUrl: '/api/sale-order/save-and-submit-single',
@@ -69,6 +110,7 @@ export default {
         },
         goodsInfo: {
           productId: [{ required: true, message: '请选择产品', trigger: 'blur' }],
+          amount: [{ required: true, message: '请输入数量', trigger: 'blur' }],
           discountRate: [{ required: true, message: '请输入优惠率', trigger: 'blur' }],
           taxRate: [{ required: true, message: '请输入税率', trigger: 'blur' }]
         }
@@ -232,41 +274,6 @@ export default {
             prop: 'afterDiscountReceiveAmount',
             type: 'inputNumber',
             disabled: true
-          },
-          {
-            label: '客户联系人',
-            prop: 'clientContactId',
-            type: 'select',
-            bundle: {
-              id: 'clientContactId',
-              contactName: 'clientContactName',
-              phone: 'contactPhone',
-              landLine: 'contactLandLine',
-              address: 'contactAddress'
-            },
-            options: this.clientContactUserList,
-            optionLabel: 'contactName',
-            optionValue: 'id'
-          },
-          {
-            label: '联系人手机',
-            prop: 'contactPhone',
-            type: 'input'
-          },
-          {
-            label: '联系人电话',
-            prop: 'contactLandLine',
-            type: 'input'
-          },
-          {
-            label: '联系人地址',
-            prop: 'contactAddress',
-            type: 'input'
-          },
-          {
-            label: '客户地址',
-            prop: 'clientAddress',
-            type: 'input'
           }
         ],
         goodsInfo: {
@@ -294,27 +301,23 @@ export default {
               label: '产品编码',
               prop: 'productCode',
               type: 'input',
-              disabled: true,
               width: '200px'
             },
             {
               label: '产品条码',
               prop: 'barCode',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '产品规格',
               prop: 'specification',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '单位',
               prop: 'unit',
               type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
+              optionList: this.dictionary['Unit']
             },
             {
               label: '数量',
@@ -368,8 +371,7 @@ export default {
             {
               label: '含税价格',
               prop: 'includeTaxPrice',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '优惠率',
@@ -394,14 +396,12 @@ export default {
             {
               label: '优惠金额',
               prop: 'discountAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '销售价格',
               prop: 'salePriceAfterTax',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税率(%)',
@@ -422,19 +422,22 @@ export default {
                   currentRow.totalTaxAmount = this.computeTotalTaxAmount(currentRow.salePriceAfterTax, currentRow.taxAmount)
                   this.computeTotalAfterDiscountAmount(temp, currentRow.totalTaxAmount)
                 }
-              }
+              },
+              showButton: true,
+              buttonClick: () => {
+                this.taxRateDialogVisible = true
+              },
+              buttonText: '批量设置'
             },
             {
               label: '税额',
               prop: 'taxAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '税额合计价格',
               prop: 'totalTaxAmount',
-              type: 'number',
-              disabled: true
+              type: 'number'
             },
             {
               label: '备注',
@@ -444,8 +447,7 @@ export default {
             {
               label: '产品描述',
               prop: 'productDescription',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '仓库',
@@ -460,12 +462,18 @@ export default {
                 })
                 row.warehouseId = obj.value
                 row.warehouseName = obj.label
-              }
+              },
+              showButton: true,
+              buttonClick: () => {
+                this.warehouseDialogVisible = true
+              },
+              buttonText: '批量设置'
             }
           ],
           totalColumns: ['discountAmount', 'salePriceAfterTax', 'taxAmount', 'totalTaxAmount'],
           showSummary: true,
-          showButton: true
+          showButton: true,
+          showProduct: true
         }
       }
       this.showForm = true
@@ -500,6 +508,35 @@ export default {
         return false
       }
       return true
+    },
+    handleWarehouseDialog() {
+      const obj = this.javaCode['WarehouseBuilder'].find(item => {
+        if (item.value == this.warehouseId) {
+          return item
+        }
+      })
+      const tempArr = []
+      this.form.saleOrderItemList.forEach((ele, index) => {
+        ele.warehouseId = this.warehouseId
+        ele.warehouseName = obj.label
+        tempArr.push(ele)
+      })
+      this.form.saleOrderItemList = tempArr
+      this.warehouseDialogVisible = false
+    },
+    handleTaxRateDialog() {
+      const tempArr = []
+      this.form.saleOrderItemList.forEach((ele, index) => {
+        ele.taxRate = this.taxRate
+        if (ele.procurementPrice && ele.amount) {
+          ele.procurementPrice = this.$math.format(this.$math.divide(ele.taxIncludedPrice, (ele.taxRate * 0.01 + 1)), { precision: 2, notation: 'fixed' })
+          ele.procurementAmount = this.$math.format(this.$math.multiply(ele.procurementPrice, ele.amount), { precision: 2, notation: 'fixed' })
+          ele.taxAmount = this.$math.format(this.$math.subtract(ele.taxTotalAmount, ele.procurementAmount), { precision: 2, notation: 'fixed' })
+        }
+        tempArr.push(ele)
+      })
+      this.form.saleOrderItemList = tempArr
+      this.taxRateDialogVisible = false
     }
   }
 }

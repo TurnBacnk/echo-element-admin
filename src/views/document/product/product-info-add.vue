@@ -124,7 +124,9 @@ export default {
           },
           {
             label: '是否组装件',
-            prop: 'is'
+            prop: 'isBuild',
+            type: 'select',
+            options: this.constant['YesOrNo']
           },
           {
             label: '规格型号',

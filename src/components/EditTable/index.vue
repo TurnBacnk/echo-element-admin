@@ -3,8 +3,9 @@
     <el-button v-if="showButton" type="primary" style="margin-bottom: 10px" size="mini" @click="addRow">添加行</el-button>
     <el-button v-if="showButton" type="primary" size="mini" @click="handleImport">批量导入</el-button>
     <el-button v-if="showProduct" type="primary" size="mini" @click="showProductDialog = true">批量选择</el-button>
-
+    <el-button v-if="showProcurementProduct" type="primary" size="mini" @click="procurementDialog = true">源单产品</el-button>
     <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="showProductDialog" @update:selected="updateTableData" />
+    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="procurementDialog" :query-form="procurementQueryForm" :data-source="procurementDataSource" @update:selected="updateTableData" />
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
       <el-table :data="formData.tableData" style="width: 100%" row-key="id" :show-summary="showSummary" :summary-method="handleSummary" border :row-style="{ height: '10px'}" :cell-style="{ padding: '0px' }">
         <el-table-column :type="tableConfig.indexType" fixed="left" />
@@ -144,6 +145,14 @@ export default {
     showProduct: {
       type: Boolean,
       default: false
+    },
+    showProcurementProduct: {
+      type: Boolean,
+      default: false
+    },
+    procurementQueryForm: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -156,7 +165,9 @@ export default {
       formData: {
         tableData: initData
       },
-      showProductDialog: false
+      showProductDialog: false,
+      procurementDialog: false,
+      procurementDataSource: '/api/product-info/procurement-product/list'
     }
   },
   watch: {
@@ -231,7 +242,7 @@ export default {
       this.$emit('update:data', this.formData.tableData)
     },
     updateTableData(selectedItems) {
-      this.formData.tableData = selectedItems
+      this.formData.tableData = this.data.concat(selectedItems)
       this.$emit('update:data', this.formData.tableData)
     },
     handleInputChange(event, row, column) {
@@ -281,9 +292,10 @@ export default {
           return item
         }
       })
-      return obj === undefined ? undefined : obj.label
+      return obj === undefined ? 'N/A' : obj.label
     },
     displayItem(row, prop) {
+      console.log('123')
       if (row[prop] === 0) {
         return row[prop]
       }

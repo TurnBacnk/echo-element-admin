@@ -5,15 +5,35 @@
         <el-input v-model="queryForm.orderCode" placeholder="请输入采购订单编号" clearable />
       </el-form-item>
       <el-form-item label="单据日期" prop="orderTime">
-        <el-date-picker v-model="queryForm.orderTime" placeholder="请选择单据日期" clearable type="date" size="small" value-format="yyyy-MM-dd" />
+        <el-date-picker v-model="queryForm.orderTimeList" start-placeholder="开始日期" end-placeholder="结束日期" clearable type="daterange" size="small" value-format="yyyy-MM-dd" :picker-options="pickerOptions" />
       </el-form-item>
       <el-form-item label="供应商" prop="vendorId">
-        <el-select v-model="queryForm.vendorId">
+        <el-select v-model="queryForm.vendorIds" multiple>
           <el-option
             v-for="vendor in javaCode['VendorBuilder']"
             :key="vendor.key"
             :label="vendor.label"
             :value="vendor.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="approvalStatus">
+        <el-select v-model="queryForm.approvalStatusList" placeholder="请选择审核状态" clearable multiple>
+          <el-option
+            v-for="approvalStatus in constant['ApprovalTextConstant']"
+            :key="approvalStatus.value"
+            :value="approvalStatus.value"
+            :label="approvalStatus.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="采购人员" prop="procurementUserId">
+        <el-select v-model="queryForm.procurementUserIds" placeholder="请选择采购人员" clearable multiple>
+          <el-option
+            v-for="user in javaCode['UserBuilder']"
+            :key="user.value"
+            :label="user.label"
+            :value="user.value"
           />
         </el-select>
       </el-form-item>
@@ -43,9 +63,11 @@ export default {
       queryForm: {
         orderCode: undefined,
         deliverDate: undefined,
-        vendorId: undefined,
-        procurementUserId: undefined,
-        warehouseId: undefined
+        vendorIds: undefined,
+        procurementUserIds: undefined,
+        warehouseId: undefined,
+        orderTimeList: this.getCurrentMonthRange(),
+        approvalStatusList: undefined
       },
       buttonConfig: [
         {
@@ -84,12 +106,39 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['VendorBuilder']
+        javaCodeNameList: ['VendorBuilder', 'UserBuilder']
       },
       constant: [],
       constantConfig: {
-        constantNameList: ['OrderStatus']
-      }
+        constantNameList: ['OrderStatus', 'ApprovalTextConstant']
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
     }
   },
   async created() {
@@ -150,12 +199,26 @@ export default {
         {
           label: '优惠金额',
           prop: 'discountAmount',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '150'
         },
         {
           label: '优惠后应付款',
           prop: 'afterDiscountPayAmount',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '150'
+        },
+        {
+          label: '已入库金额',
+          prop: 'alreadyInboundAmount',
+          columnType: 'Money',
+          width: '150'
+        },
+        {
+          label: '未入库金额',
+          prop: 'unInboundAmount',
+          columnType: 'Money',
+          width: '150'
         },
         {
           label: '订单状态',
@@ -268,6 +331,11 @@ export default {
           ]
         }
       ]
+    },
+    getCurrentMonthRange() {
+      const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+      return [start, end];
     },
     handleAdd() {
       this.$router.push({

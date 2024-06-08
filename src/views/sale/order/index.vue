@@ -153,12 +153,14 @@ export default {
         {
           prop: 'discountAmount',
           label: '优惠金额',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '500'
         },
         {
           prop: 'afterDiscountReceiveAmount',
           label: '优惠后应收金额',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '500'
         },
         {
           prop: 'clientName',

@@ -24,16 +24,16 @@
         <el-col :span="20" :xs="24">
           <el-form v-if="showSearch" ref="queryForm" :inline="true" size="mini">
             <el-form-item label="产品名称" prop="productName">
-              <el-input v-model="queryForm.productName" clearable placeholder="请输入产品编号" />
+              <el-input v-model="baseQueryForm.productName" clearable placeholder="请输入产品编号" />
             </el-form-item>
-            <el-form-item label="产品编码" prop="productName">
-              <el-input v-model="queryForm.productName" clearable placeholder="请输入产品编号" />
+            <el-form-item label="产品编码" prop="productCode">
+              <el-input v-model="baseQueryForm.productCode" clearable placeholder="请输入产品编号" />
             </el-form-item>
             <el-form-item label="规格" prop="specification">
-              <el-input v-model="queryForm.specification" clearable placeholder="请输入规格" />
+              <el-input v-model="baseQueryForm.specification" clearable placeholder="请输入规格" />
             </el-form-item>
             <el-form-item label="产品分类" prop="category">
-              <el-select v-model="queryForm.category" placeholder="请选择产品分类">
+              <el-select v-model="baseQueryForm.category" placeholder="请选择产品分类">
                 <el-option
                   v-for="category in javaCode['CategoryBuilder']"
                   :key="category.key"
@@ -43,7 +43,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="单位" prop="unit">
-              <el-select v-model="queryForm.unit" placeholder="请选择单位">
+              <el-select v-model="baseQueryForm.unit" placeholder="请选择单位">
                 <el-option
                   v-for="unit in javaCode['UnitBuilder']"
                   :key="unit.key"
@@ -60,7 +60,7 @@
           <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @queryTable="handleQuery" />
           <page-table
             ref="tableList"
-            :query-form="queryForm"
+            :query-form="baseQueryForm"
             :table-column-config="tableColumnConfig"
             :data-source="dataSource"
           />
@@ -92,18 +92,28 @@ export default {
     selected: {
       type: Array,
       default: () => []
+    },
+    dataSource: {
+      type: String,
+      default: '/api/product-info/list'
+    },
+    queryForm: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
     return {
       showSearch: true,
       buttonConfig: [],
-      dataSource: '/api/product-info/list',
       buttonText: '批量选择产品',
       inputValue: '',
       selectedItems: this.selected,
-      queryForm: {
-
+      baseQueryForm: {
+        productName: undefined,
+        productCode: undefined,
+        specification: undefined,
+        category: undefined
       },
       tableColumnConfig: [],
       constant: [],
@@ -147,6 +157,7 @@ export default {
       this.categoryOptions = res.data
     })
     await this.init()
+    await this.initParams()
   },
   methods: {
     restQuery() {
@@ -154,6 +165,9 @@ export default {
     },
     handleQuery() {
       this.$refs.tableList.list()
+    },
+    initParams() {
+      Object.assign(this.baseQueryForm, this.queryForm)
     },
     init() {
       this.tableColumnConfig = [
@@ -243,6 +257,7 @@ export default {
         ele.discountRate = 0
       })
       this.$emit('update:selected', this.selectedItems)
+      this.$refs.tableList.clearSelect()
       this.closeDialog()
     },
     filterNode(value, data) {

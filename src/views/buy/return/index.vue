@@ -164,7 +164,13 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
-                return false
+                if (row.approvalStatus === 0) {
+                  return false
+                }
+                if (row.approvalStatus === 3) {
+                  return false
+                }
+                return true
               }
             },
             {

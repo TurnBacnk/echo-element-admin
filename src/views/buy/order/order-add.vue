@@ -56,7 +56,7 @@
       width="30%"
     >
       <el-form>
-        <el-form-item prop="saleOrderId" label="销售订">
+        <el-form-item prop="saleOrderId" label="销售订单">
           <el-select v-model="saleOrderId" placeholder="请选择销售订单">
             <el-option
               v-for="warehouse in javaCode['SaleOrderBuilder']"

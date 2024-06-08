@@ -311,7 +311,7 @@ export default {
     border: {
       type: Boolean,
       required: false,
-      default: false
+      default: true
     },
     dataSource: {
       type: String,
@@ -400,6 +400,9 @@ export default {
         idArr.push(ele.id)
       })
       return idArr
+    },
+    clearSelect() {
+      this.$refs.table.clearSelection()
     },
     handleSizeChange(val) {
       this.size = val
