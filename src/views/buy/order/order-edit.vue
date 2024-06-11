@@ -11,6 +11,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :save-fun="saveFun"
+      :submit-fun="saveFun"
     />
     <el-dialog
       title="请选择仓库"
