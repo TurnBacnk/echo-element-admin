@@ -137,10 +137,11 @@ export default {
       Object.assign(this.form, res.data)
       this.form.id = undefined
       this.form.procurementUserName = res.data.procurementUsername
-      res.data.inboundOrderItemList.forEach((ele) => {
-        ele.id = undefined
-        this.form.returnOrderItemList.push(ele)
-      })
+      // res.data.inboundOrderItemList.forEach((ele) => {
+      //   ele.id = undefined
+      //   this.form.returnOrderItemList.push(ele)
+      // })
+      this.form.returnOrderItemList = []
     })
     await generateCode('PROCUREMENT_RETURN').then(res => {
       this.form.returnOrderCode = res.data
@@ -437,7 +438,11 @@ export default {
           ],
           totalColumns: ['discountAmount', 'procurementAmount', 'taxAmount', 'taxTotalAmount'],
           showSummary: true,
-          showButton: false
+          showButton: false,
+          showReturn: true,
+          returnQueryForm: {
+            inboundOrderId: this.$route.params.inboundId
+          }
         }
       }
       this.showForm = true

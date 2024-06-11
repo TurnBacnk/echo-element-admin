@@ -24,7 +24,7 @@ import { getInboundOrderById } from '@/api/business/inbound'
 import { getVendorContactUserList } from '@/api/business/vendor'
 
 export default {
-  name: 'InboundEdit',
+  name: 'BuyInboundView',
   components: { FormTable },
   data() {
     return {

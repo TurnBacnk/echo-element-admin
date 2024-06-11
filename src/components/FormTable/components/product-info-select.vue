@@ -100,6 +100,10 @@ export default {
     queryForm: {
       type: Object,
       default: () => {}
+    },
+    formData: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -113,7 +117,8 @@ export default {
         productName: undefined,
         productCode: undefined,
         specification: undefined,
-        category: undefined
+        category: undefined,
+        productCodeList: []
       },
       tableColumnConfig: [],
       constant: [],
@@ -136,11 +141,24 @@ export default {
   watch: {
     showDialog(newVal) {
       this.innerDialog = newVal
+      if (newVal) {
+        this.handleQuery()
+      }
     },
     innerDialog(newVal) {
       if (!newVal) {
         this.$emit('update:showDialog', false)
       }
+    },
+    'formData': {
+      handler(newVal, oldVal) {
+        const codeArr = []
+        newVal.forEach(item => {
+          codeArr.push(item.productCode)
+        })
+        this.baseQueryForm.productCodeList = codeArr
+      },
+      immediate: true
     }
   },
   async created() {

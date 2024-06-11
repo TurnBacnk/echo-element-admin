@@ -26,7 +26,7 @@ import { getVendorContactUserList } from '@/api/business/vendor'
 import { getBuyOrderByCode } from '@/api/business/order'
 
 export default {
-  name: 'OrderApproval',
+  name: 'BuyOrderApproval',
   components: { FormTable },
   data() {
     return {

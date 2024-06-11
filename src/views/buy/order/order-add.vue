@@ -85,7 +85,7 @@ import {getVendorContactUserList} from '@/api/business/vendor'
 import {getSaleOrderInfoById} from '@/api/business/sale-order'
 
 export default {
-  name: 'OrderEdit',
+  name: 'BuyOrderAdd',
   components: { FormTable },
   data() {
     return {

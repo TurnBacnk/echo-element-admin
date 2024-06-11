@@ -45,7 +45,7 @@ import { getInboundOrderById } from '@/api/business/inbound'
 import { getVendorContactUserList } from '@/api/business/vendor'
 
 export default {
-  name: 'InboundEdit',
+  name: 'BuyInboundEdit',
   components: { FormTable },
   data() {
     return {

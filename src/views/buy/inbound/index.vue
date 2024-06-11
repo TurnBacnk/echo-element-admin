@@ -32,7 +32,7 @@ import {
 import {delBuyOrderByIds} from "@/api/business/order";
 
 export default {
-  name: 'Inbound',
+  name: 'BuyInbound',
   components: { PageTable, ButtonGroup },
   data() {
     return {

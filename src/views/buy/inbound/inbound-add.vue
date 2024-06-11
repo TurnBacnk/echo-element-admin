@@ -46,7 +46,7 @@ import { getBuyOrderByCode } from '@/api/business/order'
 import { getVendorContactUserList } from '@/api/business/vendor'
 
 export default {
-  name: 'InboundAdd',
+  name: 'BuyInboundAdd',
   components: { FormTable },
   data() {
     return {

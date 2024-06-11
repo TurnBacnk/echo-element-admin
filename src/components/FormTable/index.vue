@@ -165,7 +165,9 @@
                 :show-button="collapseItemConfig[config.name].showButton ? collapseItemConfig[config.name].showButton : false"
                 :show-product="collapseItemConfig[config.name].showProduct"
                 :show-procurement-product="collapseItemConfig[config.name].showProcurementProduct"
+                :show-return="collapseItemConfig[config.name].showReturn"
                 :procurement-query-form="collapseItemConfig[config.name].procurementQueryForm"
+                :return-query-form="collapseItemConfig[config.name].returnQueryForm"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>

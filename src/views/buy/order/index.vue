@@ -37,6 +37,16 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="订单状态">
+        <el-select v-model="queryForm.orderStatusList" placeholder="请选择订单状态" clearable multiple>
+          <el-option
+            v-for="status in constant['OrderStatus']"
+            :key="status.value"
+            :label="status.label"
+            :value="status.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
@@ -66,6 +76,7 @@ export default {
         vendorIds: undefined,
         procurementUserIds: undefined,
         warehouseId: undefined,
+        orderStatusList: undefined,
         orderTimeList: this.getCurrentMonthRange(),
         approvalStatusList: undefined
       },

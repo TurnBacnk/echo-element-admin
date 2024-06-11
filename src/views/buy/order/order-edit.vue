@@ -83,7 +83,7 @@ import {getVendorContactUserList} from '@/api/business/vendor'
 import {getOrderById} from '@/api/business/order'
 
 export default {
-  name: 'OrderEdit',
+  name: 'BuyOrderEdit',
   components: { FormTable },
   data() {
     return {
