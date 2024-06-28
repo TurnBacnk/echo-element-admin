@@ -15,6 +15,13 @@ export function voidOrderByIds(ids) {
   })
 }
 
+export function voidOrderById(id) {
+  return request({
+    url: '/api/order/void-order-by-id/' + id,
+    method: 'get'
+  })
+}
+
 export function delBuyOrderByIds(ids) {
   return request({
     url: '/api/order/delete-by-ids',

@@ -384,13 +384,15 @@ export default {
           })
         })
         if (canSave) {
-          this.$refs.editTable.forEach(function(ele) {
-            ele.$refs.editTableForm.validate(valid => {
-              if (!valid) {
-                canSave = false
-              }
+          if (this.$refs.editTable) {
+            this.$refs.editTable.forEach(function(ele) {
+              ele.$refs.editTableForm.validate(valid => {
+                if (!valid) {
+                  canSave = false
+                }
+              })
             })
-          })
+          }
         }
         if (canSave) {
           request({

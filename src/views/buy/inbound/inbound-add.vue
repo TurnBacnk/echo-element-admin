@@ -87,7 +87,7 @@ export default {
 
         },
         goodsInfo: {
-
+          warehouseName: [{ required: true, message: '请选择仓库', trigger: 'blur' }]
         }
       },
       collapseItemConfig: [],

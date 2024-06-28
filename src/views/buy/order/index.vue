@@ -62,7 +62,7 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import {getConstant, getDictionary, getJavaCode} from '@/api/common/dict'
-import {delBuyOrderByIds, submitBuyOrderById, submitBuyOrderByIds} from '@/api/business/order'
+import {delBuyOrderByIds, submitBuyOrderById, submitBuyOrderByIds, voidOrderById} from '@/api/business/order'
 
 export default {
   name: 'BuyOrder',
@@ -284,6 +284,9 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                if (row.status === 0) {
+                  return true
+                }
                 if (row.approvalStatus === 0) {
                   return false
                 }
@@ -308,6 +311,9 @@ export default {
               },
               icon: 'el-icon-s-promotion',
               isDisabled: (row) => {
+                if (row.status === 0) {
+                  return true
+                }
                 if (row.approvalStatus === 0) {
                   return false
                 }
@@ -315,6 +321,30 @@ export default {
                   return false
                 }
                 return true
+              }
+            },
+            {
+              text: '作废',
+              css: 'text',
+              click: (index, row) => {
+                voidOrderById(row.id).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                    this.handleQuery()
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.canVoid === 1) {
+                  if (row.status === 0) {
+                    return true
+                  } else {
+                    return false
+                  }
+                } else {
+                  return true
+                }
               }
             },
             {
@@ -331,6 +361,9 @@ export default {
               },
               icon: 'el-icon-box',
               isDisabled: (row) => {
+                if (row.status === 0) {
+                  return true
+                }
                 if (row.approvalStatus === 2) {
                   if (row.canInbound === 1) {
                     return false

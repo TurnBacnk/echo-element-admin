@@ -954,6 +954,38 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/project/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'project-add',
+        component: () => import('@/views/project/project-add.vue'),
+        name: 'ProjectAdd',
+        meta: { activeMenu: 'project', title: '新增项目' }
+      },
+      {
+        path: 'project-edit',
+        component: () => import('@/views/project/project-edit.vue'),
+        name: 'ProjectEdit',
+        meta: { activeMenu: 'project', title: '修改项目' }
+      },
+      {
+        path: 'project-view',
+        component: () => import('@/views/project/project-view.vue'),
+        name: 'ProjectView',
+        meta: { activeMenu: 'project', title: '查看项目' }
+      },
+      {
+        path: 'quotation',
+        component: () => import('@/views/sale/quotation/index.vue'),
+        name: 'Quotation',
+        meta: { activeMenu: 'project', title: '报价单' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

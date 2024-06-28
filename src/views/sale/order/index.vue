@@ -120,7 +120,8 @@ export default {
                 }
               })
             }
-          }
+          },
+          width: '250px'
         },
         {
           prop: 'contractNo',
@@ -153,14 +154,12 @@ export default {
         {
           prop: 'discountAmount',
           label: '优惠金额',
-          columnType: 'Money',
-          width: '500'
+          columnType: 'Money'
         },
         {
           prop: 'afterDiscountReceiveAmount',
           label: '优惠后应收金额',
-          columnType: 'Money',
-          width: '500'
+          columnType: 'Money'
         },
         {
           prop: 'clientName',
