@@ -31,7 +31,8 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getJavaCode} from '@/api/common/dict'
+import {deleteQuotationById, deleteQuotationByIds} from "@/api/business/sale-quotation";
 
 export default {
   name: 'Quotation',
@@ -61,6 +62,12 @@ export default {
           },
           plain: true,
           icon: 'el-icon-delete'
+        },
+        {
+          text: '生效',
+          click: () => {
+            this.handleEffect()
+          }
         }
       ],
       dataSource: '/api/sale/quotation/list',
@@ -95,7 +102,8 @@ export default {
       javaCode: [],
       javaCodeConfig: {
         javaCodeNameList: ['UserBuilder']
-      }
+      },
+      projectId: undefined
     }
   },
   async created() {
@@ -103,6 +111,7 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
+    this.projectId = this.$route.params.projectId
   },
   methods: {
     init() {
@@ -156,7 +165,7 @@ export default {
               text: '删除',
               css: 'text',
               click: (index, row) => {
-                deleteOtherOutboundById(row.id).then(response => {
+                deleteQuotationById(row.id).then(response => {
                   const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
@@ -174,12 +183,15 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        name: ''
+        name: 'QuotationAdd',
+        params: {
+          projectId: this.projectId
+        }
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: '',
+        name: 'QuotationEdit',
         params: {
           id: row.id
         }
@@ -187,7 +199,7 @@ export default {
     },
     handleDel() {
       const ids = this.$refs.tableList.checkedRowIds()
-      deleteOtherOutboundByIds(ids).then(res => {
+      deleteQuotationByIds(ids).then(res => {
         const { msg, code } = res
         if (code === '100') {
           this.$modal.msgSuccess(msg)
@@ -200,6 +212,16 @@ export default {
     },
     restQuery() {
       this.$refs.queryForm.resetFields()
+    },
+    handleEffect() {
+      const ids = this.$refs.tableList.checkedRowIds()
+
+      this.$router.push({
+        name: 'SaleOrderEdit',
+        params: {
+          id: res.data
+        }
+      })
     }
   }
 }

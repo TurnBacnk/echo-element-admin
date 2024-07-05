@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :visible.sync="showDialog" title="选择产品信息">
+    <el-dialog :visible.sync="showDialog" title="选择产品信息" fullscreen>
       <!-- 这里插入你的产品列表组件 -->
       <el-row :gutter="20">
         <el-col :span="4" :xs="24">
@@ -203,8 +203,7 @@ export default {
           fixed: 'left'
         }, {
           label: '产品名称',
-          prop: 'productName',
-          fixed: 'left'
+          prop: 'productName'
         }, {
           label: '产品规格',
           prop: 'specification'

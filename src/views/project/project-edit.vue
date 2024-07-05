@@ -40,7 +40,9 @@ export default {
       },
       rules: {
         baseInfo: {
-
+          projectCode: [{ required: true, message: '请输入项目编号', trigger: 'blur' }],
+          projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+          projectDate: [{ required: true, message: '请输入项目名称', trigger: 'blur' }]
         }
       },
       collapseItemConfig: [],

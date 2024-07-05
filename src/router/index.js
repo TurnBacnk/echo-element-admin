@@ -983,6 +983,24 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/quotation/index.vue'),
         name: 'Quotation',
         meta: { activeMenu: 'project', title: '报价单' }
+      },
+      {
+        path: 'quotationAdd',
+        component: () => import('@/views/sale/quotation/quotation-add.vue'),
+        name: 'QuotationAdd',
+        meta: { activeMenu: 'project', title: '登记报价单' }
+      },
+      {
+        path: 'quotationEdit',
+        component: () => import('@/views/sale/quotation/quotation-edit.vue'),
+        name: 'QuotationEdit',
+        meta: { activeMenu: 'project', title: '修改报价单' }
+      },
+      {
+        path: 'quotationView',
+        component: () => import('@/views/sale/quotation/quotation-view.vue'),
+        name: 'QuotationView',
+        meta: { activeMenu: 'project', title: '查看报价单' }
       }
     ]
   },

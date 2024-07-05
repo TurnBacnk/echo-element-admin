@@ -22,7 +22,7 @@
         <el-table-column
           v-if="column.columnType === 'Operation'"
           :label="column.label"
-          :width="column.width ? column.width : 300"
+          :width="column.width"
           align="center"
           fixed="right"
         >
