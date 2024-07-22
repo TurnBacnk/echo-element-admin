@@ -1,11 +1,57 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
-      <el-form-item label="销售退货单编号" prop="saleReturnOrderCode">
-        <el-input v-model="queryForm.saleReturnOrderCode" clearable placeholder="请输入销售出库单编号" size="mini" />
+      <el-form-item label="单据编号" prop="orderCode">
+        <el-input v-model="queryForm.orderCode" size="mini" clearable placeholder="请输入单据编号" />
       </el-form-item>
-      <el-form-item label="退货日期">
-        <el-date-picker type="date" v-model="queryForm.saleReturnOrderTime" placeholder="请选择退货日期" clearable  />
+      <el-form-item label="合同号" prop="contractNo">
+        <el-input v-model="queryForm.contractNo" size="mini" clearable placeholder="请输入合同号" />
+      </el-form-item>
+      <el-form-item label="合同日期" prop="contractDate">
+        <el-date-picker
+          v-model="queryForm.contractDate"
+          clearable
+          type="daterange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          size="mini"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleContractDateRangeChange"
+        />
+      </el-form-item>
+      <el-form-item label="退货日期" prop="deliveryDate">
+        <el-date-picker
+          v-model="queryForm.returnDate"
+          clearable
+          type="daterange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          size="mini"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleDeliveryDateRangeChange"
+        />
+      </el-form-item>
+      <el-form-item prop="saleFromId" label="供应方">
+        <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
+          <el-option
+            v-for="company in javaCode['CompanyBuilder']"
+            :key="company.key"
+            :label="company.label"
+            :value="company.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item prop="saleToId" label="采购方">
+        <el-select v-model="queryForm.saleToId" placeholder="请选择采购方">
+          <el-option
+            v-for="custom in javaCode['CustomerBuilder']"
+            :key="custom.key"
+            :label="custom.label"
+            :value="custom.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
@@ -21,23 +67,65 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {
-  delSaleReturnOrderById, delSaleReturnOrderByIds,
-  submitSaleReturnOrderById,
-  submitSaleReturnOrderByIds
-} from "@/api/business/sale-return";
+import { getJavaCode } from '@/api/common/dict'
+import { deleteProcurementOrderById, deleteProcurementOrderByIds } from '@/api/business/procurement-order'
+import { submitProcurementReturnOrderByIds } from '@/api/business/procurement-return'
+import { deleteReturnById, deleteReturnByIds, submitReturnByIds } from '@/api/business/sales-return'
 
 export default {
-  name: 'SaleReturnOrder',
+  name: 'SalesReturnOrder',
   components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
       queryForm: {
-        saleReturnOrderCode: undefined,
-        saleReturnOrderTime: undefined
+        orderCode: undefined,
+        saleFromId: undefined,
+        saleToId: undefined,
+        contractDate: undefined,
+        contractStartDate: undefined,
+        contractEndDate: undefined,
+        returnDate: undefined,
+        returnStartDate: undefined,
+        returnEndDate: undefined,
+        contractNo: undefined
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
       },
       buttonConfig: [
+        {
+          text: '新增',
+          click: () => {
+            this.handleAdd()
+          },
+          plain: true,
+          icon: 'el-icon-plus'
+        },
         {
           text: '提交',
           click: () => {
@@ -57,72 +145,61 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/sale-return/list',
-      tableColumnConfig: []
+      dataSource: '/api/sales/return/list',
+      tableColumnConfig: [],
+      javaCode: [],
+      javaCodeConfig: {
+        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+      }
     }
   },
   async created() {
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
     await this.init()
   },
   methods: {
     init() {
       this.tableColumnConfig = [
         {
-          columnType: 'Index'
+          columnType: 'Index',
         },
         {
-          prop: 'saleReturnOrderCode',
-          label: '销售退货单编号',
+          label: '单据编号',
+          prop: 'orderCode',
           columnType: 'Link',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'SaleReturnOrderView',
+                name: 'SalesReturnOrderView',
                 params: {
                   id: row.id
                 }
               })
             }
           },
-          width: '300px'
+          width: 180,
         },
         {
-          prop: 'saleOutboundOrderCode',
-          label: '销售出库单',
-          columnType: 'Link',
-          width: '300px',
-          link: {
-            click: (index, row) => {
-              this.$router.push({
-                name: 'SaleOutboundView',
-                params: {
-                  id: row.saleOutboundOrderId
-                }
-              })
-            }
-          }
+          label: '合同号',
+          prop: 'contractNo'
         },
         {
-          prop: 'saleReturnOrderTime',
+          prop: 'saleFromName',
+          label: '供应方'
+        },
+        {
+          prop: 'saleToName',
+          label: '采购方'
+        },
+        {
+          prop: 'contractDate',
+          label: '合同日期'
+        },
+        {
+          prop: 'returnDate',
           label: '退货日期'
-        },
-        {
-          prop: 'clientName',
-          label: '客户名称'
-        },
-        {
-          prop: 'saleUserName',
-          label: '销售人员'
-        },
-        {
-          prop: 'discountAmount',
-          label: '优惠金额',
-          columnType: 'Money'
-        },
-        {
-          prop: 'afterDiscountReceiveAmount',
-          label: '优惠后应付款',
-          columnType: 'Money'
         },
         {
           prop: 'approvalStatus',
@@ -151,8 +228,8 @@ export default {
               text: '删除',
               css: 'text',
               click: (index, row) => {
-                delSaleReturnOrderById(row.id).then(res => {
-                  const { code, msg } = res
+                deleteReturnById(row.id).then(response => {
+                  const { code, msg } = response
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
@@ -160,51 +237,21 @@ export default {
                 })
               },
               isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
-                }
-                if (row.approvalStatus === 3) {
-                  return false
-                }
-                return true
+                return false
               }
             },
-            {
-              text: '提交',
-              css: 'text',
-              click: (index, row) => {
-                submitSaleReturnOrderById(row.id).then(res => {
-                  const { code, msg } = res
-                  if (code === '100') {
-
-                    this.$modal.msgSuccess(msg)
-                    this.handleQuery()
-                  }
-                })
-              },
-              icon: 'el-icon-s-promotion',
-              isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
-                }
-                if (row.approvalStatus === 3) {
-                  return false
-                }
-                return true
-              }
-            }
           ]
         }
       ]
     },
     handleAdd() {
       this.$router.push({
-        name: 'SaleReturnOrderAdd',
+        name: 'SalesReturnOrderAdd',
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'SaleReturnOrderEdit',
+        name: 'SalesReturnOrderEdit',
         params: {
           id: row.id
         }
@@ -224,21 +271,38 @@ export default {
       })
       if (canDel) {
         const ids = this.$refs.tableList.checkedRowIds()
-        delSaleReturnOrderByIds(ids).then(res => {
-          const { code, msg } = res
+        deleteReturnByIds(ids).then(res => {
+          const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
             this.handleQuery()
           }
         })
       }
-
     },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
       this.$refs.queryForm.resetFields()
+    },
+    handleContractDateRangeChange(value) {
+      if (value && value.length === 2) {
+        this.queryForm.contractStartDate = value[0]
+        this.queryForm.contractEndDate = value[1]
+      } else {
+        this.queryForm.contractStartDate = ''
+        this.queryForm.contractEndDate = ''
+      }
+    },
+    handleDeliveryDateRangeChange(value) {
+      if (value && value.length === 2) {
+        this.queryForm.returnStartDate = value[1]
+        this.queryForm.returnEndDate = value[2]
+      } else {
+        this.queryForm.returnStartDate = ''
+        this.queryForm.returnEndDate = ''
+      }
     },
     handleSubmit() {
       var checkedRows = this.$refs.tableList.checkedRows()
@@ -249,13 +313,10 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
-        let ids = this.$refs.tableList.checkedRowIds();
-        submitSaleReturnOrderByIds(ids).then(res => {
-          const { code, msg } = res
+        submitReturnByIds(this.$refs.tableList.checkedRowIds()).then(res => {
+          const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
-            this.handleQuery()
           }
         })
       } else {

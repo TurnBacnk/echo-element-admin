@@ -30,7 +30,7 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '采购开票登记',
+      contentText: '采购收票登记',
       saveUrl: '/api/financial-ticket-order/save',
       submitUrl: '/api/financial-ticket-order/save-and-submit-single',
       canSubmit: true,
@@ -229,8 +229,7 @@ export default {
             {
               label: '单价',
               prop: 'price',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '应收票金额',

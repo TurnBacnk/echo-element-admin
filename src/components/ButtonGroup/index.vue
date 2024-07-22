@@ -49,7 +49,7 @@
           @change="dataChange"
         />
       </el-dialog>
-      <upload-file ref="upload" :action-url="uploadUrl" />
+      <upload-file ref="upload" :action-url="uploadUrl" :business-name="businessName" />
     </div>
   </el-row>
 </template>
@@ -104,7 +104,11 @@ export default {
     },
     uploadUrl: {
       type: String,
-      required: true
+      required: false
+    },
+    businessName: {
+      type: String,
+      required: false
     }
   },
   data() {

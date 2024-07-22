@@ -22,9 +22,9 @@
         <el-table-column
           v-if="column.columnType === 'Operation'"
           :label="column.label"
-          :width="column.width"
+          :width="column.width ? column.width : '200'"
           align="center"
-          fixed="right"
+          :fixed="column.fixed ? column.fixed : 'right'"
         >
           <template slot-scope="scope">
             <el-button
@@ -51,7 +51,7 @@
           v-else-if="column.columnType === 'Dictionary'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -66,7 +66,7 @@
           v-else-if="column.columnType === 'Constant'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -90,7 +90,7 @@
           v-else-if="column.columnType === 'Icon'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -105,7 +105,7 @@
           v-else-if="column.columnType === 'Money'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label + getCurrencyUnitLabel() : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -120,7 +120,7 @@
           v-else-if="column.columnType === 'Link'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -135,7 +135,7 @@
           v-else-if="column.columnType === 'Tag'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -188,7 +188,7 @@
           v-else-if="column.columnType === 'ApprovalStatus'"
           :fixed="column.fixed ? column.fixed : false"
           :label="column.label ? column.label : ''"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
           :prop="column.prop ? column.prop : undefined"
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
@@ -221,7 +221,7 @@
           :show-overflow-tooltip="true"
           :sortable="column.sortable ? column.sortable : false"
           :type="column.type ? column.type : undefined"
-          :width="column.width"
+          :width="column.width ? column.width : 150"
         />
       </template>
     </el-table>

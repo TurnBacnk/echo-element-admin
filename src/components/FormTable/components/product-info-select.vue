@@ -104,6 +104,10 @@ export default {
     formData: {
       type: Array,
       default: () => []
+    },
+    isSale: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -272,6 +276,13 @@ export default {
       this.selectedItems.forEach((ele) => {
         ele.taxRate = 13
         ele.discountRate = 0
+        if (this.isSale) {
+          ele.netUnitPrice = ele.salePrice
+          ele.taxIncludedPrice = ele.salePriceTax
+        } else {
+          ele.netUnitPrice = ele.procurementPrice
+          ele.taxIncludedPrice = ele.procurementPriceTax
+        }
       })
       this.$emit('update:selected', this.selectedItems)
       this.$refs.tableList.clearSelect()

@@ -24,16 +24,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="单据类型" prop="orderType">
-        <el-select v-model="queryForm.orderType" placeholder="请选择单据类型">
-          <el-option
-            v-for="orderType in orderType"
-            :key="orderType.value"
-            :label="orderType.label"
-            :value="orderType.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item>
         <el-button icon="el-icon-search" size="mini" type="primary" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>

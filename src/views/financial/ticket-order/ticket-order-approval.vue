@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '采购开票审核',
+      contentText: '采购收票审核',
       saveUrl: '/api/financial-ticket-order/save',
       submitUrl: '/api/financial-ticket-order/save-and-submit-single',
       canSubmit: true,

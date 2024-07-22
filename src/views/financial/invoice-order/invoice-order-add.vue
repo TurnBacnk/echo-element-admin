@@ -51,7 +51,10 @@ export default {
         alreadyInvoiceAmount: 0.00,
         unInvoiceAmount: 0.00,
         amount: 0.00,
-        invoiceOrderItemList: []
+        invoiceOrderItemList: [],
+        type: 0,
+        capitalAccountName: undefined,
+        capitalAccountId: undefined
       },
       rules: {
         baseInfo: {
@@ -76,7 +79,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder']
+        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CapitalAccountBuilder']
       }
     }
   },
@@ -96,6 +99,21 @@ export default {
       Object.assign(this.form, res.data)
     })
   },
+  watch: {
+    'form.type': {
+      handler(newVal, oldVal) {
+        if (newVal !== 0) {
+          this.rules.baseInfo = {}
+        } else {
+          this.rules.baseInfo = {
+            invoiceNo: [
+              { required: true, message: '请输入发票号', trigger: 'blur' }
+            ]
+          }
+        }
+      }
+    }
+  },
   methods: {
     async initBaseInfo() {
       this.form.clientId = this.$route.params.clientId
@@ -114,6 +132,39 @@ export default {
             label: '发票号',
             prop: 'invoiceNo',
             type: 'input'
+          },
+          {
+            label: '票据类型',
+            prop: 'type',
+            type: 'select',
+            options: [
+              {
+                label: '普通票据',
+                value: 0
+              },
+              {
+                label: '外币账户汇款',
+                value: 1
+              },
+              {
+                label: '账外现金',
+                value: 2
+              },
+              {
+                label: '账内现金',
+                value: 3
+              }
+            ]
+          },
+          {
+            label: '资金账户',
+            prop: 'capitalAccountName',
+            type: 'select',
+            options: this.javaCode['CapitalAccountBuilder'],
+            bundle: {
+              label: 'capitalAccountName',
+              value: 'capitalAccountId'
+            }
           },
           {
             label: '发票抬头',
@@ -237,8 +288,7 @@ export default {
             {
               label: '单价',
               prop: 'price',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '应开票金额',

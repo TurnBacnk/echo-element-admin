@@ -1,29 +1,55 @@
 <template>
   <div class="app-container">
-    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
-      <el-form-item label="销售订单编码" prop="saleOrderCode">
-        <el-input v-model="queryForm.saleOrderCode" clearable placeholder="请输入销售订单编码" size="mini" />
+    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+      <el-form-item label="单据编号" prop="orderCode">
+        <el-input v-model="queryForm.orderCode" size="mini" clearable placeholder="请输入单据编号" />
       </el-form-item>
-      <el-form-item label="销售合同号" prop="contractNo">
-        <el-input v-model="queryForm.contractNo" clearable placeholder="请输入销售合同号" size="mini" />
+      <el-form-item label="合同号" prop="contractNo">
+        <el-input v-model="queryForm.contractNo" size="mini" clearable placeholder="请输入合同号" />
       </el-form-item>
-      <el-form-item label="销售人员" prop="saleUserId">
-        <el-select v-model="queryForm.saleUserId" placeholder="请选择销售人员">
+      <el-form-item label="合同日期" prop="contractDate">
+        <el-date-picker
+          v-model="queryForm.contractDate"
+          clearable
+          type="daterange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          size="mini"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleContractDateRangeChange"
+        />
+      </el-form-item>
+      <el-form-item label="交货日期" prop="deliveryDate">
+        <el-date-picker
+          v-model="queryForm.deliveryDate"
+          clearable
+          type="daterange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          size="mini"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleDeliveryDateRangeChange"
+        />
+      </el-form-item>
+      <el-form-item prop="saleFromId" label="供应方">
+        <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
           <el-option
-            v-for="saleUser in javaCode['UserBuilder']"
-            :key="saleUser.value"
-            :label="saleUser.label"
-            :value="saleUser.value"
+            v-for="company in javaCode['CompanyBuilder']"
+            :key="company.key"
+            :label="company.label"
+            :value="company.value"
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="客户">
-        <el-select v-model="queryForm.clientId">
+      <el-form-item prop="saleToId" label="采购方">
+        <el-select v-model="queryForm.saleToId" placeholder="请选择采购方">
           <el-option
-            v-for="client in javaCode['CustomerBuilder']"
-            :key="client.value"
-            :label="client.label"
-            :value="client.value"
+            v-for="custom in javaCode['CustomerBuilder']"
+            :key="custom.key"
+            :label="custom.label"
+            :value="custom.value"
           />
         </el-select>
       </el-form-item>
@@ -32,7 +58,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
+    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>
@@ -41,19 +67,59 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import {delSaleOrderById, delSaleOrderByIds, submitBatchByIds, submitSingleById} from '@/api/business/sale-order'
-import { getConstant } from '@/api/common/dict'
+import { getJavaCode } from '@/api/common/dict'
+import {
+  deleteSalesOrderById,
+  deleteSalesOrderByIds, out, procurement,
+  submitSalesOrderById,
+  submitSalesOrderByIds
+} from '@/api/business/sales-order'
+import { returnOrder } from '@/api/business/in'
 
 export default {
-  name: 'SaleOrder',
+  name: 'SalesOrder',
   components: { PageTable, ButtonGroup },
   data() {
     return {
       showSearch: true,
       queryForm: {
-        saleOrderCode: undefined,
-        contractNo: undefined,
-        saleUserId: undefined
+        orderCode: undefined,
+        saleFromId: undefined,
+        saleToId: undefined,
+        contractDate: undefined,
+        contractStartDate: undefined,
+        contractEndDate: undefined,
+        deliveryDate: undefined,
+        deliveryStartDate: undefined,
+        deliveryEndDate: undefined,
+        contractNo: undefined
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
       },
       buttonConfig: [
         {
@@ -74,6 +140,14 @@ export default {
           icon: 'el-icon-s-promotion'
         },
         {
+          text: '出库',
+          click: () => {
+            this.handleOut()
+          },
+          plain: true,
+          icon: 'el-icon-s-order'
+        },
+        {
           text: '删除',
           type: 'danger',
           click: () => {
@@ -83,21 +157,17 @@ export default {
           icon: 'el-icon-delete'
         }
       ],
-      dataSource: '/api/sale-order/list',
+      dataSource: '/api/sales/order/list',
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'CustomerBuilder']
-      },
-      constant: [],
-      constantConfig: {
-        constantNameList: ['ContractType']
+        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
       }
     }
   },
   async created() {
-    await getConstant(this.constantConfig).then(res => {
-      this.constant = res.data
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
     })
     await this.init()
   },
@@ -108,90 +178,46 @@ export default {
           columnType: 'Index'
         },
         {
-          prop: 'saleOrderCode',
-          label: '销售订单编号',
+          prop: 'orderCode',
+          label: '订单编号',
           columnType: 'Link',
           link: {
             click: (index, row) => {
               this.$router.push({
-                name: 'SaleOrderView',
+                name: 'SalesOrderView',
                 params: {
                   id: row.id
                 }
               })
             }
           },
-          width: '250px'
+          width: 150,
+          fixed: 'left'
         },
         {
           prop: 'contractNo',
           label: '合同号'
         },
         {
-          prop: 'contractType',
-          label: '合同类型',
-          columnType: 'Constant',
-          constant: {
-            constantList: this.constant['ContractType'],
-            type: (row) => {
-              if (row.contractType === 0) {
-                return ''
-              } else {
-                return 'warning'
-              }
-            },
-            effect: 'light'
-          }
+          prop: 'contractDate',
+          label: '合同日期'
         },
         {
-          prop: 'saleUserName',
-          label: '销售人员'
+          prop: 'deliveryDate',
+          label: '交货日期'
         },
         {
-          prop: 'discountRate',
-          label: '优惠率(%)'
+          prop: 'saleFromName',
+          label: '供货方'
         },
         {
-          prop: 'discountAmount',
-          label: '优惠金额',
-          columnType: 'Money'
+          prop: 'saleToName',
+          label: '采购方'
         },
         {
-          prop: 'afterDiscountReceiveAmount',
-          label: '优惠后应收金额',
-          columnType: 'Money'
-        },
-        {
-          prop: 'clientName',
-          label: '客户'
-        },
-        {
-          prop: 'clientContactName',
-          label: '客户联系人'
-        },
-        {
-          prop: 'procurementInboundOrderNum',
-          label: '采购入库单',
-          columnType: 'Tag',
-          tag: {
-            type: (tag) => {
-              return ''
-            },
-            isConvert: false,
-            effect: 'light'
-          }
-        },
-        {
-          prop: 'saleOutboundOrderNum',
-          label: '销售出库单',
-          columnType: 'Tag',
-          tag: {
-            type: (tag) => {
-              return ''
-            },
-            isConvert: false,
-            effect: 'light'
-          }
+          prop: 'contractAmount',
+          label: '合同额',
+          columnType: 'Money',
         },
         {
           prop: 'approvalStatus',
@@ -205,6 +231,7 @@ export default {
         {
           columnType: 'Operation',
           label: '操作',
+          width: '200px',
           button: [
             {
               text: '修改',
@@ -213,142 +240,120 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
+                if (row.approvalStatus === 1) {
+                  return true
+                } else if (row.approvalStatus === 2) {
+                  return true
                 }
-                if (row.approvalStatus === 3) {
-                  return false
-                }
-                return true
-              },
-              icon: 'el-icon-edit'
-            },
-            {
-              text: '删除',
-              css: 'text',
-              click: (index, row) => {
-                this.handleDelById(row.id)
-              },
-              isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
-                }
-                if (row.approvalStatus === 3) {
-                  return false
-                }
-                return true
-              },
-              icon: 'el-icon-delete'
+                return false
+              }
             },
             {
               text: '提交',
               css: 'text',
               click: (index, row) => {
-                submitSingleById(row.id).then(res => {
+                submitSalesOrderById(row.id).then(res => {
                   const { code, msg } = res
                   if (code === '100') {
-
+                    this.$modal.msgSuccess()
+                    this.handleQuery()
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 1) {
+                  return true
+                } else if (row.approvalStatus === 2) {
+                  return true
+                }
+                return false
+              }
+            },
+            {
+              text: '采购',
+              css: 'text',
+              click: (index, row) => {
+                procurement([row.id]).then(res => {
+                  const { code, msg } = res
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                if (row.approvalStatus === 2) {
+                  return false
+                }
+                return true
+              }
+            },
+            {
+              text: '删除',
+              css: 'text',
+              click: (index, row) => {
+                deleteSalesOrderById(row.id).then(response => {
+                  const { code, msg } = response
+                  if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
                   }
                 })
               },
-              icon: 'el-icon-s-promotion',
               isDisabled: (row) => {
-                if (row.approvalStatus === 0) {
-                  return false
+                if (row.approvalStatus === 1 ) {
+                  return true
                 }
-                if (row.approvalStatus === 3) {
-                  return false
+                if (row.approvalStatus === 2) {
+                  return true
                 }
-                return true
+                return false
               }
             },
-            {
-              text: '采购订单 ',
-              css: 'text',
-              click: (index, row) => {
-                this.$router.push({
-                  name: 'BuyOrderAdd',
-                  params: {
-                    saleOrderCode: row.saleOrderCode,
-                    saleOrderId: row.id
-                  }
-                })
-              },
-              icon: 'el-icon-box',
-              isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  if (row.canProcurement === 1) {
-                    return false
-                  }
-                }
-                return true
-              }
-            },
-            {
-              text: '销售出库',
-              css: 'text',
-              click: (index, row) => {
-                this.$router.push({
-                  name: 'SaleOutboundAdd',
-                  params: {
-                    saleOrderCode: row.saleOrderCode,
-                    saleOrderId: row.id
-                  }
-                })
-              },
-              icon: 'el-icon-sell',
-              isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  if (row.canOutbound === 1) {
-                    return false
-                  }
-                }
-                return true
-              }
-            }
           ]
         }
       ]
     },
     handleAdd() {
       this.$router.push({
-        name: 'SaleOrderAdd'
+        name: 'SalesOrderAdd',
       })
     },
     handleEdit(row) {
       this.$router.push({
-        name: 'SaleOrderEdit',
+        name: 'SalesOrderEdit',
         params: {
           id: row.id
         }
       })
     },
     handleDel() {
-      const ids = this.$refs.tableList.checkedRowIds()
-      delSaleOrderByIds(ids).then(res => {
-        const { code, msg } = res
-        if (code === '100') {
-          this.$modal.msgSuccess(msg)
-          this.handleQuery()
+      const rows = this.$refs.tableList.checkedRows()
+      let canDel = true
+      rows.forEach((ele) => {
+        if (ele.approvalStatus === 1) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核通过订单，不可删除')
+        } else if (ele.approvalStatus === 2) {
+          canDel = false
+          this.$modal.msgWarning('勾选项中有审核中的订单，不可删除')
         }
       })
-    },
-    handleDelById(id) {
-      delSaleOrderById(id).then(res => {
-        const { code, msg } = res
-        if (code === '100') {
-          this.$modal.msgSuccess(msg)
-          this.handleQuery()
-        }
-      })
+      if (canDel) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        deleteSalesOrderByIds(ids).then(res => {
+          const { msg, code } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+            this.handleQuery()
+          }
+        })
+      }
     },
     handleQuery() {
       this.$refs.tableList.list()
     },
     restQuery() {
-
+      this.$refs.queryForm.resetFields()
     },
     handleSubmit() {
       var checkedRows = this.$refs.tableList.checkedRows()
@@ -359,17 +364,57 @@ export default {
         }
       })
       if (canSubmit) {
-        // TODO submit
-        const ids = this.$refs.tableList.checkedRowIds();
-        submitBatchByIds(ids).then(res => {
-          const { code, msg } = res
+        const checkedRowIds = this.$refs.tableList.checkedRowIds()
+        submitSalesOrderByIds(checkedRowIds).then(res => {
+          const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
-            this.handleQuery()
           }
         })
       } else {
         this.$modal.msgWarning('存在重复提交数据，请重新选择！')
+      }
+    },
+    handleContractDateRangeChange(value) {
+      if (value && value.length === 2) {
+        this.queryForm.contractStartDate = value[0]
+        this.queryForm.contractEndDate = value[1]
+      } else {
+        this.queryForm.contractStartDate = ''
+        this.queryForm.contractEndDate = ''
+      }
+    },
+    handleDeliveryDateRangeChange(value) {
+      if (value && value.length === 2) {
+        this.queryForm.deliveryStartDate = value[1]
+        this.queryForm.deliveryEndDate = value[2]
+      } else {
+        this.queryForm.deliveryEndDate = ''
+        this.queryForm.deliveryStartDate = ''
+      }
+    },
+    handleOut() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canIn = true
+      if (checkedRows.length === 0) {
+        this.$modal.msgWarning('请勾选数据')
+        return
+      }
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus !== 2) {
+          canIn = false
+        }
+      })
+      if (canIn) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        out(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+          }
+        })
+      } else {
+        this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次出库')
       }
     }
   }

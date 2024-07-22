@@ -117,17 +117,6 @@ export default {
             disabled: true
           },
           {
-            label: '客户',
-            prop: 'clientId',
-            type: 'select',
-            bundle: {
-              label: 'clientName',
-              value: 'clientId'
-            },
-            options: this.javaCode['CustomerBuilder'],
-            disabled: this.clientDisabled
-          },
-          {
             label: '收款类型',
             prop: 'receiveType',
             type: 'select',

@@ -115,17 +115,6 @@ export default {
             disabled: true
           },
           {
-            label: '供应商',
-            prop: 'vendorName',
-            type: 'select',
-            bundle: {
-              label: 'vendorName',
-              value: 'vendorId'
-            },
-            options: this.javaCode['VendorBuilder'],
-            disabled: this.vendorDisabled
-          },
-          {
             label: '付款类型',
             prop: 'paymentType',
             type: 'select',

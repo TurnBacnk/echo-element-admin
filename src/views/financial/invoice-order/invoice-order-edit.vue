@@ -227,8 +227,7 @@ export default {
             {
               label: '单价',
               prop: 'price',
-              type: 'input',
-              disabled: true
+              type: 'input'
             },
             {
               label: '应开票金额',

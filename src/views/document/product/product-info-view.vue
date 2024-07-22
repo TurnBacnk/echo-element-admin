@@ -31,10 +31,11 @@ export default {
       collapseItemConfig: {},
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '历史价格', name: 'historyInfo', type: 'table' },
+        { active: true, title: '采购价格', name: 'procurementInfo', type: 'table' },
+        { active: true, title: '销售价格', name: 'salePrice', type: 'table' },
         { active: true, title: '库存状况', name: 'warehouseInfo', type: 'table' }
       ],
-      contextText: '产品修改',
+      contextText: '产品信息',
       form: {
         productName: undefined,
         productCode: undefined,
@@ -43,7 +44,8 @@ export default {
         barCode: undefined,
         unit: undefined,
         taxCode: undefined,
-        historyPriceList: [],
+        procurementInfoList: [],
+        salePriceInfoList: [],
         warehouseInfoList: [],
         pictureId: undefined,
         status: undefined,
@@ -60,10 +62,13 @@ export default {
           unit: [{ required: true, message: '请选择', trigger: 'change' }],
           status: [{ required: true, message: '请选择', trigger: 'change' }]
         },
-        historyInfo: {
-          beforeChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
-          afterChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
-          changeDateTime: [{ required: true, message: '请选择', trigger: 'blur' }]
+        procurementInfo: {
+          price: [{ required: true, message: '请输入', trigger: 'blur' }],
+          createTime: [{ required: true, message: '请输入', trigger: 'blur' }],
+        },
+        salePrice: {
+          price: [{ required: true, message: '请输入', trigger: 'blur' }],
+          createTime: [{ required: true, message: '请输入', trigger: 'blur' }],
         },
         warehouseInfo: {
           warehouseName: [{ required: true, message: '请选择', trigger: 'change' }]
@@ -163,28 +168,38 @@ export default {
             type: 'textarea'
           }
         ],
-        historyInfo: {
-          prop: 'historyPriceList',
+        procurementInfo: {
+          prop: 'procurementInfoList',
           column: [
             {
-              label: '变动前单价',
-              prop: 'beforeChangePrice',
-              type: 'input',
-              placeholder: '请输入变动前单价'
+              label: '价格',
+              prop: 'procurementPrice',
+              type: 'input'
             },
             {
-              label: '变动后单价',
-              prop: 'afterChangePrice',
-              type: 'input',
-              placeholder: '请输入变动后单价'
-            },
-            {
-              label: '变动日期',
-              prop: 'changeDateTime',
+              label: '时间',
+              prop: 'createTime',
               type: 'date'
             }
           ],
-          showForm: true
+          showForm: true,
+          showOperation: false
+        },
+        salePrice: {
+          prop: 'salePriceInfoList',
+          column: [
+            {
+              label: '价格',
+              prop: 'salePrice',
+              type: 'input'
+            },
+            {
+              label: '时间',
+              prop: 'createTime',
+              type: 'date'
+            }
+          ],
+          showOperation: false
         },
         warehouseInfo: {
           prop: 'warehouseInfoList',

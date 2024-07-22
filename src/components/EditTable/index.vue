@@ -5,12 +5,12 @@
     <el-button v-if="showProduct" type="primary" size="mini" @click="showProductDialog = true">批量选择</el-button>
     <el-button v-if="showProcurementProduct" type="primary" size="mini" @click="procurementDialog = true">源单产品</el-button>
     <el-button v-if="showReturn" type="primary" size="mini" @click="returnDialog = true">源单产品</el-button>
-    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="showProductDialog" @update:selected="updateTableData" />
-    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="procurementDialog" :query-form="procurementQueryForm" :form-data="data" :data-source="procurementDataSource" @update:selected="updateTableData" />
-    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="returnDialog" :query-form="returnQueryForm" :form-data="data" :data-source="returnDataSource" @update:selected="updateTableData" />
+    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="showProductDialog" @update:selected="updateTableData" :is-sale="true"/>
+    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="procurementDialog" :query-form="procurementQueryForm" :form-data="data" :data-source="procurementDataSource" @update:selected="updateTableData" :is-sale="false"/>
+    <product-info-select :selected.sync="formData.tableData" :show-dialog.sync="returnDialog" :query-form="returnQueryForm" :form-data="data" :data-source="returnDataSource" @update:selected="updateTableData" :is-sale="false"/>
     <el-form ref="editTableForm" :model="formData" :rules="rules" size="small" :disabled="isView">
       <el-table :data="formData.tableData" style="width: 100%" row-key="id" :show-summary="showSummary" :summary-method="handleSummary" border :row-style="{ height: '10px'}" :cell-style="{ padding: '0px' }">
-        <el-table-column :type="tableConfig.indexType" fixed="left" />
+        <el-table-column :type="tableConfig.indexType" fixed="left" width="50" />
         <el-table-column
           v-for="(column, index) in columns"
           :key="index"
@@ -86,7 +86,7 @@
             </el-form-item>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="70" fixed="right">
+        <el-table-column v-if="showOperation" label="操作" width="70" fixed="right">
           <template v-slot="scope">
 <!--            <el-button size="mini" @click="toggleEdit(scope.row, scope.$index)">-->
 <!--              {{ scope.row._isEditing ? '保存' : '编辑' }}-->
@@ -163,6 +163,10 @@ export default {
     returnQueryForm: {
       type: Object,
       default: () => {}
+    },
+    showOperation: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

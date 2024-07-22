@@ -120,6 +120,7 @@
                         :placeholder="itemConfig.placeholder"
                         style="width: 90%;display: table"
                         :append-to-body="true"
+                        :disabled="isView"
                         size="mini"
                       />
                       <!--         textarea         -->
@@ -168,6 +169,7 @@
                 :show-return="collapseItemConfig[config.name].showReturn"
                 :procurement-query-form="collapseItemConfig[config.name].procurementQueryForm"
                 :return-query-form="collapseItemConfig[config.name].returnQueryForm"
+                :show-operation="collapseItemConfig[config.name].showOperation"
                 @update:data="handleDataUpdate($event, collapseItemConfig[config.name].prop)"
               />
             </template>

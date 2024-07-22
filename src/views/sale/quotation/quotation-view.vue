@@ -170,11 +170,16 @@ export default {
             },
             {
               label: '净总价',
+              prop: 'netTotalAmount',
+              type: 'number'
+            },
+            {
+              label: '含税总价',
               prop: 'taxIncludedTotalAmount',
               type: 'number'
             }
           ],
-          totalColumns: ['taxIncludedPrice', 'taxIncludedTotalAmount'],
+          totalColumns: ['netTotalAmount', 'taxIncludedTotalAmount'],
           showSummary: true,
           showButton: true,
           showProduct: true

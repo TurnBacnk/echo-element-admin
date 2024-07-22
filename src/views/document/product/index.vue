@@ -172,18 +172,30 @@ export default {
           label: '产品编码',
           prop: 'productCode',
           fixed: 'left',
+          columnType: 'Link',
+          link: {
+            click: (index, row) => {
+              this.$router.push({
+                name: 'ProductInfoView',
+                params: {
+                  id: row.id
+                }
+              })
+            }
+          },
           width: 250
         }, {
           label: '税收编码',
           prop: 'taxCode',
-          fixed: 'left',
+          width: 200
         }, {
           label: '产品名称',
           prop: 'productName',
-          fixed: 'left'
+          width: 200
         }, {
           label: '产品规格',
-          prop: 'specification'
+          prop: 'specification',
+          width: 200
         }, {
           label: '产品分类',
           prop: 'category',
@@ -191,10 +203,7 @@ export default {
           dict: {
             dictList: this.javaCode['CategoryBuilder']
           }
-        }, {
-          label: '条形码',
-          prop: 'barCode'
-        }, {
+        },  {
           label: '单位',
           prop: 'unit',
           constant: 'Dictionary',
@@ -223,17 +232,16 @@ export default {
         }, {
           label: '备注',
           prop: 'remark'
-        }, {
-          label: '创建时间',
-          prop: 'createTime'
-        }, {
+        },  {
           label: '销售单价',
           prop: 'salePrice',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '150'
         }, {
           label: '采购单价',
           prop: 'procurementPrice',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '150'
         }, {
           label: '产品描述',
           prop: 'productDescription'

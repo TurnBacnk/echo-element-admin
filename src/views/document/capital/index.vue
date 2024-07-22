@@ -126,6 +126,16 @@ export default {
           columnType: 'Money'
         },
         {
+          prop: 'payWriteOffBalance',
+          label: '支出未核销余额',
+          columnType: 'Money'
+        },
+        {
+          prop: 'receiveWriteOffBalance',
+          label: '收入未核销余额',
+          columnType: 'Money'
+        },
+        {
           prop: 'isDefault',
           label: '是否默认账户',
           columnType: 'Constant',

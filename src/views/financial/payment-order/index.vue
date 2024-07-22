@@ -153,36 +153,44 @@ export default {
               return ''
             },
             effect: 'light'
-          }
+          },
+          width: '100px'
         },
         {
           prop: 'payTime',
-          label: '付款日期'
+          label: '付款日期',
+          width: '150px'
         },
         {
           prop: 'vendorName',
-          label: '供应商'
+          label: '供应商',
+          width: '150px'
         },
         {
           prop: 'amount',
           label: '应付金额',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '150px'
         },
         {
           prop: 'procurementUserName',
-          label: '采购人员'
+          label: '采购人员',
+          width: '150px'
         },
         {
           label: '付款人员',
-          prop: 'payUserName'
+          prop: 'payUserName',
+          width: '150px'
         },
         {
           prop: 'remark',
-          label: '单据备注'
+          label: '单据备注',
+          width: '150px'
         },
         {
           prop: 'lastPayTime',
-          label: '最后付款日期'
+          label: '最后付款日期',
+          width: '150px'
         },
         {
           prop: 'approvalStatus',
@@ -248,7 +256,9 @@ export default {
                 return false
               }
             }
-          ]
+          ],
+          fixed: 'right',
+          width: '200px'
         }
       ]
     },

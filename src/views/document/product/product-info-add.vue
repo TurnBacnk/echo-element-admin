@@ -30,9 +30,7 @@ export default {
       submitUrl: '/api/product-info/submit',
       collapseItemConfig: {},
       collapseConfig: [
-        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '历史采购价格', name: 'historyInfo', type: 'table' },
-        { active: true, title: '库存状况', name: 'warehouseInfo', type: 'table' }
+        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' }
       ],
       contextText: '产品登记',
       form: {
@@ -57,17 +55,8 @@ export default {
           productName: [{ required: true, message: '请输入', trigger: 'blur' }],
           specification: [{ required: true, message: '请输入', trigger: 'blur' }],
           category: [{ required: true, message: '请选择', trigger: 'blur' }],
-          barCode: [{ required: true, message: '请输入', trigger: 'blur' }],
           unit: [{ required: true, message: '请选择', trigger: 'change' }],
           status: [{ required: true, message: '请选择', trigger: 'change' }]
-        },
-        historyInfo: {
-          beforeChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
-          afterChangePrice: [{ required: true, message: '请输入', trigger: 'blur' }],
-          changeDateTime: [{ required: true, message: '请选择', trigger: 'blur' }]
-        },
-        warehouseInfo: {
-          warehouseName: [{ required: true, message: '请选择', trigger: 'change' }]
         }
       },
       dictionary: [],
@@ -117,6 +106,11 @@ export default {
             type: 'input'
           },
           {
+            label: '客户产品编码',
+            prop: 'customProductCode',
+            type: 'input'
+          },
+          {
             label: '产品名称',
             prop: 'productName',
             type: 'input',
@@ -141,12 +135,6 @@ export default {
             options: this.categoryTree
           },
           {
-            label: '条形码',
-            prop: 'barCode',
-            type: 'input',
-            placeholder: '请输入条形码编号'
-          },
-          {
             label: '单位',
             prop: 'unit',
             type: 'select',
@@ -168,69 +156,12 @@ export default {
             prop: 'productDescription',
             type: 'input'
           }
-        ],
-        historyInfo: {
-          prop: 'historyPriceList',
-          column: [
-            {
-              label: '变动前单价',
-              prop: 'beforeChangePrice',
-              type: 'input',
-              placeholder: '请输入变动前单价'
-            },
-            {
-              label: '变动后单价',
-              prop: 'afterChangePrice',
-              type: 'input',
-              placeholder: '请输入变动后单价'
-            },
-            {
-              label: '变动日期',
-              prop: 'changeDateTime',
-              type: 'date'
-            }
-          ],
-          showButton: true
-        },
-        warehouseInfo: {
-          prop: 'warehouseInfoList',
-          column: [
-            {
-              label: '仓库',
-              prop: 'warehouseName',
-              type: 'select',
-              optionList: this.javaCode['WarehouseBuilder'],
-              click: (event, row) => {
-                const obj = this.javaCode['WarehouseBuilder'].find((item) => {
-                  if (item.value === event) {
-                    return item
-                  }
-                })
-                row.warehouseId = obj.value
-                row.warehouseName = obj.label
-                row.isSelfBuiltWarehouse = obj.data
-              }
-            },
-            {
-              label: '是否自建仓库',
-              prop: 'isSelfBuiltWarehouse',
-              optionList: this.constant['YesOrNo'],
-              type: 'select',
-              disabled: true
-            },
-            {
-              label: '数量',
-              prop: 'num',
-              type: 'input'
-            }
-          ],
-          showButton: true
-        }
+        ]
       }
       this.showForm = true
     },
     generateCode() {
-      generateCode('PRODUCT').then(res => {
+      generateCode('CP').then(res => {
         this.form.productCode = res.data
       })
     }

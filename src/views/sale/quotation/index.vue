@@ -32,7 +32,7 @@
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import {getJavaCode} from '@/api/common/dict'
-import {deleteQuotationById, deleteQuotationByIds} from "@/api/business/sale-quotation";
+import { deleteQuotationById, deleteQuotationByIds, effectQuotation } from '@/api/business/sale-quotation'
 
 export default {
   name: 'Quotation',
@@ -43,7 +43,8 @@ export default {
       queryForm: {
         quotationUserId: undefined,
         quotationDate: undefined,
-        quotationCode: undefined
+        quotationCode: undefined,
+        projectId: this.$route.params.projectId,
       },
       buttonConfig: [
         {
@@ -65,6 +66,8 @@ export default {
         },
         {
           text: '生效',
+          plain: true,
+          icon: 'el-icon-finished',
           click: () => {
             this.handleEffect()
           }
@@ -111,7 +114,6 @@ export default {
       this.javaCode = res.data
     })
     await this.init()
-    this.projectId = this.$route.params.projectId
   },
   methods: {
     init() {
@@ -170,6 +172,21 @@ export default {
                   if (code === '100') {
                     this.$modal.msgSuccess(msg)
                     this.handleQuery()
+                  }
+                })
+              },
+              isDisabled: (row) => {
+                return false
+              }
+            },
+            {
+              text: '生效',
+              css: 'text',
+              click: (index, row) => {
+                effectQuotation([row.id]).then(response => {
+                  const { code, msg } = response
+                  if (code === '100') {
+                    this.$modal.msgSuccess(msg)
                   }
                 })
               },

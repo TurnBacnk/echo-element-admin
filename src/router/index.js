@@ -187,6 +187,12 @@ export const asyncRoutes = [
           import('@/views/document/product/product-info-edit.vue'),
         name: 'ProductInfoEdit',
         meta: { activeMenu: '/document/product', title: '产品修改' }
+      },
+      {
+        path: 'product-info-view',
+        component: () => import ('@/views/document/product/product-info-view.vue'),
+        name: 'ProductInfoView',
+        meta: { activeMenu: '/document/product', title: '产品信息' }
       }
     ]
   },
@@ -301,105 +307,6 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/buy/order/sub',
-    component: Layout,
-    // permissions: ['order:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'order-add',
-        component: () => import('@/views/buy/order/order-add.vue'),
-        name: 'BuyOrderAdd',
-        meta: { activeMenu: '/buy/order', title: '采购订单登记' }
-      },
-      {
-        path: 'order-edit',
-        component: () => import('@/views/buy/order/order-edit.vue'),
-        name: 'BuyOrderEdit',
-        meta: { activeMenu: '/buy/order', title: '采购订单修改' }
-      },
-      {
-        path: 'order-view',
-        component: () => import('@/views/buy/order/order-view.vue'),
-        name: 'BuyOrderView',
-        meta: { activeMenu: '/buy/order', title: '采购订单' }
-      },
-      {
-        path: 'order-approval',
-        component: () => import('@/views/buy/order/order-approval.vue'),
-        name: 'BuyOrderApproval',
-        meta: { activeMenu: '/buy/order', title: '采购订单审核' }
-      }
-    ]
-  },
-  {
-    path: '/buy/inbound/sub',
-    component: Layout,
-    // permissions: ['inbound:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'inbound-add',
-        component: () => import('@/views/buy/inbound/inbound-add.vue'),
-        name: 'BuyInboundAdd',
-        meta: { activeMenu: '/buy/inbound', title: '采购入库单登记' }
-      },
-      {
-        path: 'inbound-edit',
-        component: () => import('@/views/buy/inbound/inbound-edit.vue'),
-        name: 'BuyInboundEdit',
-        meta: { activeMenu: '/buy/inbound', title: '采购入库单修改' }
-      },
-      {
-        path: 'inbound-view',
-        component: () => import('@/views/buy/inbound/inbound-view.vue'),
-        name: 'BuyInboundView',
-        meta: { activeMenu: '/buy/inbound', title: '采购入库单' }
-      },
-      {
-        path: 'inbound-approval',
-        component: () => import('@/views/buy/inbound/inbound-approval.vue'),
-        name: 'BuyInboundApproval',
-        meta: { activeMenu: '/buy/inbound', title: '采购入库单审核' }
-      }
-    ]
-  },
-  {
-    path: '/buy/return/sub',
-    component: Layout,
-    // permissions: ['return-order:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'return-order-add',
-        component: () => import('@/views/buy/return/return-order-add.vue'),
-        name: 'BuyOrderReturnAdd',
-        meta: { activeMenu: '/buy/return-order', title: '退货单登记' }
-      },
-      {
-        path: 'return-order-edit',
-        component: () => import('@/views/buy/return/return-order-edit.vue'),
-        name: 'BuyReturnOrderEdit',
-        meta: { activeMenu: '/buy/return-order', title: '退货单修改' }
-      },
-      {
-        path: 'return-order-view',
-        component: () => import('@/views/buy/return/return-order-view.vue'),
-        name: 'BuyReturnOrderView',
-        meta: { activeMenu: '/buy/return-order', title: '退货单' }
-      },
-      {
-        path: 'return-order-approval',
-        component: () => import('@/views/buy/return/return-order-approval.vue'),
-        name: 'BuyReturnOrderApproval',
-        meta: { activeMenu: '/buy/return-order', title: '退货单深恶黑' }
-      }
-    ]
-  },
-  {
     path: '/config/approval/sub',
     component: Layout,
     permissions: ['approval:admin:list'],
@@ -416,105 +323,6 @@ export const asyncRoutes = [
         component: () => import('@/views/config/approval/approval-edit.vue'),
         name: 'ApprovalEdit',
         meta: { activeMenu: '/config/approval', title: '审核定义修改' }
-      }
-    ]
-  },
-  {
-    path: '/sale/sale-order/sub',
-    component: Layout,
-    // permissions: ['order:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'sale-order-add',
-        component: () => import('@/views/sale/order/sale-order-add.vue'),
-        name: 'SaleOrderAdd',
-        meta: { activeMenu: '/sale/order', title: '销售订单登记' }
-      },
-      {
-        path: 'sale-order-edit',
-        component: () => import('@/views/sale/order/sale-order-edit.vue'),
-        name: 'SaleOrderEdit',
-        meta: { activeMenu: '/sale/order', title: '销售订单修改' }
-      },
-      {
-        path: 'sale-order-view',
-        component: () => import('@/views/sale/order/sale-order-view.vue'),
-        name: 'SaleOrderView',
-        meta: { activeMenu: '/sale/order', title: '销售订单' }
-      },
-      {
-        path: 'sale-order-approval',
-        component: () => import('@/views/sale/order/sale-order-approval.vue'),
-        name: 'SaleOrderApproval',
-        meta: { activeMenu: '/sale/order', title: '销售订单审核' }
-      }
-    ]
-  },
-  {
-    path: '/sale/outbound/sub',
-    component: Layout,
-    // permissions: ['sale-outbound:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'sale-outbound-add',
-        component: () => import('@/views/sale/outbound/outbound-add.vue'),
-        name: 'SaleOutboundAdd',
-        meta: { activeMenu: '/sale/outbound', title: '销售出库登记' }
-      },
-      {
-        path: 'sale-outbound-edit',
-        component: () => import('@/views/sale/outbound/outbound-edit.vue'),
-        name: 'SaleOutboundEdit',
-        meta: { activeMenu: '/sale/outbound', title: '销售出库修改' }
-      },
-      {
-        path: 'sale-outbound-view',
-        component: () => import('@/views/sale/outbound/outbound-view.vue'),
-        name: 'SaleOutboundView',
-        meta: { activeMenu: '/sale/outbound', title: '销售出库' }
-      },
-      {
-        path: 'sale-outbound-approval',
-        component: () => import('@/views/sale/outbound/outbound-approval.vue'),
-        name: 'SaleOutboundApproval',
-        meta: { activeMenu: '/sale/outbound', title: '销售出库审核' }
-      }
-    ]
-  },
-  {
-    path: '/sale/return-order/sub',
-    component: Layout,
-    // permissions: ['sale-return-order:user:list'],
-    roles: ['user'],
-    hidden: true,
-    children: [
-      {
-        path: 'sale-return-order-add',
-        component: () => import('@/views/sale/return/sale-return-order-add.vue'),
-        name: 'SaleReturnOrderAdd',
-        meta: { activeMenu: '/sale/return', title: '销售退货登记' }
-      },
-      {
-        path: 'sale-return-order-edit',
-        component: () => import('@/views/sale/return/sale-return-order-edit.vue'),
-        name: 'SaleReturnOrderEdit',
-        meta: { activeMenu: '/save/return', title: '销售退货修改' }
-      },
-      {
-        path: 'sale-return-order-view',
-        component: () => import('@/views/sale/return/sale-return-order-view.vue'),
-        name: 'SaleReturnOrderView',
-        meta: { activeMenu: '/save/return', title: '销售退货' }
-      },
-      {
-        path: 'sale-return-order-approval',
-        component: () => import('@/views/sale/return/sale-return-approval.vue'),
-        name: 'SaleReturnOrderApproval',
-        meta: { activeMenu: '/save/return', title: '销售退货审核' }
       }
     ]
   },
@@ -1001,6 +809,198 @@ export const asyncRoutes = [
         component: () => import('@/views/sale/quotation/quotation-view.vue'),
         name: 'QuotationView',
         meta: { activeMenu: 'project', title: '查看报价单' }
+      }
+    ]
+  },
+  {
+    path: '/sales/order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'orderAdd',
+        component: () => import('@/views/sale/order/order-add.vue'),
+        name: 'SalesOrderAdd',
+        meta: { activeMenu: 'saleOrder', title: '新增销售单' }
+      },
+      {
+        path: 'orderEdit',
+        component: () => import('@/views/sale/order/order-edit.vue'),
+        name: 'SalesOrderEdit',
+        meta: { activeMenu: 'saleOrder', title: '修改销售单' }
+      },
+      {
+        path: 'orderView',
+        component: () => import('@/views/sale/order/order-view.vue'),
+        name: 'SalesOrderView',
+        meta: { activeMenu: 'saleOrder', title: '查看销售单' }
+      },
+      {
+        path: 'orderApproval',
+        component: () => import('@/views/sale/order/order-approval.vue'),
+        name: 'SalesOrderApproval',
+        meta: { activeMenu: 'saleOrder', title: '审核销售单' }
+      }
+    ]
+  },
+  {
+    path: '/sales/out/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'OutOrderAdd',
+        component: () => import('@/views/sale/out/out-add.vue'),
+        name: 'OutOrderAdd',
+        meta: { activeMenu: 'outOrder', title: '新增销售出库单' }
+      },
+      {
+        path: 'OutOrderEdit',
+        component: () => import('@/views/sale/out/out-edit.vue'),
+        name: 'OutOrderEdit',
+        meta: { activeMenu: 'outOrder', title: '修改销售出库单' }
+      },
+      {
+        path: 'OutOrderView',
+        component: () => import('@/views/sale/out/out-view.vue'),
+        name: 'OutOrderView',
+        meta: { activeMenu: 'outOrder', title: '销售出库单' }
+      },
+      {
+        path: 'OutOrderApproval',
+        component: () => import('@/views/sale/out/out-approval.vue'),
+        name: 'OutOrderApproval',
+        meta: { activeMenu: 'outOrder', title: '审核销售出库单' }
+      }
+    ]
+  },
+  {
+    path: '/sales/return/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'SalesReturnOrderAdd',
+        component: () => import('@/views/sale/return/return-add.vue'),
+        name: 'SalesReturnOrderAdd',
+        meta: { activeMenu: 'returnOrder', title: '新增销售出库单'}
+      },
+      {
+        path: 'SalesReturnOrderEdit',
+        component: () => import('@/views/sale/return/return-edit.vue'),
+        name: 'SalesReturnOrderEdit',
+        meta: { activeMenu: 'returnOrder', title: '修改销售出库单'}
+      },
+      {
+        path: 'SalesReturnOrderView',
+        component: () => import('@/views/sale/return/return-view.vue'),
+        name: 'SalesReturnOrderView',
+        meta: { activeMenu: 'returnOrder', title: '销售出库单'}
+      },
+      {
+        path: 'SalesReturnOrderApproval',
+        component: () => import('@/views/sale/return/return-approval.vue'),
+        name: 'SalesReturnOrderApproval',
+        meta: { activeMenu: 'returnOrder', title: '审核销售出库单'}
+      }
+    ]
+  },
+  {
+    path: '/procurement/order/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'procurementOrderAdd',
+        component: () => import('@/views/buy/order/order-add.vue'),
+        name: 'ProcurementOrderAdd',
+        meta: { activeMenu: 'procurementOrder', title: '新增采购单' }
+      },
+      {
+        path: 'procurementOrderEdit',
+        component: () => import('@/views/buy/order/order-edit.vue'),
+        name: 'ProcurementOrderEdit',
+        meta: { activeMenu: 'procurementOrder', title: '修改采购单' }
+      },
+      {
+        path: 'procurementOrderView',
+        component: () => import('@/views/buy/order/order-view.vue'),
+        name: 'ProcurementOrderView',
+        meta: { activeMenu: 'procurementOrder', title: '采购单' }
+      },
+      {
+        path: 'procurementOrderApproval',
+        component: () => import('@/views/buy/order/order-approval.vue'),
+        name: 'ProcurementOrderApproval',
+        meta: { activeMenu: 'procurementOrder', title: '审核采购单' }
+      }
+    ]
+  },
+  {
+    path: '/procurement/in/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'inOrderAdd',
+        component: () => import('@/views/buy/in/in-add.vue'),
+        name: 'InOrderAdd',
+        meta: { activeMenu: 'inOrder', title: '新增采购入库单' }
+      },
+      {
+        path: 'inOrderEdit',
+        component: () => import('@/views/buy/in/in-edit.vue'),
+        name: 'InOrderEdit',
+        meta: { activeMenu: 'inOrder', title: '修改采购入库单' }
+      },
+      {
+        path: 'inOrderView',
+        component: () => import('@/views/buy/in/in-view.vue'),
+        name: 'InOrderView',
+        meta: { activeMenu: 'inOrder', title: '查看采购入库单' }
+      },
+      {
+        path: 'inOrderApproval',
+        component: () => import('@/views/buy/in/in-approval.vue'),
+        name: 'InOrderApproval',
+        meta: { activeMenu: 'inOrder', title: '审核采购入库单' }
+      }
+    ]
+  },
+  {
+    path: '/procurement/return/sub',
+    component: Layout,
+    hidden: true,
+    roles: ['user'],
+    children: [
+      {
+        path: 'procurementReturnOrderAdd',
+        component: () => import('@/views/buy/return/return-add.vue'),
+        name: 'ProcurementReturnOrderAdd',
+        meta: { activeMenu: 'returnOrder', title: '新增采购退货单' }
+      },
+      {
+        path: 'procurementReturnOrderEdit',
+        component: () => import('@/views/buy/return/return-edit.vue'),
+        name: 'ProcurementReturnOrderEdit',
+        meta: { activeMenu: 'returnOrder', title: '修改采购退货单' }
+      },
+      {
+        path: 'procurementReturnOrderView',
+        component: () => import('@/views/buy/return/return-view.vue'),
+        name: 'ProcurementReturnOrderView',
+        meta: { activeMenu: 'returnOrder', title: '采购退货单' }
+      },
+      {
+        path: 'procurementReturnOrderApproval',
+        component: () => import('@/views/buy/return/return-approval.vue'),
+        name: 'ProcurementReturnOrderApproval',
+        meta: { activeMenu: 'returnOrder', title: '审核采购退货单' }
       }
     ]
   },
