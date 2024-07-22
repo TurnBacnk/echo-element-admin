@@ -66,7 +66,7 @@ export default {
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
-    await generateCode('CAPITAL').then(res => {
+    await generateCode('ZJZH').then(res => {
       this.form.capitalAccountCode = res.data
     })
     await this.init()

@@ -74,7 +74,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('WAREHOUSE').then(res => {
+    await generateCode('CK').then(res => {
       this.form.warehouseCode = res.data
     })
     await getConstant(this.constantConfig).then(res => {

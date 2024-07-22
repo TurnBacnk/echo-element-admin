@@ -102,7 +102,9 @@ export default {
                 }
               })
             }
-          }
+          },
+          width: '300px',
+          fixed: 'left'
         },
         {
           prop: 'capitalAccountName',
@@ -128,12 +130,14 @@ export default {
         {
           prop: 'payWriteOffBalance',
           label: '支出未核销余额',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '200px'
         },
         {
           prop: 'receiveWriteOffBalance',
           label: '收入未核销余额',
-          columnType: 'Money'
+          columnType: 'Money',
+          width: '200px'
         },
         {
           prop: 'isDefault',
@@ -145,7 +149,8 @@ export default {
               return ''
             },
             effect: 'light'
-          }
+          },
+          width: '150px'
         },
         {
           columnType: 'Operation',

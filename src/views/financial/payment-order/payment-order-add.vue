@@ -85,7 +85,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('PAYMENT').then(res => {
+    await generateCode('YF').then(res => {
       this.form.paymentOrderCode = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {

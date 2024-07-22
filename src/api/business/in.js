@@ -52,3 +52,10 @@ export function returnOrder(ids) {
     data: ids
   })
 }
+
+export function getInOrderInvoiceByOrderId(orderId) {
+  return request({
+    url: '/api/procurement/in/get-invoice-by-order-id/' + orderId,
+    method: 'get'
+  })
+}

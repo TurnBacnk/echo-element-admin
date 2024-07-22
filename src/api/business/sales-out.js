@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 import { id } from 'html-webpack-plugin/lib/chunksorter'
+import {exp} from "mathjs";
 
 export function getOutById(id) {
   return request({
@@ -50,5 +51,12 @@ export function salesReturnByIds(ids) {
     url: '/api/sales/out/return-by-ids',
     method: 'post',
     data: ids
+  })
+}
+
+export function getOutOrderInvoiceInfoWithOrderId(orderId) {
+  return request({
+    url: '/api/sales/out/order-invoice-info/' + orderId,
+    method: 'get'
   })
 }

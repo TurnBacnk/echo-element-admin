@@ -82,7 +82,7 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await generateCode('CLIENT').then(res => {
+    await generateCode('KH').then(res => {
       this.form.clientCode = res.data
     })
     await this.init()

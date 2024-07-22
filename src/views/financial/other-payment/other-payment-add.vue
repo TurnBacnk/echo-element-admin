@@ -97,7 +97,7 @@ export default {
     await getDictionary(this.dictionaryConfig).then(res => {
       this.dictionary = res.data
     })
-    await generateCode('OTHER_PAYMENT').then(res => {
+    await generateCode('QTZC').then(res => {
       this.form.otherPaymentCode = res.data
     })
     await this.init()

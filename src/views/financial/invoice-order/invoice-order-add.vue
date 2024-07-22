@@ -18,8 +18,8 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import {getConstant, getDictionary, getJavaCode} from "@/api/common/dict";
-import {getSaleOutboundInfoWithInvoice} from "@/api/business/sale-outbound";
+import { getConstant, getDictionary, getJavaCode } from '@/api/common/dict'
+import { getOutOrderInvoiceInfoWithOrderId } from '@/api/business/sales-out'
 
 export default {
   name: 'FinancialInvoiceAdd',
@@ -51,7 +51,7 @@ export default {
         alreadyInvoiceAmount: 0.00,
         unInvoiceAmount: 0.00,
         amount: 0.00,
-        invoiceOrderItemList: [],
+        productList: [],
         type: 0,
         capitalAccountName: undefined,
         capitalAccountId: undefined
@@ -83,22 +83,6 @@ export default {
       }
     }
   },
-  async created() {
-    await getConstant(this.constantConfig).then(res => {
-      this.constant = res.data
-    })
-    await getJavaCode(this.javaCodeConfig).then(res => {
-      this.javaCode = res.data
-    })
-    await getDictionary(this.dictionaryConfig).then(res => {
-      this.dictionary = res.data
-    })
-    await this.initBaseInfo()
-    await this.init()
-    await getSaleOutboundInfoWithInvoice(this.$route.params.orderId).then(res => {
-      Object.assign(this.form, res.data)
-    })
-  },
   watch: {
     'form.type': {
       handler(newVal, oldVal) {
@@ -113,6 +97,22 @@ export default {
         }
       }
     }
+  },
+  async created() {
+    await getConstant(this.constantConfig).then(res => {
+      this.constant = res.data
+    })
+    await getJavaCode(this.javaCodeConfig).then(res => {
+      this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
+    })
+    await this.initBaseInfo()
+    await this.init()
+    await getOutOrderInvoiceInfoWithOrderId(this.$route.params.orderId).then(res => {
+      Object.assign(this.form, res.data)
+    })
   },
   methods: {
     async initBaseInfo() {
@@ -231,7 +231,7 @@ export default {
           }
         ],
         goodsInfo: {
-          prop: 'invoiceOrderItemList',
+          prop: 'productList',
           column: [
             {
               label: '产品名称',
@@ -246,21 +246,8 @@ export default {
               width: '200px'
             },
             {
-              label: '产品规格',
-              prop: 'specification',
-              type: 'input',
-              disabled: true
-            },
-            {
-              label: '单位',
-              prop: 'unit',
-              type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
-            },
-            {
               label: '应开票数量',
-              prop: 'productAmount',
+              prop: 'quantity',
               type: 'input',
               disabled: true
             },
@@ -281,13 +268,13 @@ export default {
                   this.form.amount = 0
                   currentRow.amount = 0
                 } else {
-                  currentRow.amount = this.$math.multiply(currentRow.price, newNumber)
+                  currentRow.amount = this.$math.multiply(currentRow.taxIncludedPrice, newNumber)
                 }
               }
             },
             {
               label: '单价',
-              prop: 'price',
+              prop: 'taxIncludedPrice',
               type: 'input'
             },
             {
@@ -317,23 +304,23 @@ export default {
       this.showForm = true
     },
     saveFun() {
-      if (this.form.invoiceOrderItemList.length === 0) {
+      if (this.form.productList.length === 0) {
         this.$modal.msgWarning('请至少为一件产品开票')
         return false
       }
       let temp = 0
-      this.form.invoiceOrderItemList.forEach(item => {
+      this.form.productList.forEach(item => {
         temp = this.$math.add(item.amount, temp)
       })
       this.form.amount = temp
       return true
     },
     buildTotalAmount() {
-      if (this.form.invoiceOrderItemList.length === 0) {
+      if (this.form.productList.length === 0) {
         return false
       }
       let temp
-      this.form.invoiceOrderItemList.forEach(item => {
+      this.form.productList.forEach(item => {
         temp = this.$math.add(item.amount, temp)
       })
       this.form.amount = temp

@@ -88,7 +88,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('OTHER_RECEIVE').then(res => {
+    await generateCode('QTSR').then(res => {
       this.form.otherReceiveCode = res.data
     })
     await getConstant(this.constantConfig).then(res => {

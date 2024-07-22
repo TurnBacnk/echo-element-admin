@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" size="mini" :inline="true" :model="queryForm" v-if="showSearch">
+    <el-form v-if="showSearch" ref="queryForm" size="mini" :inline="true" :model="queryForm">
       <el-form-item label="发票号" prop="invoiceNo">
         <el-input v-model="queryForm.invoiceNo" size="mini" clearable placeholder="请输入发票号" />
       </el-form-item>
@@ -19,7 +19,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="restQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <button-group :button-config="buttonConfig" @quyertTable="handleQuery" :show-search.sync="showSearch" />
+    <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
     <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
   </div>
 </template>
@@ -33,8 +33,8 @@ import {
   deleteTicketOrderByIds,
   submitTicketOrderById,
   submitTicketOrderByIds
-} from "@/api/business/ticket-order";
-import {getJavaCode} from "@/api/common/dict";
+} from '@/api/business/ticket-order'
+import { getJavaCode } from '@/api/common/dict'
 
 export default {
   name: 'TicketOrder',
@@ -190,14 +190,14 @@ export default {
               isDisabled: (row) => {
                 return false
               }
-            },
+            }
           ]
         }
       ]
     },
     handleAdd() {
       this.$router.push({
-        name: '',
+        name: ''
       })
     },
     handleEdit(row) {
@@ -246,8 +246,8 @@ export default {
         }
       })
       if (canSubmit) {
-        var checkedRowIds = this.$refs.tableList.checkedRowIds();
-        submitTicketOrderByIds(checkedRowIds).then(res =>{
+        var checkedRowIds = this.$refs.tableList.checkedRowIds()
+        submitTicketOrderByIds(checkedRowIds).then(res => {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)

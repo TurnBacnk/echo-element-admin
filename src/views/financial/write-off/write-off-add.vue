@@ -100,7 +100,7 @@ export default {
       this.form.alreadyAmount = data.alreadyAmount
       this.form.unAmount = data.unAmount
     })
-    await generateCode('VERIFICATION').then(res => {
+    await generateCode('HX').then(res => {
       this.form.writeOffCode = res.data
     })
     await getConstant(this.constantConfig).then(res => {

@@ -21,6 +21,7 @@ import FormTable from '@/components/FormTable/index.vue'
 import {getConstant, getDictionary, getJavaCode} from "@/api/common/dict";
 import {getSaleOutboundInfoWithInvoice} from "@/api/business/sale-outbound";
 import {getBuyInboundInfoWithInvoice} from "@/api/business/inbound";
+import {getInOrderInvoiceByOrderId} from "@/api/business/in";
 
 export default {
   name: 'FinancialTicketOrderAdd',
@@ -52,7 +53,7 @@ export default {
         alreadyInvoiceAmount: 0.00,
         unInvoiceAmount: 0.00,
         amount: 0.00,
-        invoiceOrderItemList: []
+        productList: []
       },
       rules: {
         baseInfo: {
@@ -77,7 +78,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder']
+        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'CapitalAccountBuilder']
       }
     }
   },
@@ -93,7 +94,7 @@ export default {
     })
     await this.initBaseInfo()
     await this.init()
-    await getBuyInboundInfoWithInvoice(this.$route.params.orderId).then(res => {
+    await getInOrderInvoiceByOrderId(this.$route.params.orderId).then(res => {
       Object.assign(this.form, res.data)
     })
     await this.initBaseInfo()
@@ -122,6 +123,16 @@ export default {
             prop: 'invoiceTitle',
             type: 'input',
             disabled: true
+          },
+          {
+            label: '资金账户',
+            prop: 'capitalAccountName',
+            type: 'select',
+            options: this.javaCode['CapitalAccountBuilder'],
+            bundle: {
+              label: 'capitalAccountName',
+              value: 'capitalAccountId'
+            }
           },
           {
             label: '收票日期',
@@ -159,12 +170,12 @@ export default {
           },
           {
             label: '供应商',
-            prop: 'vendorId',
+            prop: 'saleFromId',
             type: 'select',
             options: this.javaCode['VendorBuilder'],
             bundle: {
-              value: 'clientId',
-              label: 'clientName'
+              value: 'saleFromName',
+              label: 'saleFromId'
             },
             disabled: true
           },
@@ -182,7 +193,7 @@ export default {
           }
         ],
         goodsInfo: {
-          prop: 'invoiceOrderItemList',
+          prop: 'productList',
           column: [
             {
               label: '产品名称',
@@ -197,21 +208,8 @@ export default {
               width: '200px'
             },
             {
-              label: '产品规格',
-              prop: 'specification',
-              type: 'input',
-              disabled: true
-            },
-            {
-              label: '单位',
-              prop: 'unit',
-              type: 'selectConstant',
-              optionList: this.dictionary['Unit'],
-              disabled: true
-            },
-            {
               label: '应收票数量',
-              prop: 'productAmount',
+              prop: 'quantity',
               type: 'input',
               disabled: true
             },
@@ -232,13 +230,13 @@ export default {
                   this.form.amount = 0
                   currentRow.amount = 0
                 } else {
-                  currentRow.amount = this.$math.multiply(currentRow.price, newNumber)
+                  currentRow.amount = this.$math.multiply(currentRow.taxIncludedPrice, newNumber)
                 }
               }
             },
             {
               label: '单价',
-              prop: 'price',
+              prop: 'taxIncludedPrice',
               type: 'input'
             },
             {
@@ -268,23 +266,23 @@ export default {
       this.showForm = true
     },
     saveFun() {
-      if (this.form.invoiceOrderItemList.length === 0) {
+      if (this.form.productList.length === 0) {
         this.$modal.msgWarning('请至少为一件产品收票')
         return false
       }
       let temp = 0
-      this.form.invoiceOrderItemList.forEach(item => {
+      this.form.productList.forEach(item => {
         temp = this.$math.add(item.amount, temp)
       })
       this.form.amount = temp
       return true
     },
     buildTotalAmount() {
-      if (this.form.invoiceOrderItemList.length === 0) {
+      if (this.form.productList.length === 0) {
         return false
       }
       let temp
-      this.form.invoiceOrderItemList.forEach(item => {
+      this.form.productList.forEach(item => {
         temp = this.$math.add(item.amount, temp)
       })
       this.form.amount = temp

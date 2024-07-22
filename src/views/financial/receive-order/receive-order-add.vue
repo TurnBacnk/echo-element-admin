@@ -91,7 +91,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('RECEIVE').then(res => {
+    await generateCode('YS').then(res => {
       this.form.receiveOrderCode = res.data
     })
     await getConstant(this.constantConfig).then(res => {

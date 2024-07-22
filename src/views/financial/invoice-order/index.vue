@@ -103,7 +103,8 @@ export default {
                 }
               })
             }
-          }
+          },
+          width: '200px'
         },
         {
           prop: 'approvalStatus',
