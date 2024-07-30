@@ -24,6 +24,7 @@ import {
   taxIncludedPriceWithNetPrice, taxIncludedPriceWithTaxTotal,
   taxIncludedTotalAmountWithNetPrice
 } from "@/utils/product-price";
+import { getProductInfoById } from '@/api/business/product-info'
 
 export default {
   name: 'ProcurementOrderEdit',
@@ -74,7 +75,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder', 'ProductBuilder'],
       }
     }
   },
@@ -132,7 +133,16 @@ export default {
               label: '产品名称',
               prop: 'productName',
               type: 'select',
-              optionList: this.javaCode['ProductBuilder']
+              optionList: this.javaCode['ProductBuilder'],
+              click: (event, row) => {
+                getProductInfoById(event).then(res => {
+                  const { data } = res
+                  row.productName = data.productName
+                  row.productId = data.id
+                  row.productCode = data.productCode
+                  row.specification = data.specification
+                })
+              }
             },
             {
               label: '产品编码',

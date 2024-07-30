@@ -85,7 +85,7 @@ export default {
     })
     await getReturnByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
-      this.form.instanceId = this.$route.query.instanceId
+      this.form.instanceId = this.$route.params.instanceId
     })
     await this.init()
   },
