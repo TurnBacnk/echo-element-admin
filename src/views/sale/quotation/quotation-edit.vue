@@ -84,7 +84,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CompanyBuilder']
+        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CompanyBuilder', 'ProjectBuilder']
       }
     }
   },
@@ -107,6 +107,12 @@ export default {
             prop: 'quotationCode',
             type: 'input',
             disabled: true
+          },
+          {
+            label: '项目',
+            prop: 'projectId',
+            type: 'select',
+            options: this.javaCode['ProjectBuilder']
           },
           {
             label: '报价时间',

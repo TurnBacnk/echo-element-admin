@@ -19,6 +19,11 @@
 import FormTable from '@/components/FormTable/index.vue'
 import { getJavaCode } from '@/api/common/dict'
 import { getProcurementOrderById } from '@/api/business/procurement-order'
+import {
+  netTotalAmountWithNetPrice, netUnitPriceWithNetTotal, netUnitPriceWithTaxPrice,
+  taxIncludedPriceWithNetPrice, taxIncludedPriceWithTaxTotal,
+  taxIncludedTotalAmountWithNetPrice
+} from "@/utils/product-price";
 
 export default {
   name: 'ProcurementOrderEdit',
@@ -111,13 +116,13 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.javaCode['CustomerBuilder']
           },
           {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder']
+            options: this.javaCode['CompanyBuilder']
           }
         ],
         goodsInfo: {
@@ -137,27 +142,86 @@ export default {
             {
               label: '数量',
               prop: 'quantity',
-              type: 'number'
+              type: 'number',
+              input: (newVal, currentRow) => {
+                newVal = newVal.replace(/[^0-9.]/g,'')
+                currentRow.quantity = newVal
+                // 有净单价
+                if (currentRow.netUnitPrice !== undefined || currentRow.quantity !== '') {
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
+                  currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, currentRow.taxIncludedPrice)
+                }
+              }
             },
             {
               label: '净单价',
               prop: 'netUnitPrice',
-              type: 'number'
+              type: 'number',
+              input: (newNumber, currentRow) => {
+                newNumber = newNumber.replace(/[^0-9.]/g,'')
+                currentRow.netUnitPrice = newNumber
+                currentRow.taxIncludedPrice = taxIncludedPriceWithNetPrice(newNumber)
+                if (currentRow.quantity === undefined || currentRow.quantity === '') {
+                  // 未填写数量，不做任何操作
+                  this.$modal.msgWarning('请先设置产品数量')
+                  currentRow.netUnitPrice = undefined
+                } else {
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, newNumber)
+                  currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, currentRow.taxIncludedPrice)
+                }
+              }
             },
             {
               label: '含税单价',
               prop: 'taxIncludedPrice',
-              type: 'number'
+              type: 'number',
+              input: (newVal, currentRow) => {
+                newVal = newVal.replace(/[^0-9.]/g,'')
+                currentRow.taxIncludedPrice = newVal
+                if (currentRow.quantity === undefined || currentRow.quantity === '') {
+                  this.$modal.msgWarning('请先设置产品数量')
+                  currentRow.taxIncludedPrice = undefined
+                } else {
+                  currentRow.netUnitPrice = netUnitPriceWithTaxPrice(newVal)
+                  currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
+                  currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
+                }
+              }
             },
             {
               label: '净总价',
               prop: 'netTotalAmount',
-              type: 'number'
+              type: 'number',
+              input: (newVal, currentRow) => {
+                newVal = newVal.replace(/[^0-9.]/g,'')
+                currentRow.netTotalAmount = newVal
+                if (currentRow.quantity === undefined || currentRow.quantity === '') {
+                  this.$modal.msgWarning('请先设置产品数量')
+                  currentRow.netTotalAmount = undefined
+                } else {
+                  currentRow.netUnitPrice = netUnitPriceWithNetTotal(newVal, currentRow.quantity)
+                  currentRow.taxIncludedPrice = taxIncludedPriceWithNetPrice(currentRow.netUnitPrice)
+                  currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, currentRow.taxIncludedPrice)
+                }
+              }
             },
             {
               label: '含税总价',
               prop: 'taxIncludedTotalAmount',
-              type: 'number'
+              type: 'number',
+              input: (newVal, currentRow) => {
+                newVal = newVal.replace(/[^0-9.]/g,'')
+                currentRow.taxIncludedTotalAmount = newVal
+                if (currentRow.quantity === undefined || currentRow.quantity === '') {
+                  this.$modal.msgWarning('请先设置产品数量')
+                  currentRow.taxIncludedTotalAmount = undefined
+                } else {
+                  currentRow.taxIncludedPrice = taxIncludedPriceWithTaxTotal(newVal, currentRow.quantity)
+                  currentRow.netUnitPrice = netUnitPriceWithTaxPrice(currentRow.taxIncludedPrice)
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
+                }
+              }
             }
           ],
           showProduct: true,

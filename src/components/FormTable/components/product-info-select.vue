@@ -274,6 +274,8 @@ export default {
       // this.buttonText = this.selectedItems.map(item => item.name).join(', ') || '请选择产品信息';
       this.selectedItems = this.$refs.tableList.checkedRows()
       this.selectedItems.forEach((ele) => {
+        ele.productId = ele.id
+        ele.id = undefined
         ele.taxRate = 13
         ele.discountRate = 0
         if (this.isSale) {

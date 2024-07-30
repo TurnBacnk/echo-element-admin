@@ -49,9 +49,6 @@ export default {
           ],
           clientName: [
             { required: true, message: '请输入客户名称', trigger: 'blur' }
-          ],
-          clientType: [
-            { required: true, message: '请选择客户类型', trigger: 'change' }
           ]
         },
         contactInfo: {

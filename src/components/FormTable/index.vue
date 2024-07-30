@@ -494,6 +494,7 @@ export default {
       })
     },
     backToLastView() {
+      // TODO
       const currentView = this.$store.state.tagsView.visitedViews[this.$store.state.tagsView.visitedViews.length - 1]
       this.$store.dispatch('tagsView/delView', currentView).then(({ visitedViews }) => {
         if (currentView.path === this.$route.path) {

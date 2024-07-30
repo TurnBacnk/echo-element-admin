@@ -83,7 +83,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CompanyBuilder']
+        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CompanyBuilder', 'ProjectBuilder']
       }
     }
   },
@@ -91,7 +91,7 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await generateCode('QUOTATION').then(res => {
+    await generateCode('BJ').then(res => {
       this.form.quotationCode = res.data
     })
     await this.init()
@@ -106,6 +106,12 @@ export default {
             prop: 'quotationCode',
             type: 'input',
             disabled: true
+          },
+          {
+            label: '项目',
+            prop: 'projectId',
+            type: 'select',
+            options: this.javaCode['ProjectBuilder']
           },
           {
             label: '报价时间',
@@ -213,7 +219,7 @@ export default {
                 } else {
                   currentRow.netUnitPrice = netUnitPriceWithTaxPrice(newVal)
                   currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
-                  currentRow.netTotalAmountWithNetPrice = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
                   currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
                 }
               }

@@ -58,7 +58,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('PROJECT').then(res => {
+    await generateCode('XM').then(res => {
       this.form.projectCode = res.data
     })
     await this.init()

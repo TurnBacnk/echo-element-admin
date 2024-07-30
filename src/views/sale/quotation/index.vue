@@ -113,6 +113,7 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
+    this.projectId = this.$route.params.projectId
     await this.init()
   },
   methods: {
