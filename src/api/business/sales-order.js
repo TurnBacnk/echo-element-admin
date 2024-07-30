@@ -59,3 +59,11 @@ export function out(ids) {
     data: ids
   })
 }
+
+export function batchProcurement(ids) {
+  return request({
+    url: '/api/sales/order/batch-procurement',
+    method: 'post',
+    data: ids
+  })
+}

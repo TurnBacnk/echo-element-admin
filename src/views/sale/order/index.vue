@@ -69,6 +69,7 @@ import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
 import { getJavaCode } from '@/api/common/dict'
 import {
+  batchProcurement,
   deleteSalesOrderById,
   deleteSalesOrderByIds, out, procurement,
   submitSalesOrderById,
@@ -138,6 +139,15 @@ export default {
           plain: true,
           type: 'warning',
           icon: 'el-icon-s-promotion'
+        },
+        {
+          text: '采购',
+          click: () => {
+            this.handleBatchProcurement()
+          },
+          plain: true,
+          type: 'success',
+          icon: 'el-icon-s-order'
         },
         {
           text: '出库',
@@ -408,6 +418,30 @@ export default {
       if (canIn) {
         const ids = this.$refs.tableList.checkedRowIds()
         out(ids).then(res => {
+          const { code, msg } = res
+          if (code === '100') {
+            this.$modal.msgSuccess(msg)
+          }
+        })
+      } else {
+        this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次出库')
+      }
+    },
+    handleBatchProcurement() {
+      var checkedRows = this.$refs.tableList.checkedRows()
+      var canIn = true
+      if (checkedRows.length === 0) {
+        this.$modal.msgWarning('请勾选数据')
+        return
+      }
+      checkedRows.forEach(function(ele) {
+        if (ele.approvalStatus !== 2) {
+          canIn = false
+        }
+      })
+      if (canIn) {
+        const ids = this.$refs.tableList.checkedRowIds()
+        batchProcurement(ids).then(res => {
           const { code, msg } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
