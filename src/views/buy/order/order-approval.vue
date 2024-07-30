@@ -114,13 +114,13 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.javaCode['CustomerBuilder']
           },
           {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder']
+            options: this.javaCode['CompanyBuilder']
           }
         ],
         goodsInfo: {

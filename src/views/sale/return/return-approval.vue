@@ -83,7 +83,7 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
-    await getReturnByCode(this.$route.params.id).then(res => {
+    await getReturnByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
       this.form.instanceId = this.$route.query.instanceId
     })

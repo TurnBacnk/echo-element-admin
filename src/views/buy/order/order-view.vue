@@ -27,7 +27,7 @@ export default {
   data() {
     return {
       showForm: false,
-      contentText: '新增采购订单',
+      contentText: '采购订单',
       saveUrl: '/api/procurement/order/save',
       submitUrl: '/api/procurement/order/save-and-submit',
       canSubmit: true,
@@ -112,13 +112,13 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.javaCode['CustomerBuilder']
           },
           {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder']
+            options: this.javaCode['CompanyBuilder']
           }
         ],
         goodsInfo: {
