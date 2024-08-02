@@ -257,7 +257,7 @@ export default {
                 submitOutSingle(row.id).then(res => {
                   const { code, msg } = res
                   if (code === '100') {
-                    this.$modal.msgSuccess()
+                    this.$modal.msgSuccess('msg')
                     this.handleQuery()
                   }
                 })
