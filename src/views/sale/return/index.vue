@@ -317,6 +317,7 @@ export default {
           const { msg, code } = res
           if (code === '100') {
             this.$modal.msgSuccess(msg)
+            this.handleQuery()
           }
         })
       } else {
