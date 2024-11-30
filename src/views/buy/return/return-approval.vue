@@ -19,7 +19,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import { getProcurementReturnOrderByCode, getProcurementReturnOrderById } from '@/api/business/procurement-return'
 
 export default {
@@ -65,11 +65,11 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder']
       }
     }
   },
@@ -77,9 +77,12 @@ export default {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
     })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
+    })
     await getProcurementReturnOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
-      this.form.instantId = this.$route.params.instanceId
+      this.form.instanceId = this.$route.params.instanceId
     })
     await this.init()
   },
@@ -112,7 +115,7 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder'],
+            options: this.javaCode['VendorBuilder'],
             bundle: {
               label: 'saleFromName',
               value: 'saleFromId'
@@ -122,7 +125,7 @@ export default {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder'],
+            options: this.dictionary['Company'],
             bundle: {
               label: 'saleToName',
               value: 'saleToId'

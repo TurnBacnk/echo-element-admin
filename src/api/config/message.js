@@ -13,3 +13,10 @@ export function getMessageCount(id) {
     method: 'get'
   })
 }
+
+export function read(id) {
+  return request({
+    url: '/api/message/read/' + id,
+    method: 'get'
+  })
+}

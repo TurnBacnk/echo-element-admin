@@ -209,6 +209,12 @@ export default {
               disabled: true
             },
             {
+              prop: 'returnAmount',
+              label: '退货金额',
+              type: 'input',
+              disabled: true
+            },
+            {
               prop: 'amount',
               label: '本次收款金额',
               type: 'input'
@@ -244,6 +250,12 @@ export default {
             {
               prop: 'unAmount',
               label: '未收金额',
+              type: 'input',
+              disabled: true
+            },
+            {
+              prop: 'returnAmount',
+              label: '退货金额',
               type: 'input',
               disabled: true
             },

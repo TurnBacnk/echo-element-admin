@@ -24,8 +24,8 @@
           <el-form-item label="产品名称" prop="productName">
             <el-input v-model="queryForm.productName" clearable placeholder="请输入产品编号"/>
           </el-form-item>
-          <el-form-item label="产品编码" prop="productName">
-            <el-input v-model="queryForm.productName" clearable placeholder="请输入产品编号"/>
+          <el-form-item label="产品编码" prop="productCode">
+            <el-input v-model="queryForm.productCode" clearable placeholder="请输入产品编号"/>
           </el-form-item>
           <el-form-item label="规格" prop="specification">
             <el-input v-model="queryForm.specification" clearable placeholder="请输入规格"/>

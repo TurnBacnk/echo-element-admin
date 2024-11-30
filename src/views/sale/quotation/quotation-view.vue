@@ -18,7 +18,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import { generateCode } from '@/api/config/generate-code'
 import {getQuotationById} from "@/api/business/sale-quotation";
 
@@ -75,17 +75,20 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'CompanyBuilder', 'ProjectBuilder']
+        javaCodeNameList: ['UserBuilder', 'CustomerBuilder', 'ProductBuilder', 'ProjectBuilder']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await getQuotationById(this.$route.params.id).then(res => {
       Object.assign(this.form, res.data)
@@ -122,7 +125,7 @@ export default {
               label: 'quotationFromName',
               value: 'quotationFromId'
             },
-            options: this.javaCode['CompanyBuilder']
+            options: this.dictionary['Company']
           },
           {
             label: '买方',

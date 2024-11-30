@@ -36,7 +36,7 @@
       <el-form-item prop="saleFromId" label="供应方">
         <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
           <el-option
-            v-for="company in javaCode['CompanyBuilder']"
+            v-for="company in dictionary['Company']"
             :key="company.key"
             :label="company.label"
             :value="company.value"
@@ -46,7 +46,7 @@
       <el-form-item prop="saleToId" label="采购方">
         <el-select v-model="queryForm.saleToId" placeholder="请选择采购方">
           <el-option
-            v-for="custom in javaCode['CustomerBuilder']"
+            v-for="custom in javaCode['VendorBuilder']"
             :key="custom.key"
             :label="custom.label"
             :value="custom.value"
@@ -67,7 +67,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import { deleteOrderById, deleteOrderByIds, returnOrder, submitBatch } from '@/api/business/in'
 import { procurementIn } from '@/api/business/procurement-order'
 
@@ -154,13 +154,20 @@ export default {
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder']
+      },
+      dictionary: [],
+      dictionaryConfig: {
+        dictionaryNameList: ['Company']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -226,6 +233,9 @@ export default {
                 this.handleEdit(row)
               },
               isDisabled: (row) => {
+                if (row.approvalStatus === 1 || row.approvalStatus === 2) {
+                  return true
+                }
                 return false
               }
             },
@@ -242,6 +252,9 @@ export default {
                 })
               },
               isDisabled: (row) => {
+                if (row.approvalStatus === 1 || row.approvalStatus === 2) {
+                  return true
+                }
                 return false
               }
             },

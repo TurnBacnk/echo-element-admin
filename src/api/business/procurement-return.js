@@ -10,7 +10,7 @@ export function getProcurementReturnOrderById(id) {
 
 export function getProcurementReturnOrderByCode(code) {
   return request({
-    url: '/api/procurement/return/get-by-code' + code,
+    url: '/api/procurement/return/get-by-code/' + code,
     method: 'get'
   })
 }

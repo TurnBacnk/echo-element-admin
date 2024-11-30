@@ -31,6 +31,15 @@ export function procurementIn(ids) {
   })
 }
 
+export function checkCanIn(ids) {
+  return request({
+    url: '/api/procurement/order/checkCanIn',
+    method: 'post',
+    data: ids
+
+  })
+}
+
 export function submitProcurementOrderById(id) {
   return request({
     url: '/api/procurement/order/submit-by-id/' + id,

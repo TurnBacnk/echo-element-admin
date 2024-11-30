@@ -19,7 +19,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import { getProcurementOrderByCode, getProcurementOrderById } from '@/api/business/procurement-order'
 
 export default {
@@ -67,17 +67,20 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder', 'ProductBuilder']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await getProcurementOrderByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)
@@ -114,13 +117,13 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder']
+            options: this.javaCode['VendorBuilder']
           },
           {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.dictionary['Company']
           }
         ],
         goodsInfo: {

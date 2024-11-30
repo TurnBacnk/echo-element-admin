@@ -17,16 +17,20 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import {
-  netTotalAmountWithNetPrice, netUnitPriceWithNetTotal, netUnitPriceWithTaxPrice,
-  taxIncludedPriceWithNetPrice, taxIncludedPriceWithTaxTotal,
+  netTotalAmountWithNetPrice,
+  netUnitPriceWithNetTotal,
+  netUnitPriceWithTaxPrice,
+  taxIncludedPriceWithNetPrice,
+  taxIncludedPriceWithTaxTotal,
   taxIncludedTotalAmountWithNetPrice
 } from "@/utils/product-price";
+import {generateCode} from "@/api/config/generate-code";
 
 export default {
   name: 'ProcurementOrderAdd',
-  components: { FormTable },
+  components: {FormTable},
   data() {
     return {
       showForm: false,
@@ -35,8 +39,8 @@ export default {
       submitUrl: '/api/procurement/order/save-and-submit',
       canSubmit: true,
       collapseConfig: [
-        { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '产品信息', name: 'goodsInfo', type: 'table' }
+        {active: true, title: '基本信息', name: 'baseInfo', type: 'form'},
+        {active: true, title: '产品信息', name: 'goodsInfo', type: 'table'}
       ],
       form: {
         orderCode: undefined,
@@ -51,16 +55,14 @@ export default {
       },
       rules: {
         baseInfo: {
-          orderCode: [{ required: true, message: '请输入销售单编号', trigger: 'blur' }],
-          contractNo: [{ required: true, message: '请输入合同号', trigger: 'blur' }],
-          contractDate: [{ required: true, message: '请选择合同日期', trigger: 'blur' }],
-          deliveryDate: [{ required: true, message: '请选择交货日期', trigger: 'blur' }],
-          saleFromId: [{ required: true, message: '请选择供货方', trigger: 'blur' }],
-          saleToId: [{ required: true, message: '请选择采购方', trigger: 'blur' }]
+          orderCode: [{required: true, message: '请输入销售单编号', trigger: 'blur'}],
+          contractNo: [{required: true, message: '请输入合同号', trigger: 'blur'}],
+          contractDate: [{required: true, message: '请选择合同日期', trigger: 'blur'}],
+          deliveryDate: [{required: true, message: '请选择交货日期', trigger: 'blur'}],
+          saleFromId: [{required: true, message: '请选择供货方', trigger: 'blur'}],
+          saleToId: [{required: true, message: '请选择采购方', trigger: 'blur'}]
         },
-        goodsInfo: {
-
-        }
+        goodsInfo: {}
       },
       collapseItemConfig: [],
       constant: [],
@@ -69,17 +71,23 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder', 'ProductBuilder']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
+    })
+    await generateCode('CG').then((res) => {
+      this.form.orderCode = res.data
     })
     await this.init()
   },
@@ -112,13 +120,13 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CustomerBuilder']
+            options: this.javaCode['VendorBuilder']
           },
           {
             label: '采购方',
             prop: 'saleToId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.dictionary['Company']
           }
         ],
         goodsInfo: {
@@ -140,7 +148,7 @@ export default {
               prop: 'quantity',
               type: 'number',
               input: (newVal, currentRow) => {
-                newVal = newVal.replace(/[^0-9.]/g,'')
+                newVal = newVal.replace(/[^0-9.]/g, '')
                 currentRow.quantity = newVal
                 // 有净单价
                 if (currentRow.netUnitPrice !== undefined || currentRow.quantity !== '') {
@@ -154,7 +162,7 @@ export default {
               prop: 'netUnitPrice',
               type: 'number',
               input: (newNumber, currentRow) => {
-                newNumber = newNumber.replace(/[^0-9.]/g,'')
+                newNumber = newNumber.replace(/[^0-9.]/g, '')
                 currentRow.netUnitPrice = newNumber
                 currentRow.taxIncludedPrice = taxIncludedPriceWithNetPrice(newNumber)
                 if (currentRow.quantity === undefined || currentRow.quantity === '') {
@@ -172,7 +180,7 @@ export default {
               prop: 'taxIncludedPrice',
               type: 'number',
               input: (newVal, currentRow) => {
-                newVal = newVal.replace(/[^0-9.]/g,'')
+                newVal = newVal.replace(/[^0-9.]/g, '')
                 currentRow.taxIncludedPrice = newVal
                 if (currentRow.quantity === undefined || currentRow.quantity === '') {
                   this.$modal.msgWarning('请先设置产品数量')
@@ -180,7 +188,7 @@ export default {
                 } else {
                   currentRow.netUnitPrice = netUnitPriceWithTaxPrice(newVal)
                   currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
-                  currentRow.netTotalAmountWithNetPrice = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
+                  currentRow.netTotalAmount = netTotalAmountWithNetPrice(currentRow.quantity, currentRow.netUnitPrice)
                   currentRow.taxIncludedTotalAmount = taxIncludedTotalAmountWithNetPrice(currentRow.quantity, newVal)
                 }
               }
@@ -190,7 +198,7 @@ export default {
               prop: 'netTotalAmount',
               type: 'number',
               input: (newVal, currentRow) => {
-                newVal = newVal.replace(/[^0-9.]/g,'')
+                newVal = newVal.replace(/[^0-9.]/g, '')
                 currentRow.netTotalAmount = newVal
                 if (currentRow.quantity === undefined || currentRow.quantity === '') {
                   this.$modal.msgWarning('请先设置产品数量')
@@ -207,7 +215,7 @@ export default {
               prop: 'taxIncludedTotalAmount',
               type: 'number',
               input: (newVal, currentRow) => {
-                newVal = newVal.replace(/[^0-9.]/g,'')
+                newVal = newVal.replace(/[^0-9.]/g, '')
                 currentRow.taxIncludedTotalAmount = newVal
                 if (currentRow.quantity === undefined || currentRow.quantity === '') {
                   this.$modal.msgWarning('请先设置产品数量')

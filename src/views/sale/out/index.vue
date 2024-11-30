@@ -36,7 +36,7 @@
       <el-form-item prop="saleFromId" label="供应方">
         <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
           <el-option
-            v-for="company in javaCode['CompanyBuilder']"
+            v-for="company in dictionary['Company']"
             :key="company.key"
             :label="company.label"
             :value="company.value"
@@ -67,13 +67,7 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
-import {
-  deleteSalesOrderById,
-  deleteSalesOrderByIds, procurement,
-  submitSalesOrderById,
-  submitSalesOrderByIds
-} from '@/api/business/sales-order'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import {
   deleteOutById,
   deleteOutByIds,
@@ -81,7 +75,6 @@ import {
   submitOutBatch,
   submitOutSingle
 } from '@/api/business/sales-out'
-import { returnOrder } from '@/api/business/in'
 
 export default {
   name: 'OutOrder',
@@ -168,13 +161,20 @@ export default {
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['CustomerBuilder']
+      },
+      dictionary: [],
+      dictionaryConfig: {
+        dictionaryNameList: ['Company']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },

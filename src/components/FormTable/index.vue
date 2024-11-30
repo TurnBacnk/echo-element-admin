@@ -478,9 +478,9 @@ export default {
           return item[optionValue] === changeValue
         })
 
-        var keys = Object.keys(bundleConfig)
+        var otherKeys = Object.keys(bundleConfig)
 
-        keys.forEach(key => {
+        otherKeys.forEach(key => {
           var value = bundleConfig[key]
           if (obj[key] instanceof Array) {
             _this.handleDataUpdate(obj[key], value)

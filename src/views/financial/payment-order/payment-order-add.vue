@@ -39,7 +39,7 @@ export default {
       canSubmit: true,
       collapseConfig: [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+        { active: true, title: '本次付款', name: 'capitalInfo', type: 'table' }
       ],
       form: {
         paymentOrderCode: undefined,
@@ -159,7 +159,7 @@ export default {
             },
             {
               prop: 'paymentAmount',
-              label: '本次收款金额',
+              label: '本次付款金额',
               type: 'input'
             },
             {
@@ -203,6 +203,12 @@ export default {
             {
               prop: 'unAmount',
               label: '未付金额',
+              type: 'input',
+              disabled: true
+            },
+            {
+              prop: 'returnAmount',
+              label: '已退金额',
               type: 'input',
               disabled: true
             },
@@ -268,7 +274,7 @@ export default {
       this.collapseConfig = [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
         { active: true, title: '应付单据', name: 'payableInfoList', type: 'table' },
-        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+        { active: true, title: '本次付款', name: 'capitalInfo', type: 'table' }
       ]
       this.collapseConfig.forEach((value) => {
         if (value.active) {
@@ -277,7 +283,7 @@ export default {
       })
       this.rules.payableInfoList = {
         paymentAmount: [
-          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { required: true, message: '请输入本次付款金额', trigger: 'blur' },
           { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
         ]
       }
@@ -291,7 +297,7 @@ export default {
       this.collapseConfig = [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
         { active: true, title: '订单单据', name: 'orderPaymentInfoList', type: 'table' },
-        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+        { active: true, title: '本次付款', name: 'capitalInfo', type: 'table' }
       ]
       this.collapseConfig.forEach((value) => {
         if (value.active) {
@@ -300,7 +306,7 @@ export default {
       })
       this.rules.orderPaymentInfoList = {
         paymentAmount: [
-          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { required: true, message: '请输入本次付款金额', trigger: 'blur' },
           { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
         ]
       }
@@ -313,7 +319,7 @@ export default {
       this.collapseConfig = [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
         { active: true, title: '预付单据', name: 'prePaymentReturnInfoList', type: 'form' },
-        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+        { active: true, title: '本次付款', name: 'capitalInfo', type: 'table' }
       ]
       this.collapseConfig.forEach((value) => {
         if (value.active) {
@@ -322,7 +328,7 @@ export default {
       })
       this.rules.prePaymentReturnInfoList = {
         paymentAmount: [
-          { required: true, message: '请输入本次收款金额', trigger: 'blur' },
+          { required: true, message: '请输入本次付款金额', trigger: 'blur' },
           { type: 'number', message: '请输入纯数字', trigger: 'change', transform: (value) => Number(value) }
         ]
       }
@@ -333,7 +339,7 @@ export default {
       this.$refs.tableList.activeNames = []
       this.collapseConfig = [
         { active: true, title: '基本信息', name: 'baseInfo', type: 'form' },
-        { active: true, title: '本次收款', name: 'capitalInfo', type: 'table' }
+        { active: true, title: '本次付款', name: 'capitalInfo', type: 'table' }
       ]
       this.collapseConfig.forEach((value) => {
         if (value.active) {

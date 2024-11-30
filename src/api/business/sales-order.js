@@ -60,10 +60,33 @@ export function out(ids) {
   })
 }
 
+export function checkCanOut(ids) {
+  return request({
+    url: '/api/sales/order/checkCanOut',
+    method: 'post',
+    data: ids
+  })
+}
+
 export function batchProcurement(ids) {
   return request({
     url: '/api/sales/order/batch-procurement',
     method: 'post',
     data: ids
+  })
+}
+
+export function checkCanProcurement(ids) {
+  return request({
+    url: '/api/sales/order/checkCanProcurement',
+    method: 'post',
+    data: ids
+  })
+}
+
+export function checkCanProcurementById(id) {
+  return request({
+    url: '/api/sales/order/checkCanProcurementById/' + id,
+    method: 'get'
   })
 }

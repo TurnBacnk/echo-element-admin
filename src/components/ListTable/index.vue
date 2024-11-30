@@ -359,10 +359,16 @@ export default {
     screenHeight(val) {
       this.screenHeight = val
       this.height = this.screenHeight - 500
+    },
+    $route: {
+      handler: function(route) {
+        this.list()
+      },
+      immediate: true
     }
   },
-  created() {
-    this.list()
+  async created() {
+    await this.list()
   },
   mounted() {
     window.onresize = () => {

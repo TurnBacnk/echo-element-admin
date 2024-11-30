@@ -65,11 +65,11 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['CustomerBuilder']
       }
     }
   },
@@ -112,7 +112,7 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder']
+            options: this.dictionary['Company']
           },
           {
             label: '采购方',

@@ -36,7 +36,7 @@
       <el-form-item prop="saleFromId" label="供应方">
         <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
           <el-option
-            v-for="company in javaCode['CompanyBuilder']"
+            v-for="company in dictionary['Company']"
             :key="company.key"
             :label="company.label"
             :value="company.value"
@@ -46,7 +46,7 @@
       <el-form-item prop="saleToId" label="采购方">
         <el-select v-model="queryForm.saleToId" placeholder="请选择采购方">
           <el-option
-            v-for="custom in javaCode['CustomerBuilder']"
+            v-for="custom in javaCode['VendorBuilder']"
             :key="custom.key"
             :label="custom.label"
             :value="custom.value"
@@ -67,8 +67,9 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import {
+  checkCanIn,
   deleteProcurementOrderById,
   deleteProcurementOrderByIds, procurementIn,
   submitProcurementOrderByIds
@@ -159,13 +160,20 @@ export default {
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder']
+      },
+      dictionary: [],
+      dictionaryConfig: {
+        dictionaryNameList: ['Company']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -255,9 +263,9 @@ export default {
                 })
               },
               isDisabled: (row) => {
-                if (row.approvalStatus === 1 || row.approvalStatus === 2) {
-                  return true
-                }
+                // if (row.approvalStatus === 1 || row.approvalStatus === 2) {
+                //   return true
+                // }
                 return false
               }
             },
@@ -358,17 +366,25 @@ export default {
           canIn = false
         }
       })
-      if (canIn) {
-        const ids = this.$refs.tableList.checkedRowIds()
-        procurementIn(ids).then(res => {
-          const { code, msg } = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-          }
-        })
-      } else {
+      if (!canIn) {
         this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次入库')
+        return
       }
+      const ids = this.$refs.tableList.checkedRowIds()
+      checkCanIn(ids).then(res => {
+        const { data } = res
+        canIn = data
+        if (canIn) {
+          procurementIn(ids).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+        } else {
+          this.$modal.msgWarning('选中数据中有已经完全入库数据，请检查后再次入库')
+        }
+      })
     }
   }
 }

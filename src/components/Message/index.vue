@@ -21,7 +21,7 @@
 <script>
 
 import { socket } from '@/layout/components/socket'
-import { getMessage, getMessageCount } from '@/api/config/message'
+import {getMessage, getMessageCount, read} from '@/api/config/message'
 
 export default {
   name: 'Message',
@@ -30,21 +30,38 @@ export default {
       drawer: false,
       direction: 'rtl',
       tableData: [],
-      messageCount: 0
+      messageCount: 0,
+      heartBeatTimer: null, // 心跳定时器
+      reconnectTimer: null, // 重连定时器
+      reconnectAttempts: 0, // 重连次数
+      maxReconnectAttempts: 5 // 最大重连次数
     }
   },
   async created() {
-    socket.initWebSocket('ws://127.0.0.1:30000/echo/dev/ws/' + this.$store.state.user.id)
-    socket.websocket.onmessage = this.websocketMessage
+    this.initWebSocketConnection()
   },
   methods: {
+    // 初始化 WebSocket 连接
+    initWebSocketConnection() {
+      socket.initWebSocket('ws://127.0.0.1:30000/echo/dev/ws/' + this.$store.state.user.id)
+      socket.websocket.onmessage = this.websocketMessage
+      socket.websocket.onopen = this.onWebSocketOpen
+      socket.websocket.onclose = this.onWebSocketClose
+      socket.websocket.onerror = this.onWebSocketError
+    },
     openMessage() {
       // 消息中心
-      getMessage(this.$store.state.user.name).then(res => {
+      getMessage(this.$store.state.user.id).then(res => {
         this.tableData = res.data
+        this.drawer = true
       })
-      this.drawer = true
     },
+    // WebSocket 打开时的处理
+    onWebSocketOpen() {
+      console.log('WebSocket连接成功')
+      this.startHeartbeat() // 开始心跳检测
+    },
+
     websocketMessage(event) {
       const obj = JSON.parse(event.data)
       if (obj.type === 'count') {
@@ -63,12 +80,66 @@ export default {
       }
     },
     handleClickItem(index, row) {
-      this.$router.push({
-        name: row.pageName,
-        params: {
-          id: row.businessId
-        }
+      this.drawer = false
+      // 跳转前更新为已读
+      read(row.id).then(res => {
+        const match = row.contextText.match(/\[(.*?)\]/)
+        const code = match[1]
+        this.$router.push({
+          name: row.pageName,
+          params: {
+            code: code,
+            instanceId: row.instanceId
+          }
+        })
       })
+    },
+    onWebSocketClose() {
+      console.log('WebSocket连接关闭')
+      this.stopHeartbeat() // 停止心跳检测
+      this.reconnectWebSocket() // 尝试重连
+    },
+
+    // WebSocket 出错时的处理
+    onWebSocketError() {
+      console.log('WebSocket出错')
+      this.reconnectWebSocket() // 出错时重连
+    }, // 尝试重连 WebSocket
+    reconnectWebSocket() {
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++
+        console.log(`WebSocket重连尝试第 ${this.reconnectAttempts} 次`)
+        this.reconnectTimer = setTimeout(() => {
+          this.initWebSocketConnection()
+        }, 2000) // 每次重连延迟 2 秒
+      } else {
+        console.log('WebSocket达到最大重连次数，停止重连')
+      }
+    },
+
+    // 开始心跳检测
+    startHeartbeat() {
+      this.heartBeatTimer = setInterval(() => {
+        if (socket.websocket.readyState === WebSocket.OPEN) {
+          socket.websocket.send(JSON.stringify({ type: 'heartbeat' }))
+          console.log('发送心跳包')
+        } else {
+          console.log('WebSocket连接已断开，无法发送心跳包')
+          this.stopHeartbeat()
+        }
+      }, 5000) // 每 5 秒发送一次心跳包
+    },
+
+    // 停止心跳检测
+    stopHeartbeat() {
+      if (this.heartBeatTimer) {
+        clearInterval(this.heartBeatTimer)
+        this.heartBeatTimer = null
+      }
+    },
+    beforeDestroy() {
+      this.stopHeartbeat() // 组件销毁前停止心跳检测
+      clearTimeout(this.reconnectTimer) // 清除重连定时器
     }
   }
 }

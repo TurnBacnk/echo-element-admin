@@ -36,7 +36,7 @@
       <el-form-item prop="saleFromId" label="供应方">
         <el-select v-model="queryForm.saleFromId" placeholder="请选择供应方">
           <el-option
-            v-for="company in javaCode['CompanyBuilder']"
+            v-for="company in dictionary['Company']"
             :key="company.key"
             :label="company.label"
             :value="company.value"
@@ -67,9 +67,9 @@
 
 import ButtonGroup from '@/components/ButtonGroup/index.vue'
 import PageTable from '@/components/ListTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import {
-  batchProcurement,
+  batchProcurement, checkCanOut, checkCanProcurement, checkCanProcurementById,
   deleteSalesOrderById,
   deleteSalesOrderByIds, out, procurement,
   submitSalesOrderById,
@@ -171,13 +171,20 @@ export default {
       tableColumnConfig: [],
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['CustomerBuilder']
+      },
+      dictionary: [],
+      dictionaryConfig: {
+        dictionaryNameList: ['Company']
       }
     }
   },
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -279,24 +286,31 @@ export default {
                 return false
               }
             },
-            {
-              text: '采购',
-              css: 'text',
-              click: (index, row) => {
-                procurement([row.id]).then(res => {
-                  const { code, msg } = res
-                  if (code === '100') {
-                    this.$modal.msgSuccess(msg)
-                  }
-                })
-              },
-              isDisabled: (row) => {
-                if (row.approvalStatus === 2) {
-                  return false
-                }
-                return true
-              }
-            },
+            // {
+            //   text: '采购',
+            //   css: 'text',
+            //   click: (index, row) => {
+            //     checkCanProcurementById(row.id).then(res => {
+            //       const { data } = res
+            //       if (data) {
+            //         procurement([row.id]).then(res => {
+            //           const { code, msg } = res
+            //           if (code === '100') {
+            //             this.$modal.msgSuccess(msg)
+            //           }
+            //         })
+            //       } else {
+            //         this.$modal.msgWarning('该订单采购完成')
+            //       }
+            //     })
+            //   },
+            //   isDisabled: (row) => {
+            //     if (row.approvalStatus === 2) {
+            //       return false
+            //     }
+            //     return true
+            //   }
+            // },
             {
               text: '删除',
               css: 'text',
@@ -415,17 +429,27 @@ export default {
           canIn = false
         }
       })
-      if (canIn) {
-        const ids = this.$refs.tableList.checkedRowIds()
-        out(ids).then(res => {
-          const { code, msg } = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-          }
-        })
-      } else {
+      if (!canIn) {
         this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次出库')
+        return
       }
+      const ids = this.$refs.tableList.checkedRowIds()
+      checkCanOut(ids).then(response => {
+        const { data } = response
+        canIn = data
+        if (canIn) {
+          out(ids).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+        } else {
+          this.$modal.msgWarning('选中数据中有已经完全出库数据，请检查后再次出库')
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
     },
     handleBatchProcurement() {
       var checkedRows = this.$refs.tableList.checkedRows()
@@ -439,17 +463,25 @@ export default {
           canIn = false
         }
       })
-      if (canIn) {
-        const ids = this.$refs.tableList.checkedRowIds()
-        batchProcurement(ids).then(res => {
-          const { code, msg } = res
-          if (code === '100') {
-            this.$modal.msgSuccess(msg)
-          }
-        })
-      } else {
-        this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次出库')
+      if (!canIn) {
+        this.$modal.msgWarning('选中数据中有未审核通过数据，请检查后再次采购')
+        return
       }
+      checkCanProcurement(this.$refs.tableList.checkedRowIds()).then(res => {
+        const { data } = res
+        canIn = data
+        if (canIn) {
+          const ids = this.$refs.tableList.checkedRowIds()
+          batchProcurement(ids).then(res => {
+            const { code, msg } = res
+            if (code === '100') {
+              this.$modal.msgSuccess(msg)
+            }
+          })
+        } else {
+          this.$modal.msgWarning('选中数据中有采购完成数据，请检查后再次采购')
+        }
+      })
     }
   }
 }

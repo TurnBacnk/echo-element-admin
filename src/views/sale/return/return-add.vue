@@ -17,7 +17,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import {getDictionary, getJavaCode} from '@/api/common/dict'
 import { generateCode } from '@/api/config/generate-code'
 
 export default {
@@ -68,11 +68,11 @@ export default {
       },
       dictionary: [],
       dictionaryConfig: {
-        dictionaryNameList: []
+        dictionaryNameList: ['Company']
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CompanyBuilder', 'CustomerBuilder']
+        javaCodeNameList: ['CustomerBuilder']
       }
     }
   },
@@ -82,6 +82,9 @@ export default {
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await this.init()
   },
@@ -114,7 +117,7 @@ export default {
             label: '供货方',
             prop: 'saleFromId',
             type: 'select',
-            options: this.javaCode['CompanyBuilder'],
+            options: this.dictionary['Company'],
             bundle: {
               label: 'saleFromName',
               value: 'saleFromId'
