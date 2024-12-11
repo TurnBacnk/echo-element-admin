@@ -19,7 +19,7 @@
 <script>
 
 import FormTable from '@/components/FormTable/index.vue'
-import { getJavaCode } from '@/api/common/dict'
+import { getDictionary, getJavaCode } from '@/api/common/dict'
 import { getOutByCode, getOutById } from '@/api/business/sales-out'
 
 export default {
@@ -76,6 +76,9 @@ export default {
   async created() {
     await getJavaCode(this.javaCodeConfig).then(res => {
       this.javaCode = res.data
+    })
+    await getDictionary(this.dictionaryConfig).then(res => {
+      this.dictionary = res.data
     })
     await getOutByCode(this.$route.params.code).then(res => {
       Object.assign(this.form, res.data)

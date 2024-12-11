@@ -287,7 +287,7 @@ export default {
     maxHeight: {
       type: String,
       required: false,
-      default: '100%'
+      default: '90%'
     },
     showSummary: {
       type: Boolean,
@@ -350,7 +350,7 @@ export default {
       total: 0,
       size: 10,
       current: 1,
-      height: 800,
+      height: 600,
       screenHeight: window.innerHeight,
       loading: true
     }
@@ -369,16 +369,36 @@ export default {
   },
   async created() {
     await this.list()
+    this.getTableHeight()
   },
   mounted() {
+    // window.onresize = () => {
+    //   return () => {
+    //     window.screenHeight = window.innerHeight
+    //     this.screenHeight = window.screenHeight
+    //   }
+    // }
+    let _this = this;
     window.onresize = () => {
-      return () => {
-        window.screenHeight = window.innerHeight
-        this.screenHeight = window.screenHeight
+      if (_this.resizeFlag) {
+        clearTimeout(_this.resizeFlag);
       }
+      _this.resizeFlag = setTimeout(() => {
+        _this.getTableHeight();
+        _this.resizeFlag = null;
+      }, 100);
     }
   },
   methods: {
+    getTableHeight() {
+      let tableH = 210; //距离页面下方的高度
+      let tableHeightDetil = window.innerHeight - tableH;
+      if (tableHeightDetil <= 300) {
+        this.height = 300;
+      } else {
+        this.height = window.innerHeight - tableH;
+      }
+    },
     list() {
       this.loading = true
       this.$set(this.queryForm, 'size', this.size)

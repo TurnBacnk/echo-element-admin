@@ -212,6 +212,19 @@ export default {
           fixed: 'left'
         },
         {
+          prop: 'procurementStatus',
+          label: '采购状态',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              return '部分入库'
+            },
+            effect: 'light'
+          },
+          fixed: 'left',
+          width: 150,
+        },
+        {
           prop: 'contractNo',
           label: '合同号'
         },

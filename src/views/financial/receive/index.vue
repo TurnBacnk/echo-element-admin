@@ -30,7 +30,7 @@
       </el-form-item>
     </el-form>
     <button-group :button-config="buttonConfig" :show-search.sync="showSearch" @quyertTable="handleQuery" />
-    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" />
+    <page-table ref="tableList" :query-form="queryForm" :data-source="dataSource" :table-column-config="tableColumnConfig" :pageable="false" />
   </div>
 </template>
 
