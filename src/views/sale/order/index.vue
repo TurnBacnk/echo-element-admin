@@ -217,12 +217,46 @@ export default {
           columnType: 'Tag',
           tag: {
             type: (tag) => {
-              return '部分入库'
+              if (tag === 0) {
+                return 'info'
+              } else if (tag === 1) {
+                return 'warning'
+              } else if (tag === 2) {
+                return 'success'
+              }
             },
-            effect: 'light'
+            effect: 'light',
+            dictList: [
+              { label: '未采购', value: 0 },
+              { label: '部分采购', value: 1 },
+              { label: '全部采购', value: 2 }
+            ],
+            isConvert: true
           },
           fixed: 'left',
           width: 150,
+        },
+        {
+          prop: 'outboundStatus',
+          label: '出库状态',
+          columnType: 'Tag',
+          tag: {
+            type: (tag) => {
+              if (tag === 0) {
+                return 'info'
+              } else if (tag === 1) {
+                return 'warning'
+              } else if (tag === 2) {
+                return 'success'
+              }
+            },
+            dictList: [
+              { label: '未出库', value: 0 },
+              { label: '部分出库', value: 1 },
+              { label: '全部出库', value: 2 }
+            ],
+            isConvert: true
+          }
         },
         {
           prop: 'contractNo',

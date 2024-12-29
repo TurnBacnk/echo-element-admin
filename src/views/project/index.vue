@@ -90,6 +90,7 @@ export default {
   },
   async created() {
     await this.init()
+    await this.handleQuery()
   },
   methods: {
     init() {

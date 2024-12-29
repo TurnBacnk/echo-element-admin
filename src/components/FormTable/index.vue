@@ -236,11 +236,17 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import item from '@/layout/components/Sidebar/Item.vue'
 import { approvalPassOrRefuse } from '@/api/config/approval-instance'
 import UploadFile from "@/components/UploadFile/index.vue";
+import ca from 'element-ui/src/locale/lang/ca'
 
 export default {
   name: 'FormTable',
   components: {UploadFile, EditTable, TreeSelect },
   props: {
+    backUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
     canSubmit: {
       type: Boolean,
       required: false,
@@ -407,7 +413,9 @@ export default {
               this.$modal.msgSuccess(msg)
             }
           })
-          this.backToLastView()
+          this.backToLastView(() => {
+            this.$emit('queryTable')
+          })
         }
       }
     },
@@ -493,14 +501,27 @@ export default {
         })
       })
     },
-    backToLastView() {
-      // TODO
+    backToLastView(callback) {
       const currentView = this.$store.state.tagsView.visitedViews[this.$store.state.tagsView.visitedViews.length - 1]
       this.$store.dispatch('tagsView/delView', currentView).then(({ visitedViews }) => {
+        if (this.backUrl) {
+          this.$router.push({
+            name: this.backUrl
+          }).then(() => {
+            if (callback) {
+              callback()
+            }
+          })
+          return
+        }
         if (currentView.path === this.$route.path) {
           const latestView = visitedViews.slice(-1)[0]
           if (latestView) {
-            this.$router.push(latestView.fullPath)
+            this.$router.push(latestView.fullPath).then(() => {
+              if (callback) {
+                callback()
+              }
+            })
           } else {
             // now the default is to redirect to the home page if there is no tags-view,
             // you can adjust it according to your needs.

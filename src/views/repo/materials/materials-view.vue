@@ -11,6 +11,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :is-view="true"
+      back-url="Materials"
     />
   </div>
 </template>

@@ -54,6 +54,17 @@ export const constantRoutes = [
         meta: { title: 'Dashboard', icon: 'dashboard' }
       }
     ]
+  },
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path(.*)',
+        component: () => import('@/views/Redirect/Redirect.vue')
+      }
+    ]
   }
 ]
 

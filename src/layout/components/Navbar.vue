@@ -11,7 +11,12 @@
       <template>
         <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handleCommand">
           <div class="avatar-wrapper">
-            <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+            <template v-if="avatar">
+              <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+            </template>
+            <template v-else>
+              <el-avatar shape="square">{{ name }}</el-avatar>
+            </template>
             <!--            <i class="el-icon-caret-bottom"/>-->
           </div>
           <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -51,6 +56,7 @@ export default {
   },
   data() {
     return {
+      name: this.$store.getters.name
     }
   },
   async created() {

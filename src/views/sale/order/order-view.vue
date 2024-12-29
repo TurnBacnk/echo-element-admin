@@ -11,6 +11,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :is-view="true"
+      back-url="Sale-order"
     />
   </div>
 </template>

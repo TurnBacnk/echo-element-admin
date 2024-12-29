@@ -10,6 +10,7 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
+      back-url="Repo-other-inbound"
     />
   </div>
 </template>

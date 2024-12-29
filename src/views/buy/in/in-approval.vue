@@ -75,7 +75,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['CustomerBuilder']
+        javaCodeNameList: ['VendorBuilder']
       }
     }
   },

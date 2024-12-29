@@ -10,6 +10,7 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
+      back-url="Other-outbound"
     />
   </div>
 </template>
@@ -67,7 +68,7 @@ export default {
     }
   },
   async created() {
-    await generateCode('OTHER_OUTBOUND').then(res => {
+    await generateCode('QTCK').then(res => {
       this.form.otherOutboundCode = res.data
     })
     await getJavaCode(this.javaCodeConfig).then(res => {
