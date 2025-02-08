@@ -10,7 +10,7 @@
       :form="form"
       :rules="rules"
       :can-submit="canSubmit"
-      back-url="outbound"
+      back-url="Outbound"
     />
   </div>
 </template>

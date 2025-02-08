@@ -476,6 +476,7 @@ export default {
             var value = bundleConfig[key]
             _this.form[value] = undefined
           })
+          _this.$forceUpdate()
           return
         }
         // 需要绑定多个值
@@ -507,10 +508,6 @@ export default {
         if (this.backUrl) {
           this.$router.push({
             name: this.backUrl
-          }).then(() => {
-            if (callback) {
-              callback()
-            }
           })
           return
         }
