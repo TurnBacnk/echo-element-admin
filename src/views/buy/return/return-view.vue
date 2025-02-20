@@ -11,7 +11,7 @@
       :rules="rules"
       :can-submit="canSubmit"
       :is-view="true"
-      back-url="outbound"
+      back-url="Outbound"
     />
   </div>
 </template>

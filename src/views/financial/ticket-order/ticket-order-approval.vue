@@ -80,7 +80,7 @@ export default {
       },
       javaCode: [],
       javaCodeConfig: {
-        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder']
+        javaCodeNameList: ['UserBuilder', 'VendorBuilder', 'ProductBuilder', 'CapitalAccountBuilder']
       }
     }
   },
@@ -114,6 +114,16 @@ export default {
             prop: 'invoiceTitle',
             type: 'input',
             disabled: true
+          },
+          {
+            label: '资金账户',
+            prop: 'capitalAccountName',
+            type: 'select',
+            options: this.javaCode['CapitalAccountBuilder'],
+            bundle: {
+              label: 'capitalAccountName',
+              value: 'capitalAccountId'
+            }
           },
           {
             label: '收票日期',
